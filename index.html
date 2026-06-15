@@ -399,7 +399,7 @@
                 <div class="price-line"><span>🛠️ 预选服务规格：</span><span id="log-ac-type-name">-</span></div>
                 <div style="margin: 6px 0 4px 0; font-size:0.85rem; color:#aaa;">🎲 试玩落地减免流水：</div>
                 <div class="all-pips-container" id="all-pips-flow"></div>
-                <div class="price-line"><span>🎁 试玩累计立减金额 (1点=1元)：</span><span id="log-discount-amount" style="color:var(--primary-color); font-weight:bold;">-0 元</span></div>
+               <div class="price-line"><span>🎁 试玩累计立减金额 (1点=1元)：</span><span id="log-discount-amount" style="color: var(--accent-gold); font-weight: bold;">-0 元</span></div>
                 
                 <div class="final-line">
                     <div style="font-size: 0.85rem; color:#bbb; font-weight: normal;">现场尾款预估参考（已扣除5元诚意金）：</div>
@@ -475,11 +475,14 @@
                         <option value="方形柜机">方形柜机</option>
                         <option value="吸顶天花机">吸顶天花机</option>
                     </select>
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>总台数：</label>
-                    <input type="number" id="form-sync-count" min="1" value="1">
-                </div>
+                </div><div class="form-group" style="flex: 1;">
+                                  <label>总台数：</label>
+                                  <div class="stepper-container" style="width: 100%;">
+                                       <button type="button" class="stepper-btn" onclick="changeFormACCount(-1)">−</button>
+                                       <input type="text" id="form-sync-count" class="stepper-input" value="1" readonly>
+                                       <button type="button" class="stepper-btn" onclick="changeFormACCount(1)">+</button>
+                                  </div>
+                           </div>
             </div>
         </div>
 
@@ -542,6 +545,19 @@
         // 同步修改表单内的数值
         document.getElementById('form-sync-count').value = newVal;
         resetDiceStage();
+    }
+
+    function changeFormACCount(amount) {
+        var inputDom = document.getElementById('form-sync-count');
+        var currentVal = parseInt(inputDom.value) || 1;
+        var newVal = currentVal + amount;
+        if (newVal < 1) newVal = 1;
+        if (newVal > 20) newVal = 20; // 限制最大20台
+        inputDom.value = newVal;
+    
+        // 【高级联动】让预约界面的数量和试玩界面的数量保持同步，这样计价和摇骰子总数才不会乱
+        document.getElementById('ac-total-count').value = newVal;
+        resetDiceStage(); 
     }
 
     function switchPage(target) {
@@ -637,7 +653,7 @@
         var unitPrice = priceMatrix[type].price[step];
         var typeName = priceMatrix[type].name;
         
-        logAcTypeName.innerText = typeName + " (" + totalCount + "台，基本单价" + unitPrice + "元)";
+        logAcTypeName.innerText = typeName + " (" + totalCount + "台，" + unitPrice + "元/台)";
         var discountAmount = allHistoryPoints.reduce((a, b) => a + b, 0);
         logDiscountAmount.innerText = '-' + discountAmount + ' 元';
         
@@ -781,7 +797,7 @@
                        "⏰ 期望时段：" + bTime + "\n" +
                        "🛠️ 服务机型：" + formType + "\n" +
                        "🔢 清洗数量：" + formCount + " 台\n" +
-                       "💰 诚意金状态：已支付5元（以微信实收为准！）\n" +
+                       "💰 诚意金状态：已成功付5元锁单（以微信实收为准！）\n" +
                        "------------------------------\n" +
                        "📝 备注说明：已知晓现场盲骰规则，最终实收金额上门当面摇骰子决定！";
 

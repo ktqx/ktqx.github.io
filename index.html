@@ -171,9 +171,9 @@
             <div class="config-row">
                 <label>选择您的空调规格：</label>
                 <select id="ac-type" class="inline-select" onchange="resetDiceStageToMode(isOfficialMode ? '正式' : '试玩')">
-                    <option value="wall">室内挂机 (5颗/台)</option>
-                    <option value="cabinet">方形柜机 (10颗/台)</option>
-                    <option value="ceiling">吸顶天花机 (7颗/台)</option>
+                    <option value="wall">室内挂机</option>
+                    <option value="cabinet">方形柜机</option>
+                    <option value="ceiling">吸顶天花机</option>
                 </select>
             </div>
             <div class="config-row">
@@ -184,7 +184,7 @@
 
         <div class="stage-and-bill-block">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <h3 style="margin:0; color:var(--accent-gold); font-size: 0.95rem;" id="stage-title">🔮 摇骰子省大钱【模拟】</h3>
+                <h3 style="margin:0; color:var(--accent-gold); font-size: 0.95rem;" id="stage-title">🔮 摇骰子省大钱【试玩】</h3>
                 <div style="font-size:0.8rem; color:#bbb;">
                     已摇颗数: <span id="current-count" style="font-weight:bold; color:var(--accent-green);">0</span> / <span id="target-max-display">5</span> 颗
                 </div>
@@ -244,7 +244,7 @@
             </div>
         </div>
 
-        <button id="try-again-action-btn" class="try-again-btn" onclick="resetDiceStageToMode('试玩')">🔄 重新【模拟】摇骰子</button>
+        <button id="try-again-action-btn" class="try-again-btn" onclick="resetDiceStageToMode('试玩')">🔄 重新【试玩】摇骰子</button>
 
         <button class="next-step-btn" id="go-to-pay-btn" onclick="switchToPayPage()">🔥 不错，立即去正式开摇！</button>
 
@@ -272,11 +272,11 @@
             <p style="font-size:0.75rem; color:#ffb703; margin:0 0 6px 0; font-weight:bold;">⚠️ 为确保对账无误：请在付款备注中填入后缀：<span id="hint-tail" style="text-decoration:underline;">-</span></p>
             <div class="qr-group">
                 <div class="qr-card">
-                    <img src="https://tvzb.github.io/jia.jpg" class="qr-img">
+                    <img src="my.jpg" class="qr-img">
                     1. 添加微信
                 </div>
                 <div class="qr-card">
-                    <img src="https://tvzb.github.io/skm.jpg" class="qr-img">
+                    <img src="skm.jpg" class="qr-img">
                     2. 扫码付5元诚意金
                 </div>
             </div>
@@ -316,7 +316,7 @@
 
         <button id="start-official-btn" class="next-step-btn" style="margin-top:12px;" onclick="activateOfficialRollMode()">➔ 已支付5元，正式开摇！(以微信实收为准！)</button>
         
-        <button class="back-btn" onclick="switchToTryPageFromPay()">⬅ 返回继续【模拟】盲摇骰子</button>
+        <button class="back-btn" onclick="switchToTryPageFromPay()">⬅ 返回继续【试玩】盲摇骰子</button>
     </div>
 </div>
 
@@ -822,7 +822,7 @@
 
         document.getElementById('try-status-bar').className = "status-bar";
         document.getElementById('try-status-bar').innerHTML = "✨ 试摇几把，看看能省多少钱！";
-        document.getElementById('stage-title').innerText = "🔮 模拟摇骰子省大钱";
+        document.getElementById('stage-title').innerText = "🔮 试玩摇骰子省大钱";
         document.getElementById('bill-title').innerText = "📊 实时【试玩计算明细】";
         
         document.getElementById('roll-action-zone').style.display = "flex";

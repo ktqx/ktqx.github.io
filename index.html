@@ -357,7 +357,7 @@
     </div>
     <div id="page-try" class="page active">
         <div class="notice-banner">
-            👇 线上仅供试玩模拟，最终清洗费用由师傅上门时当面摇骰子决定！
+            👇 线上仅供试玩，最终清洗费用由师傅上门时当面摇骰子决定！
         </div>
 
         <div class="status-bar" id="try-status-bar">
@@ -385,7 +385,7 @@
 
         <div class="stage-and-bill-block">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <h3 style="margin:0; color:var(--accent-gold); font-size: 0.95rem;">🔮 现场盲摇模拟【试玩】</h3>
+                <h3 style="margin:0; color:var(--accent-gold); font-size: 0.95rem;">🔮 现场盲摇【试玩】</h3>
                 <div style="font-size:0.85rem; color:#bbb;">
                     已摇: <span id="current-count" style="font-weight:bold; color:var(--accent-green);">0</span> / <span id="target-max-display">5</span> 颗
                 </div>
@@ -420,13 +420,13 @@
                     <option value="3">3颗</option>
                     <option value="5" selected>5颗</option>
                 </select>
-                <button id="roll-btn" class="roll-btn" onclick="rollDice3D()">🎲 试玩摇一摇！</button>
+                <button id="roll-btn" class="roll-btn" onclick="rollDice3D()">🎲 摇一摇！</button>
             </div>
         </div>
 
         <button id="try-again-action-btn" class="try-again-btn" onclick="resetDiceStage()">🔄 重新试玩</button>
 
-        <button class="btn-go-next" onclick="switchPage('official')">👍 太划算了，去预约登记</button>
+        <button class="btn-go-next" onclick="switchPage('official')">👍 太划算了，去预约登记！</button>
     </div>
 
 
@@ -604,7 +604,7 @@
         var hintDiv = document.createElement('div');
         hintDiv.className = 'stage-hint';
         hintDiv.id = 'stage-hint-text';
-        hintDiv.innerText = "🎁 点击上方“试玩摇一摇”，率先模拟预估现场折扣！";
+        hintDiv.innerText = "🎁 点击上方“试玩摇一摇”，率先预估现场折扣！";
         diceStage.appendChild(hintDiv);
         
         rollBtn.style.display = "block";
@@ -652,7 +652,7 @@
     function renderPipsFlow() {
         var container = document.getElementById('all-pips-flow');
         if(allHistoryPoints.length === 0) {
-            container.innerHTML = '<span style="color:#666; font-size:0.85rem;">等待投掷产生模拟折扣数据...</span>';
+            container.innerHTML = '<span style="color:#666; font-size:0.85rem;">等待投掷产生折扣数据...</span>';
             return;
         }
         container.innerHTML = '';
@@ -761,7 +761,7 @@
         var name = document.getElementById('cust-name').value.trim();
         var phone = document.getElementById('cust-phone').value.trim();
         var addr = document.getElementById('cust-address').value.trim();
-        var bTime = document.getElementById('book-time').value.trim() || "未指定（稍后等师傅电话联系确认）";
+        var bTime = document.getElementById('book-time').value.trim() || "稍后等师傅电话联系确认";
         
         var formType = document.getElementById('form-sync-type').value;
         var formCount = document.getElementById('form-sync-count').value;
@@ -781,13 +781,12 @@
                        "⏰ 期望时段：" + bTime + "\n" +
                        "🛠️ 服务机型：" + formType + "\n" +
                        "🔢 清洗数量：" + formCount + " 台\n" +
-                       "💰 诚意金状态：已成功付5元锁单\n" +
+                       "💰 诚意金状态：已成功付5元锁单（以微信实收为准！）\n" +
                        "------------------------------\n" +
-                       "🎲 试玩情况：模拟投掷累计开出 " + discountAmount + " 点\n" +
                        "📝 备注说明：已知晓现场盲骰规则，最终实收金额上门当面摇骰子决定！";
 
         navigator.clipboard.writeText(infoText).then(function() {
-            alert("📋 您的预约单资料已自动复制到手机剪贴板中！\n\n现在将为您拉起微信，请直接在微信客服对话框内「长按粘贴」发送即可！");
+            alert("📋 您的预约单资料已自动复制到手机剪贴板中！\n\n现在将为您启动微信，请直接在微信客服对话框内「长按粘贴」发送即可！");
             window.location.href = "weixin://";
         }).catch(function() {
             alert("由于浏览器系统权限安全限制，复制失败。请您手动截图或者复制文本发给微信客服。");

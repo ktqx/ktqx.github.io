@@ -293,6 +293,20 @@
         .form-group label { font-size: 0.85rem; display: block; margin-bottom: 6px; color: #ddd; font-weight: bold; }
         .form-group input, .form-group select { width: 100%; padding: 11px; background: #222; border: 1px solid #555; color: #fff; border-radius: 6px; }
 
+        /* 正常价格显示盒子样式 */
+        .normal-price-box {
+            background: rgba(255, 183, 3, 0.08);
+            border: 1px solid var(--accent-gold);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         input.input-error { border: 2px solid #d90429 !important; background: #3a1c21 !important; }
         input.input-success { border: 2px solid #2ec4b6 !important; background: #17312e !important; }
         .error-hint { font-size: 0.75rem; color: #d90429; margin-top: 4px; display: none; }
@@ -435,14 +449,15 @@
             <strong>1、</strong>长按加客服微信；<br>
             <strong>2、</strong>支付5元诚意金；<br>
             <strong>3、</strong>填写以下预约资料；<br>
-            <strong>4、</strong>点击“一键复制并发给客服微信”；<br>
-            <strong>5、</strong>找到客服微信，粘贴并发送。
-        </div>
+            <strong>4、</strong>点击“复制并发给客服微信”；<br>
+            <strong>5、</strong>找到客服微信，粘贴并发送；<br>
+            <strong>6、</strong>联系师傅上门，清洗，摇点减免，支付，结束服务。
+       </div>
       
         <div class="qr-area">
             <div class="qr-card">
                 <img src="my.jpg" alt="微信二维码">
-                长按加客服微信
+                长按加我微信
             </div>
         </div>
 
@@ -469,7 +484,7 @@
             
             <div class="form-group">
                 <label>确认空调规格：</label>
-                <select id="form-sync-type">
+                <select id="form-sync-type" onchange="onFormConfigChange()">
                     <option value="室内挂机">室内挂机</option>
                     <option value="方形柜机">方形柜机</option>
                     <option value="吸顶天花机">吸顶天花机</option>
@@ -483,9 +498,14 @@
                     <button type="button" class="stepper-btn" onclick="changeFormACCount(1)">+</button>
                 </div>
             </div>
+
+            <div class="normal-price-box">
+                <span style="font-weight: bold; color: var(--accent-gold);">💵 正常服务总价：</span>
+                <span id="normal-price-formula" style="font-weight: bold; font-size: 1.05rem;">-</span>
+            </div>
         </div>
 
-        <button class="btn-submit-wechat" onclick="copyAndSubmitToWechat()">🟢 一键复制并发给客服微信</button>
+        <button class="btn-submit-wechat" onclick="copyAndSubmitToWechat()">🟢 复制并发给客服微信</button>
         
         <button class="btn-back-try" onclick="switchPage('try')">↩️ 返回继续试玩</button>
     </div>
@@ -499,6 +519,7 @@
     var maxTargetDice = 5; 
     var isPhoneValid = false; 
 
+    // 内置清洗计算规则矩阵
     var priceMatrix = {
         wall:    { name: "室内挂机", price: { 1: 120, 2: 115, 3: 110 }, rule: "限5颗/台" }, 
         cabinet: { name: "方形柜机", price: { 1: 260, 2: 250, 3: 240 }, rule: "限10颗/台" }, 
@@ -549,8 +570,46 @@
         if (newVal < 1) newVal = 1;
         if (newVal > 20) newVal = 20; 
         inputDom.value = newVal;
-        document.getElementById('ac-total-count').value = newVal;
+        
+        // 同步修改第一页规格并触发重置
+        var formType = document.getElementById('form-sync-type').value;
+        syncFormToPage1(formType, newVal);
+        updateFormNormalPrice();
+    }
+
+    // 表单内选择框变更触发
+    function onFormConfigChange() {
+        var formType = document.getElementById('form-sync-type').value;
+        var formCount = parseInt(document.getElementById('form-sync-count').value) || 1;
+        syncFormToPage1(formType, formCount);
+        updateFormNormalPrice();
+    }
+
+    // 将表单页的选择逆向同步到第一页，保持数据核心完全一致
+    function syncFormToPage1(formTypeName, count) {
+        var page1Type = "wall";
+        if (formTypeName === "方形柜机") page1Type = "cabinet";
+        if (formTypeName === "吸顶天花机") page1Type = "ceiling";
+        acTypeSelect.value = page1Type;
+        acTotalCountInput.value = count;
         resetDiceStage();
+    }
+
+    // 独立计算登记页面的正常价格公式与结果
+    function updateFormNormalPrice() {
+        var formType = document.getElementById('form-sync-type').value;
+        var formCount = parseInt(document.getElementById('form-sync-count').value) || 1;
+        
+        var matrixKey = "wall";
+        if (formType === "方形柜机") matrixKey = "cabinet";
+        if (formType === "吸顶天花机") matrixKey = "ceiling";
+        
+        var step = formCount > 3 ? 3 : formCount;
+        var unitPrice = priceMatrix[matrixKey].price[step];
+        var totalPrice = unitPrice * formCount;
+        
+        document.getElementById('normal-price-formula').innerText = unitPrice + "元/台 * " + formCount + "台 = " + totalPrice + "元";
+        return { unit: unitPrice, total: totalPrice };
     }
 
     function switchPage(target) {
@@ -566,6 +625,7 @@
             document.getElementById('form-sync-type').value = mappedName;
             document.getElementById('form-sync-count').value = acTotalCountInput.value;
             document.getElementById('page-official').style.display = "flex";
+            updateFormNormalPrice();
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -779,15 +839,19 @@
         var name = document.getElementById('cust-name').value.trim();
         var phone = document.getElementById('cust-phone').value.trim();
         var addr = document.getElementById('cust-address').value.trim();
-        var bTime = document.getElementById('book-time').value.trim() || "稍后等师傅电话联系确认";
+        var bTime = document.getElementById('book-time').value.trim() || "与师傅电话联系确认";
         
         var formType = document.getElementById('form-sync-type').value;
         var formCount = document.getElementById('form-sync-count').value;
-        var discountAmount = allHistoryPoints.reduce((a, b) => a + b, 0);
+        
         if(!name || !phone || !addr || !isPhoneValid) {
             alert("❌ 无法发送！请正确完整地填写联系人姓名、11位有效手机号和详细上门地址。");
             return;
         }
+
+        // 获取并构建正常服务总价文本数据
+        var priceObj = updateFormNormalPrice();
+        var normalPriceText = priceObj.unit + "元/台 * " + formCount + "台 = " + priceObj.total + "元";
 
         var infoText = "📢 【空调清洗服务预约单】\n" +
                        "------------------------------\n" +
@@ -795,11 +859,12 @@
                        "📞 联系电话：" + phone + "\n" +
                        "📍 上门地址：" + addr + "\n" +
                        "⏰ 期望时段：" + bTime + "\n" +
-                       "🛠️ 服务机型：" + formType + "\n" +
-                       "🔢 清洗数量：" + formCount + " 台\n" +
+                       "🛠 *服务机型：" + formType + "\n" +
+                       "🔢 *清洗数量：" + formCount + " 台\n" +
+                       "💵 *正常服务总价：" + normalPriceText + "\n" +
                        "💰 诚意金状态：以微信实收为准！\n" +
                        "------------------------------\n" +
-                       "📝 备注说明：已知晓现场盲骰规则，最终实收金额上门当面摇骰子决定！";
+                       "📝 备注说明：已知晓现场盲骰规则，最终实收金额将在上门当面摇骰子后，从正常总价中现场扣减！";
 
         navigator.clipboard.writeText(infoText).then(function() {
             alert("📋 您的预约单资料已自动复制到手机剪贴板中！\n\n现在将为您启动微信，请直接在微信客服对话框内「长按粘贴」发送即可！");

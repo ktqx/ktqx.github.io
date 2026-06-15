@@ -180,22 +180,23 @@
         .inline-select { width: 130px; text-align: center; }
 
         .stepper-container {
-            display: flex;
-            align-items: center;
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-radius: 8px;
-            overflow: hidden;
-            width: 130px;
-            height: 40px;
+           display: flex;
+           align-items: center;
+           background: #2a2a2a;
+           border: 1px solid #444;
+           border-radius: 8px;
+           overflow: hidden;
+           width: 100%; 
+           min-width: 90px; /* 设定一个安全靠谱的最小总宽 */
+           height: 40px;
         }
         .stepper-btn {
-            width: 40px;
+            width: 30px; /* 缩窄到 30px，腾出更多空间给数字显示 */
             height: 100%;
             background: #3a3a3a;
             border: none;
             color: #fff;
-            font-size: 1.3rem;
+            font-size: 1.2rem; /* 略微减小符号字号防溢出 */
             font-weight: bold;
             cursor: pointer;
             display: flex;
@@ -211,11 +212,11 @@
             border: none;
             color: #fff;
             text-align: center;
-            font-size: 1rem;
+            font-size: 0.95rem; /* 稍微精简一点字号 */
             font-weight: bold;
             outline: none;
+            padding: 0; /* 强制将内边距清零，防止左右挤压导致文字被遮挡 */
         }
-
         /* 3D 物理骰子舞台核心 */
         .stage-and-bill-block { background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
         .dice-stage {
@@ -304,7 +305,7 @@
 <div class="container">
 
     <div class="screenshot-header">
-        🎲 空调清洗大优惠 - 现场摇多少减多少
+        🎲 调清洗大优惠 <br> 现场摇多少减多少
     </div>
 
     <div class="contact-box">

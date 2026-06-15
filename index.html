@@ -446,18 +446,18 @@
     <div id="page-official" class="page">
         <div class="notice-banner" style="background:#1c2e24; border-color:var(--accent-green); color:#d4fff4; text-align: left; padding: 15px; line-height: 1.6; font-size: 0.95rem;">
             <span style="color: var(--accent-gold); font-weight: bold; display: block; margin-bottom: 6px; font-size: 1.05rem;">📋 预约服务流程：</span>
-            <strong>1、</strong>长按加客服微信；<br>
+            <strong>1、</strong>长按加师傅微信；<br>
             <strong>2、</strong>支付5元诚意金；<br>
             <strong>3、</strong>填写以下预约资料；<br>
-            <strong>4、</strong>点击“复制并发给客服微信”；<br>
-            <strong>5、</strong>找到客服微信，粘贴并发送；<br>
+            <strong>4、</strong>点击“复制并发给师傅微信”；<br>
+            <strong>5、</strong>找到师傅微信，粘贴并发送；<br>
             <strong>6、</strong>联系师傅上门，清洗，摇点减免，支付，结束服务。
        </div>
       
         <div class="qr-area">
             <div class="qr-card">
                 <img src="my.jpg" alt="微信二维码">
-                长按加我微信
+                长按添加师傅微信
             </div>
         </div>
 
@@ -505,7 +505,7 @@
             </div>
         </div>
 
-        <button class="btn-submit-wechat" onclick="copyAndSubmitToWechat()">🟢 复制并发给客服微信</button>
+        <button class="btn-submit-wechat" onclick="copyAndSubmitToWechat()">🟢 复制并发给师傅微信</button>
         
         <button class="btn-back-try" onclick="switchPage('try')">↩️ 返回继续摇一摇</button>
     </div>
@@ -867,10 +867,10 @@
                        "📝 备注：已知晓规则，最终实收金额将在上门当面摇骰子后，从正常总价中扣减点数和诚意金！";
 
         navigator.clipboard.writeText(infoText).then(function() {
-            alert("📋 您的预约单资料已自动复制到手机剪贴板中！\n\n现在将为您启动微信，请直接在微信客服对话框内「长按粘贴」发送即可！");
+            alert("📋 您的预约单资料已自动复制到手机剪贴板中！\n\n现在将为您启动微信，请直接在微信师傅对话框内「长按粘贴」发送即可！");
             window.location.href = "weixin://";
         }).catch(function() {
-            alert("由于浏览器系统权限安全限制，复制失败。请您手动截图或者复制文本发给微信客服。");
+            alert("由于浏览器系统权限安全限制，复制失败。请您手动截图或者复制文本发给微信师傅。");
         });
     }
 </script>

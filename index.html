@@ -164,7 +164,7 @@
 
     <div id="page-try" class="page active">
         <div class="status-bar" id="try-status-bar">
-            ✨ 随心试摇几把，算一算您的空调清洗能省多少钱！
+            ✨ 试摇一下，看看能省多少钱！
         </div>
 
         <div class="quick-config">
@@ -184,7 +184,7 @@
 
         <div class="stage-and-bill-block">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <h3 style="margin:0; color:var(--accent-gold); font-size: 0.95rem;" id="stage-title">🔮 模拟摇骰子省大钱</h3>
+                <h3 style="margin:0; color:var(--accent-gold); font-size: 0.95rem;" id="stage-title">🔮 摇骰子省大钱【模拟】</h3>
                 <div style="font-size:0.8rem; color:#bbb;">
                     已摇颗数: <span id="current-count" style="font-weight:bold; color:var(--accent-green);">0</span> / <span id="target-max-display">5</span> 颗
                 </div>
@@ -244,7 +244,7 @@
             </div>
         </div>
 
-        <button id="try-again-action-btn" class="try-again-btn" onclick="resetDiceStageToMode('试玩')">🔄 重新模拟摇骰子</button>
+        <button id="try-again-action-btn" class="try-again-btn" onclick="resetDiceStageToMode('试玩')">🔄 重新【模拟】摇骰子</button>
 
         <button class="next-step-btn" id="go-to-pay-btn" onclick="switchToPayPage()">🔥 不错，立即去正式开摇！</button>
 
@@ -264,7 +264,7 @@
 
     <div id="page-official" class="page">
         <div class="status-bar alert" id="official-status-bar">
-            🔒 安全锁单：请先支付5元上门诚意金，即可全面激活【正式盲骰减免】！
+            🔒 锁单：请先支付5元诚意金，即可激活【正式盲骰减免】！
         </div>
 
         <div class="pay-zone">
@@ -273,7 +273,7 @@
             <div class="qr-group">
                 <div class="qr-card">
                     <img src="https://tvzb.github.io/jia.jpg" class="qr-img">
-                    1. 长按添加客服微信
+                    1. 添加微信
                 </div>
                 <div class="qr-card">
                     <img src="https://tvzb.github.io/skm.jpg" class="qr-img">
@@ -294,7 +294,7 @@
             </div>
             <div class="form-group">
                 <label>期望清洗的详细地址：</label>
-                <input type="text" id="cust-address" placeholder="例：幸福花园3栋2单元501室" oninput="syncDataPreview()">
+                <input type="text" id="cust-address" placeholder="例：幸福花园3-2-201室" oninput="syncDataPreview()">
             </div>
             <div class="config-row">
                 <label style="font-size:0.8rem;">诚意金支付渠道：</label>
@@ -305,7 +305,7 @@
             </div>
             <div class="form-group" style="margin-top:6px;">
                 <label>期望上门服务时段：</label>
-                <input type="text" id="book-time" placeholder="例：本周六下午或工人提前电话联系" oninput="syncDataPreview()">
+                <input type="text" id="book-time" placeholder="例：本周六下午或提前电话联系" oninput="syncDataPreview()">
             </div>
 
             <div style="background: rgba(0,0,0,0.4); padding: 6px; border-radius:8px; margin-top:8px; text-align:center; border:1px solid #444;">
@@ -314,9 +314,9 @@
             </div>
         </div>
 
-        <button id="start-official-btn" class="next-step-btn" style="margin-top:12px;" onclick="activateOfficialRollMode()">➔ 已付完5元，正式开摇！(支持灵活重选机型台数)</button>
+        <button id="start-official-btn" class="next-step-btn" style="margin-top:12px;" onclick="activateOfficialRollMode()">➔ 已支付5元，正式开摇！(以微信实收为准！)</button>
         
-        <button class="back-btn" onclick="switchToTryPageFromPay()">⬅ 返回重新修改规格台数</button>
+        <button class="back-btn" onclick="switchToTryPageFromPay()">⬅ 返回继续【模拟】盲摇骰子</button>
     </div>
 </div>
 
@@ -393,7 +393,7 @@
         var name = document.getElementById('cust-name').value.trim() || "未填写";
         var phone = document.getElementById('cust-phone').value.trim() || "未填写";
         var addr = document.getElementById('cust-address').value.trim() || "未填写";
-        var bTime = document.getElementById('book-time').value.trim() || "服从工人弹性排单";
+        var bTime = document.getElementById('book-time').value.trim() || "电话联系";
 
         document.getElementById('p-o-name').innerText = name;
         document.getElementById('p-o-phone').innerText = phone;
@@ -430,8 +430,8 @@
         acTotalCountInput.disabled = false;
 
         document.getElementById('try-status-bar').className = "status-bar gold";
-        document.getElementById('try-status-bar').innerHTML = "🎯 【正式盲骰模式已启动】支持重选规格，点击“摇一摇”后配置将安全封锁！";
-        document.getElementById('stage-title').innerText = "🔥 官方正式对账舞台";
+        document.getElementById('try-status-bar').innerHTML = "🎯 【正式盲骰已启动】点击“摇一摇”后，配置将安全封锁！";
+        document.getElementById('stage-title').innerText = "🔥 【正式】盲骰对账";
         document.getElementById('bill-title').innerText = "📊 空调清洗服务【正式结算清单】";
         
         document.getElementById('go-to-pay-btn').style.display = "none";
@@ -496,7 +496,7 @@
             }
         }
 
-        var hintStr = type === "正式" ? "💰 5元诚意金已锁定！您可以调整上方规格，点击“摇一摇”即开启对账！" : "🎁 点击“摇一摇”，试试运气！";
+        var hintStr = type === "正式" ? "💰 您可调整规格，点击“摇一摇”即开启【正式】对账！" : "🎁 点击“摇一摇”，试试运气！";
         var hintDiv = document.createElement('div');
         hintDiv.className = 'stage-hint';
         hintDiv.id = 'stage-hint-text';

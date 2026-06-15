@@ -96,7 +96,7 @@
             border-radius: 12px;
             padding: 12px;
             background-color: #151515;
-            margin-top: 15px; /* 移到下方后，与上方交互按键保持间距 */
+            margin-top: 5px; 
             margin-bottom: 15px;
         }
         .custom-table {
@@ -128,8 +128,8 @@
             font-size: 0.8rem;
             line-height: 1.4;
         }
-        .star-red {
-            color: #ff4d4d;
+        .star-white {
+            color: #ffffff;
             font-weight: bold;
         }
 
@@ -174,7 +174,7 @@
         }
         .inline-select { width: 120px; text-align: center; }
 
-        /* 两级通用加减器组件（限制最大宽度防变形） */
+        /* 两级通用加减器组件 */
         .stepper-container {
            display: flex;
            align-items: center;
@@ -187,7 +187,7 @@
            height: 40px;
         }
         .stepper-btn {
-            width: 32px; 
+            width: 32px;
             height: 100%;
             background: #3a3a3a;
             border: none;
@@ -211,7 +211,7 @@
             font-size: 0.95rem;
             font-weight: bold;
             outline: none;
-            padding: 0; 
+            padding: 0;
         }
 
         /* 3D 物理骰子舞台 */
@@ -258,23 +258,19 @@
         .pip.bottom-left  { grid-area: 3 / 1; } 
         .pip.bottom-right { grid-area: 3 / 3; }
 
-        /* 优化改进二：升级对账单两行对账数据流水排版结构 */
         .summary-box { background: rgba(46, 196, 182, 0.04); border: 1px dashed var(--accent-green); border-radius: 10px; padding: 12px; font-size: 0.95rem; }
         .price-line { display: flex; justify-content: space-between; margin: 8px 0; padding-bottom: 6px; border-bottom: 1px dashed #3a3a3a; }
         .final-line { font-size: 1.2rem; font-weight: bold; color: var(--accent-gold); margin-top: 10px; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid #444; padding-top: 8px; }
         
         .all-pips-container { display: flex; flex-direction: column; gap: 10px; min-height: 25px; border-bottom: 1px dashed #3a3a3a; padding-bottom: 10px; margin-bottom: 6px; }
         
-        /* 单个空调台数独立盒子 */
         .pip-row-block {
             background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03);
             display: flex; flex-direction: column; gap: 6px;
         }
-        /* 第一行：左边第几台，右边共多少点 */
         .pip-row-top-line { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .pip-row-title { font-size: 0.9rem; color: var(--accent-green); font-weight: bold; }
         .row-total-badge { background: #5c3d00; color: #ffcc00; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; border: 1px solid #997000; }
-        /* 第二行：平铺放置的具体点数数据 */
         .pip-row-pips-line { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 2px; }
         .highlight-box { background: #1e40af; color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
 
@@ -322,6 +318,11 @@
         <div class="contact-subtitle">（上门当面开摇，1点扣减1元，透明实扣！）</div>
     </div>
 
+    <div id="page-try" class="page active">
+        <div class="status-bar" id="try-status-bar">
+            ✨ 试玩区：调整下方空调数量，试摇看看能省多少钱！
+        </div>
+       
         <div class="quick-config">
             <div class="config-row">
                 <label>空调规格：</label>
@@ -387,11 +388,11 @@
 
         <button class="btn-go-next" onclick="switchPage('official')">👍 太划算了，去预约登记！</button>
 
-        <h3 style="color: var(--accent-gold); font-size: 1rem; font-weight: bold; margin-bottom: 8px; padding-left: 4px;">
-                    📋 空调清洗费用详情表
-                </h3>
-                <div class="price-border-container" style="margin-top: 5px;">
-                    <table class="custom-table">
+        <h3 style="color: var(--accent-gold); font-size: 1rem; font-weight: bold; margin-top: 15px; margin-bottom: 8px; text-align: center;">
+            📋 空调清洗费用详情表
+        </h3>
+        <div class="price-border-container">
+            <table class="custom-table">
                 <thead>
                     <tr>
                         <th>清洗规格</th>
@@ -429,14 +430,15 @@
 
 
     <div id="page-official" class="page">
-           <div class="notice-banner" style="background:#1c2e24; border-color:var(--accent-green); color:#d4fff4; text-align: left; padding: 15px; line-height: 1.6; font-size: 0.95rem;">
-               <span style="color: var(--accent-gold); font-weight: bold; display: block; margin-bottom: 6px; font-size: 1.05rem;">📋 预约服务流程：</span>
-               <strong>1、</strong>长按加客服微信；<br>
-               <strong>2、</strong>支付5元诚意金；<br>
-               <strong>3、</strong>填写以下预约资料；<br>
-               <strong>4、</strong>点击“一键复制并发送到客服微信”；<br>
-               <strong>5、</strong>找到客服微信，粘贴并发送。
-           </div>
+        <div class="notice-banner" style="background:#1c2e24; border-color:var(--accent-green); color:#d4fff4; text-align: left; padding: 15px; line-height: 1.6; font-size: 0.95rem;">
+            <span style="color: var(--accent-gold); font-weight: bold; display: block; margin-bottom: 6px; font-size: 1.05rem;">📋 预约服务流程：</span>
+            <strong>1、</strong>长按加客服微信；<br>
+            <strong>2、</strong>支付5元诚意金；<br>
+            <strong>3、</strong>填写以下预约资料；<br>
+            <strong>4、</strong>点击“一键复制并发送到客服微信”；<br>
+            <strong>5、</strong>找到客服微信，粘贴并发送。
+        </div>
+      
         <div class="qr-area">
             <div class="qr-card">
                 <img src="my.jpg" alt="微信二维码">
@@ -475,7 +477,8 @@
             </div>
             <div class="form-group">
                 <label>清洗总台数：</label>
-                <div class="stepper-container" style="max-width: 140px;"> <button type="button" class="stepper-btn" onclick="changeFormACCount(-1)">−</button>
+                <div class="stepper-container" style="max-width: 140px;"> 
+                    <button type="button" class="stepper-btn" onclick="changeFormACCount(-1)">−</button>
                     <input type="text" id="form-sync-count" class="stepper-input" value="1" readonly>
                     <button type="button" class="stepper-btn" onclick="changeFormACCount(1)">+</button>
                 </div>
@@ -533,7 +536,7 @@
         var currentVal = parseInt(acTotalCountInput.value) || 1;
         var newVal = currentVal + amount;
         if (newVal < 1) newVal = 1;
-        if (newVal > 20) newVal = 20; 
+        if (newVal > 20) newVal = 20;
         acTotalCountInput.value = newVal;
         document.getElementById('form-sync-count').value = newVal;
         resetDiceStage();
@@ -652,7 +655,6 @@
         renderPipsFlow();
     }
 
-    // 优化改进二：完美渲染支持两行分离排版的对账单信息流结构
     function renderPipsFlow() {
         var container = document.getElementById('all-pips-flow');
         if(allHistoryPoints.length === 0) {
@@ -666,20 +668,14 @@
             var endIdx = startIdx + singleLimitPerAC;
             var slicePoints = allHistoryPoints.slice(startIdx, endIdx);
             if(slicePoints.length === 0) break;
-            
-            // 构建带上下层级结构的独立外卡片盒
             var rowBlock = document.createElement('div');
             rowBlock.className = 'pip-row-block';
-            
-            // 第一行：台数名称与总计点数
             var topLine = document.createElement('div');
             topLine.className = 'pip-row-top-line';
-            
             var titleSpan = document.createElement('span');
             titleSpan.className = 'pip-row-title';
             titleSpan.innerText = '第 ' + (i + 1) + ' 台';
             topLine.appendChild(titleSpan);
-            
             var rowSum = 0;
             for(var s = 0; s < slicePoints.length; s++) {
                 rowSum += slicePoints[s];
@@ -691,11 +687,8 @@
             topLine.appendChild(totalBadge);
             
             rowBlock.appendChild(topLine);
-            
-            // 第二行：平铺放置的具体单个骰子点数
             var pipsLine = document.createElement('div');
             pipsLine.className = 'pip-row-pips-line';
-            
             for(var j = 0; j < slicePoints.length; j++) {
                 var span = document.createElement('span');
                 span.className = 'highlight-box';

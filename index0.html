@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>空调清洗·上门现场盲骰减免</title>
+    <style>
+        :root {
+            --primary-color: #d90429;
+            --panel-bg: #1e1e1e;
+            --stage-bg: #0f0f0f;
+            --text-color: #f8f9fa;
+            --accent-green: #2ec4b6;
+            --accent-gold: #ffb703;
+            --table-border: #3a3a3a;
+            --btn-yellow: #ffcc00;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #121212;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--panel-bg);
+            min-height: 100vh;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== 截图 1:1 还原样式区 ==================== */
+        .screenshot-header {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            margin: 10px 0 15px 0;
+            letter-spacing: 1px;
+        }
+
+        /* 蓝绿渐变联系专区 */
+        .contact-box {
+            background: linear-gradient(135deg, #0b4e7b 0%, #066a74 50%, #005b5c 100%);
+            border: 1px solid #0d8a94;
+            border-radius: 14px;
+            padding: 18px 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        .contact-title {
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .phone-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        .call-btn {
+            background-color: var(--btn-yellow);
+            color: #000000;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .contact-subtitle {
+            color: #cccccc;
+            font-size: 0.8rem;
+        }
+
+        /* 暗金边框价格表 */
+        .price-border-container {
+            border: 2px solid #b8860b;
+            border-radius: 12px;
+            padding: 12px;
+            background-color: #151515;
+            margin-bottom: 15px;
+        }
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .custom-table th, .custom-table td {
+            border: 1px solid var(--table-border);
+            padding: 9px 4px;
+        }
+        .custom-table th {
+            color: var(--accent-gold);
+            font-weight: normal;
+        }
+        .custom-table td {
+            color: #ffffff;
+        }
+        .text-highlight-gold {
+            color: var(--accent-gold) !important;
+            font-weight: bold;
+        }
+        .badge-blue {
+            background-color: #2b5cb3;
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        .table-footer-note {
+            color: #bbbbbb;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+        .star-red {
+            color: #ff4d4d;
+            font-weight: bold;
+        }
+
+        /* ==================== 业务架构切换样式 ==================== */
+        .page { display: none; flex-direction: column; width: 100%; }
+        .page.active { display: flex; }
+
+        .notice-banner {
+            background: linear-gradient(90deg, #3e3312, #221a02);
+            border: 1px solid var(--accent-gold);
+            color: #fff3c4;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .status-bar { background: #17312e; border: 1px solid var(--accent-green); color: #99ffea; padding: 10px; border-radius: 8px; text-align: center; font-size: 0.9rem; font-weight: bold; margin-bottom: 15px; }
+
+        /* 配置行与加减组件 */
+        .quick-config { 
+            background: rgba(255,255,255,0.04); 
+            border: 1px solid #333; 
+            border-radius: 10px; 
+            padding: 12px;
+            margin-bottom: 12px; 
+        }
+        .config-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 10px; 
+        }
+        .config-row:last-child { margin-bottom: 0; }
+        .config-row label { font-size: 0.9rem; color: #ccc; font-weight: bold; }
+
+        select, input[type="text"], input[type="number"] {
+            padding: 10px 12px;
+            background: #2a2a2a; border: 1px solid #444; color: #fff; border-radius: 8px; font-weight: bold; font-size: 0.95rem; outline: none;
+        }
+        .inline-select { width: 130px; text-align: center; }
+
+        .stepper-container {
+            display: flex;
+            align-items: center;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 130px;
+            height: 40px;
+        }
+        .stepper-btn {
+            width: 40px;
+            height: 100%;
+            background: #3a3a3a;
+            border: none;
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .stepper-btn:active { background: #555; }
+        .stepper-input {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #fff;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: bold;
+            outline: none;
+        }
+
+        /* 3D 物理骰子舞台核心 */
+        .stage-and-bill-block { background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+        .dice-stage {
+            display: flex;
+            flex-direction: column; gap: 10px; min-height: 100px; padding: 12px 8px; margin-bottom: 12px;
+            background: var(--stage-bg); border-radius: 10px;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.85); perspective: 1000px;
+        }
+        .dice-stage-row {
+            display: flex;
+            flex-wrap: wrap; justify-content: flex-start; align-items: center;
+            background: rgba(255, 255, 255, 0.02); padding: 10px; border-radius: 8px; border: 1px dashed #2a2a2a;
+        }
+        .dice-row-label { font-size: 0.8rem; color: var(--accent-green); font-weight: bold; width: 100%; margin-bottom: 8px; }
+        .stage-hint { color: var(--accent-green); font-size: 0.9rem; text-align: center; width: 100%; font-weight: bold; line-height: 1.4; padding: 20px 0; }
+
+        /* 3D 立体结构 */
+        .cube-container { width: 42px; height: 42px; position: relative; flex-shrink: 0; margin: 0 10px 4px 0; }
+        .cube { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1); }
+        .cube-face {
+            position: absolute;
+            width: 42px; height: 42px; background: linear-gradient(145deg, #ffffff, #e6e6e6); border-radius: 6px;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.2), 0 0 2px rgba(0,0,0,0.3);
+            backface-visibility: hidden;
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 2px; box-sizing: border-box; align-items: center; justify-items: center;
+        }
+        .face-1 { transform: rotateY(0deg) translateZ(21px); }
+        .face-2 { transform: rotateY(90deg) translateZ(21px); }
+        .face-3 { transform: rotateX(90deg) translateZ(21px); }
+        .face-4 { transform: rotateX(-90deg) translateZ(21px); }
+        .face-5 { transform: rotateY(-90deg) translateZ(21px); }
+        .face-6 { transform: rotateY(180deg) translateZ(21px); }
+        
+        /* 真实物理骰子圆点 */
+        .pip { width: 9px; height: 9px; background-color: #111; border-radius: 50%; }
+        .face-1 .pip { width: 18px; height: 18px; background-color: #d90429; }
+        .face-6 .pip { background-color: #d90429; }
+        .pip.top-left     { grid-area: 1 / 1; } 
+        .pip.top-right    { grid-area: 1 / 3; }
+        .pip.mid-left     { grid-area: 2 / 1; } 
+        .pip.mid-right    { grid-area: 2 / 3; }
+        .pip.center       { grid-area: 2 / 2; }
+        .pip.bottom-left  { grid-area: 3 / 1; } 
+        .pip.bottom-right { grid-area: 3 / 3; }
+
+        /* 明细盒子与对账流水 */
+        .summary-box { background: rgba(46, 196, 182, 0.04); border: 1px dashed var(--accent-green); border-radius: 10px; padding: 12px; font-size: 0.95rem; }
+        .price-line { display: flex; justify-content: space-between; margin: 8px 0; padding-bottom: 6px; border-bottom: 1px dashed #3a3a3a; }
+        .final-line { font-size: 1.2rem; font-weight: bold; color: var(--accent-gold); margin-top: 10px; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid #444; padding-top: 8px; }
+        .all-pips-container { display: flex; flex-direction: column; gap: 6px; min-height: 25px; border-bottom: 1px dashed #3a3a3a; padding-bottom: 8px; margin-bottom: 6px; }
+        .pip-row-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 6px; }
+        .pip-row-title { font-size: 0.85rem; color: var(--accent-green); font-weight: bold; }
+        .highlight-box { background: #1e40af; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
+
+        /* 连续投掷控制面板 */
+        .control-block { display: flex; flex-direction: column; margin-bottom: 12px; }
+        .action-zone { display: flex; gap: 8px; align-items: center; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 10px; border: 1px solid #2a2a2a; }
+        .roll-btn { background-color: var(--primary-color); color: white; padding: 12px; font-size: 1.05rem; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; flex: 1; }
+        .roll-btn:disabled { background-color: #444; color: #888; cursor: not-allowed; }
+
+        /* 大交互按键群 */
+        .btn-go-next { background: linear-gradient(90deg, #2ec4b6, #0f9f90); color: #fff; padding: 14px; font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 8px; border: none; cursor: pointer; margin-bottom: 12px; text-align: center; box-shadow: 0 4px 15px rgba(46,196,178,0.3); }
+        .try-again-btn { background-color: #444; color: #ccc; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; width: 100%; margin-bottom: 12px; display: none; text-align: center; }
+
+        /* 预约登记专区表单 */
+        .qr-area { display: flex; justify-content: space-around; margin-bottom: 15px; gap: 10px; }
+        .qr-card { background: #fff; padding: 8px; border-radius: 8px; width: 48%; color: #000; font-size: 0.8rem; font-weight: bold; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .qr-card img { width: 100%; aspect-ratio: 1; object-fit: contain; margin-bottom: 4px; background: #eee; }
+
+        .config-panel { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid #444; margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { font-size: 0.85rem; display: block; margin-bottom: 6px; color: #ddd; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 11px; background: #222; border: 1px solid #555; color: #fff; border-radius: 6px; }
+        .form-row-flex { display: flex; gap: 10px; }
+
+        input.input-error { border: 2px solid #d90429 !important; background: #3a1c21 !important; }
+        input.input-success { border: 2px solid #2ec4b6 !important; background: #17312e !important; }
+        .error-hint { font-size: 0.75rem; color: #d90429; margin-top: 4px; display: none; }
+
+        .btn-submit-wechat { background: linear-gradient(90deg, #ffb703, #fb8500); color: #000; padding: 15px; font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 8px; border: none; cursor: pointer; margin-bottom: 12px; text-align: center; box-shadow: 0 4px 15px rgba(255,183,3,0.3); }
+        .btn-back-try { background: #333; color: #aaa; padding: 12px; border-radius: 8px; border: none; font-weight: bold; width: 100%; font-size: 0.95rem; cursor: pointer; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="screenshot-header">
+        🎲 空调清洗·现场摇多少减多少
+    </div>
+
+    <div class="contact-box">
+        <div class="contact-title">📞 师傅直连与微信号专区</div>
+        <div class="phone-row">
+            手机/微信：185-0707-8300
+            <a href="tel:18507078300" class="call-btn">拨打电话</a>
+        </div>
+        <div class="contact-subtitle">（上门当面开摇，1点扣减1元，透明实扣！）</div>
+    </div>
+
+    <div class="price-border-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>清洗规格</th>
+                    <th>1台</th>
+                    <th>2台</th>
+                    <th>3台及以上</th>
+                    <th>上门实摇数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>室内挂机</td>
+                    <td>120元</td>
+                    <td>115元</td>
+                    <td class="text-highlight-gold">110元/台</td>
+                    <td><span class="badge-blue">限5颗/台</span></td>
+                </tr>
+                <tr>
+                    <td>方形柜机</td>
+                    <td>260元</td>
+                    <td>250元</td>
+                    <td class="text-highlight-gold">240元/台</td>
+                    <td><span class="badge-blue">限10颗/台</span></td>
+                </tr>
+                <tr>
+                    <td>吸顶天花机</td>
+                    <td>200元</td>
+                    <td>190元</td>
+                    <td class="text-highlight-gold">180元/台</td>
+                    <td><span class="badge-blue">限7颗/台</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="table-footer-note">
+            <span class="star-red">★ 支付锁定：</span>诚意金5元在结算时自动扣减！未付诚意金不享受上门盲骰权益。
+        </div>
+    </div>
+    <div id="page-try" class="page active">
+        <div class="notice-banner">
+            👇 线上仅供试玩模拟手气，最终清洗费用由师傅上门当面摇骰子决定！
+        </div>
+
+        <div class="status-bar" id="try-status-bar">
+            ✨ 试玩区：调整下方空调数量，试摇看看手气能省多少钱！
+        </div>
+
+        <div class="quick-config">
+            <div class="config-row">
+                <label>选择您的空调规格：</label>
+                <select id="ac-type" class="inline-select" onchange="resetDiceStage()">
+                    <option value="wall">室内挂机</option>
+                    <option value="cabinet">方形柜机</option>
+                    <option value="ceiling">吸顶天花机</option>
+                </select>
+            </div>
+            <div class="config-row">
+                <label>需要清洗的总台数：</label>
+                <div class="stepper-container">
+                    <button class="stepper-btn" onclick="changeACCount(-1)">−</button>
+                    <input type="text" id="ac-total-count" class="stepper-input" value="1" readonly>
+                    <button class="stepper-btn" onclick="changeACCount(1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stage-and-bill-block">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h3 style="margin:0; color:var(--accent-gold); font-size: 0.95rem;">🔮 现场盲摇模拟【试玩】</h3>
+                <div style="font-size:0.85rem; color:#bbb;">
+                    已摇: <span id="current-count" style="font-weight:bold; color:var(--accent-green);">0</span> / <span id="target-max-display">5</span> 颗
+                </div>
+            </div>
+            
+            <div class="dice-stage" id="dice-stage"></div>
+
+            <div class="summary-box">
+                <h3 style="margin-top:0; border-bottom: 1px solid var(--accent-green); padding-bottom:6px; font-size:0.95rem; text-align:center;">📊 实时【试玩费用明细对账】</h3>
+                
+                <div class="price-line"><span>🛠️ 预选服务规格：</span><span id="log-ac-type-name">-</span></div>
+                <div style="margin: 6px 0 4px 0; font-size:0.85rem; color:#aaa;">🎲 试玩落地减免流水：</div>
+                <div class="all-pips-container" id="all-pips-flow"></div>
+                <div class="price-line"><span>🎁 试玩累计立减金额 (1点=1元)：</span><span id="log-discount-amount" style="color:var(--primary-color); font-weight:bold;">-0 元</span></div>
+                
+                <div class="final-line">
+                    <div style="font-size: 0.85rem; color:#bbb; font-weight: normal;">现场尾款预估参考（已扣除5元诚意金）：</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; width: 100%;">
+                        <span id="log-detail-format-title" style="font-size:0.95rem; color:#fff;">1台 室内挂机 实收尾款共计:</span>
+                        <span id="log-final-price" style="color:var(--accent-gold); font-size:1.4rem;">- 元</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-block">
+            <div class="action-zone">
+                <label style="font-weight:bold; white-space:nowrap; font-size:0.9rem;">连续投掷：</label>
+                <select id="roll-num-select" style="width: 75px; padding:6px;">
+                    <option value="1">1颗</option>
+                    <option value="2">2颗</option>
+                    <option value="3">3颗</option>
+                    <option value="5" selected>5颗</option>
+                </select>
+                <button id="roll-btn" class="roll-btn" onclick="rollDice3D()">🎲 试玩摇一摇！</button>
+            </div>
+        </div>
+
+        <button id="try-again-action-btn" class="try-again-btn" onclick="resetDiceStage()">🔄 重新试玩</button>
+
+        <button class="btn-go-next" onclick="switchPage('official')">👍 不错，去预约登记</button>
+    </div>
+
+
+    <div id="page-official" class="page">
+        <div class="notice-banner" style="background:#1c2e24; border-color:var(--accent-green); color:#d4fff4;">
+            ✨ 请添加下方微信并完成诚意金支付，随后提交资料即可一键发送订单！
+        </div>
+
+        <div class="qr-area">
+            <div class="qr-card">
+                <img src="my.jpg" alt="微信二维码">
+                长按加我微信
+            </div>
+            <div class="qr-card">
+                <img src="skm.jpg" alt="收款码">
+                扫码付5元诚意金
+            </div>
+        </div>
+
+        <div class="config-panel">
+            <h3 style="color:var(--accent-gold); margin-bottom:12px; font-size:1.05rem; text-align:center; border-bottom:1px solid #444; padding-bottom:6px;">📲 登记预约上门资料</h3>
+            
+            <div class="form-group">
+                <label>联系人姓名/称呼：</label>
+                <input type="text" id="cust-name" placeholder="请输入您的称呼（如：张先生）">
+            </div>
+            <div class="form-group">
+                <label>联系电话 (重要：师傅上门唯一凭证)：</label>
+                <input type="text" id="cust-phone" placeholder="请输入11位手机号码" oninput="validatePhone()">
+                <div id="phone-hint" class="error-hint">⚠️ 请输入有效的11位手机号</div>
+            </div>
+            <div class="form-group">
+                <label>期望清洗的详细地址：</label>
+                <input type="text" id="cust-address" placeholder="例：XX花园3栋2单元201室">
+            </div>
+            <div class="form-group">
+                <label>期望上门服务时段：</label>
+                <input type="text" id="book-time" placeholder="例：本周六下午 或 提前电话联系">
+            </div>
+            
+            <div class="form-row-flex">
+                <div class="form-group" style="flex: 2;">
+                    <label>确认空调规格：</label>
+                    <select id="form-sync-type">
+                        <option value="室内挂机">室内挂机</option>
+                        <option value="方形柜机">方形柜机</option>
+                        <option value="吸顶天花机">吸顶天花机</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>总台数：</label>
+                    <input type="number" id="form-sync-count" min="1" value="1">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-submit-wechat" onclick="copyAndSubmitToWechat()">🟢 完成预约，一键复制并发送给微信客服</button>
+        
+        <button class="btn-back-try" onclick="switchPage('try')">↩️ 返回继续试玩</button>
+    </div>
+
+</div>
+
+<script>
+    // 3D 物理骰子驱动引擎核心控制逻辑
+    var totalRolled = 0;       
+    var allHistoryPoints = [];  
+    var singleLimitPerAC = 5;    
+    var maxTargetDice = 5; 
+    var isPhoneValid = false; 
+
+    var priceMatrix = {
+        wall:    { name: "室内挂机", price: { 1: 120, 2: 115, 3: 110 } }, 
+        cabinet: { name: "方形柜机", price: { 1: 260, 2: 250, 3: 240 } }, 
+        ceiling: { name: "吸顶天花机", price: { 1: 200, 2: 190, 3: 180 } }  
+    };
+    var diceLimitMatrix = { wall: 5, ceiling: 7, cabinet: 10 };
+
+    var diceStage = document.getElementById('dice-stage');
+    var rollBtn = document.getElementById('roll-btn');
+    var rollNumSelect = document.getElementById('roll-num-select');
+    var currentCountSpan = document.getElementById('current-count');
+    var targetMaxDisplay = document.getElementById('target-max-display');
+    var acTypeSelect = document.getElementById('ac-type');
+    var acTotalCountInput = document.getElementById('ac-total-count');
+    var tryAgainActionBtn = document.getElementById('try-again-action-btn');
+    var logDiscountAmount = document.getElementById('log-discount-amount');
+    var logFinalPrice = document.getElementById('log-final-price');
+    var logAcTypeName = document.getElementById('log-ac-type-name');
+    var logDetailFormatTitle = document.getElementById('log-detail-format-title');
+
+    var faceTransforms = {
+        1: { x: 0, y: 0 }, 2: { x: 0, y: -90 }, 3: { x: -90, y: 0 },
+        4: { x: 90, y: 0 }, 5: { x: 0, y: 90 }, 6: { x: 180, y: 0 }
+    };
+
+    var facePipsConfig = {
+        1: ['center'], 2: ['top-left', 'bottom-right'], 3: ['top-left', 'center', 'bottom-right'],
+        4: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+        5: ['top-left', 'top-right', 'center', 'bottom-left', 'bottom-right'],
+        6: ['top-left', 'top-right', 'mid-left', 'mid-right', 'bottom-left', 'bottom-right']
+    };
+
+    // 页面初始化加载
+    resetDiceStage();
+
+    function changeACCount(amount) {
+        var currentVal = parseInt(acTotalCountInput.value) || 1;
+        var newVal = currentVal + amount;
+        if (newVal < 1) newVal = 1;
+        if (newVal > 20) newVal = 20; 
+        acTotalCountInput.value = newVal;
+        // 同步修改表单内的数值
+        document.getElementById('form-sync-count').value = newVal;
+        resetDiceStage();
+    }
+
+    function switchPage(target) {
+        document.getElementById('page-try').style.display = "none";
+        document.getElementById('page-official').style.display = "none";
+        
+        if (target === 'try') {
+            document.getElementById('page-try').style.display = "flex";
+        } else if (target === 'official') {
+            // 同步外部机型与台数到表单中
+            var selectVal = acTypeSelect.value;
+            var mappedName = "室内挂机";
+            if (selectVal === 'cabinet') mappedName = "方形柜机";
+            if (selectVal === 'ceiling') mappedName = "吸顶天花机";
+            document.getElementById('form-sync-type').value = mappedName;
+            document.getElementById('form-sync-count').value = acTotalCountInput.value;
+
+            document.getElementById('page-official').style.display = "flex";
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetDiceStage() {
+        totalRolled = 0;
+        allHistoryPoints = [];
+        currentCountSpan.innerText = totalRolled;
+        tryAgainActionBtn.style.display = "none";
+        
+        var acType = acTypeSelect.value;
+        var totalCount = parseInt(acTotalCountInput.value) || 1;
+        singleLimitPerAC = diceLimitMatrix[acType];
+        maxTargetDice = singleLimitPerAC * totalCount;
+        targetMaxDisplay.innerText = maxTargetDice;
+        diceStage.innerHTML = '';
+        
+        if(acType === 'cabinet') {
+            for(var i = 0; i < totalCount * 2; i++) {
+                var rowDom = document.createElement('div');
+                rowDom.className = 'dice-stage-row';
+                rowDom.id = 'dice-row-' + i;
+                var labelDom = document.createElement('div');
+                labelDom.className = 'dice-row-label';
+                labelDom.innerText = '第 ' + (Math.floor(i/2) + 1) + ' 台(' + (i % 2 === 0 ? '前半段' : '后半段') + ')';
+                rowDom.appendChild(labelDom);
+                diceStage.appendChild(rowDom);
+            }
+        } else {
+            for(var i = 0; i < totalCount; i++) {
+                var rowDom = document.createElement('div');
+                rowDom.className = 'dice-stage-row';
+                rowDom.id = 'dice-row-' + i;
+                var labelDom = document.createElement('div');
+                labelDom.className = 'dice-row-label';
+                labelDom.innerText = '第 ' + (i + 1) + ' 台';
+                rowDom.appendChild(labelDom);
+                diceStage.appendChild(rowDom);
+            }
+        }
+        
+        var hintDiv = document.createElement('div');
+        hintDiv.className = 'stage-hint';
+        hintDiv.id = 'stage-hint-text';
+        hintDiv.innerText = "🎁 点击上方“试玩摇一摇”，率先模拟预估现场折扣！";
+        diceStage.appendChild(hintDiv);
+        
+        rollBtn.style.display = "block";
+        rollBtn.disabled = false;
+        rollNumSelect.style.display = "block";
+        
+        calculatePrices();
+    }
+
+    function validatePhone() {
+        var phoneInput = document.getElementById('cust-phone');
+        var phoneHint = document.getElementById('phone-hint');
+        var val = phoneInput.value.trim();
+        var isMobile = (val.startsWith('1') && val.length === 11 && /^\d+$/.test(val));
+        if (isMobile) {
+            phoneInput.className = "input-success";
+            phoneHint.style.display = "none";
+            isPhoneValid = true;
+        } else {
+            phoneInput.className = "input-error";
+            phoneHint.style.display = "block";
+            isPhoneValid = false;
+        }
+    }
+
+    function calculatePrices() {
+        var type = acTypeSelect.value;
+        var totalCount = parseInt(acTotalCountInput.value) || 1;
+        var step = totalCount > 3 ? 3 : totalCount;
+        var unitPrice = priceMatrix[type].price[step];
+        var typeName = priceMatrix[type].name;
+        
+        logAcTypeName.innerText = typeName + " (" + totalCount + "台，基本单价" + unitPrice + "元)";
+        var discountAmount = allHistoryPoints.reduce((a, b) => a + b, 0);
+        logDiscountAmount.innerText = '-' + discountAmount + ' 元';
+        
+        var finalPay = (unitPrice * totalCount) - 5 - discountAmount;
+        if (finalPay < 0) finalPay = 0;
+        logFinalPrice.innerText = finalPay + ' 元';
+        logDetailFormatTitle.innerText = totalCount + "台 " + typeName + " 预计当面实收尾款:";
+        
+        renderPipsFlow();
+    }
+
+    function renderPipsFlow() {
+        var container = document.getElementById('all-pips-flow');
+        if(allHistoryPoints.length === 0) {
+            container.innerHTML = '<span style="color:#666; font-size:0.85rem;">等待投掷产生模拟折扣数据...</span>';
+            return;
+        }
+        container.innerHTML = '';
+        var totalACs = parseInt(acTotalCountInput.value) || 1;
+        for(var i = 0; i < totalACs; i++) {
+            var startIdx = i * singleLimitPerAC;
+            var endIdx = startIdx + singleLimitPerAC;
+            var slicePoints = allHistoryPoints.slice(startIdx, endIdx);
+            if(slicePoints.length === 0) break;
+            
+            var rowLine = document.createElement('div');
+            rowLine.className = 'pip-row-line';
+            var titleSpan = document.createElement('span');
+            titleSpan.className = 'pip-row-title';
+            titleSpan.innerText = '第 ' + (i + 1) + ' 台：';
+            rowLine.appendChild(titleSpan);
+            
+            for(var j = 0; j < slicePoints.length; j++) {
+                var span = document.createElement('span');
+                span.className = 'highlight-box';
+                span.innerText = slicePoints[j] + '点';
+                rowLine.appendChild(span);
+            }
+            container.appendChild(rowLine);
+        }
+    }
+
+    function rollDice3D() {
+        var desiredRoll = parseInt(rollNumSelect.value) || 1;
+        var acType = acTypeSelect.value;
+        var currentLineCapacity = (acType === 'cabinet') ? 5 : singleLimitPerAC;
+        var currentLineOccupied = totalRolled % currentLineCapacity;
+        var currentLineRemains = currentLineCapacity - currentLineOccupied;
+        var numToRoll = Math.min(desiredRoll, currentLineRemains);
+        
+        if(numToRoll <= 0) return;
+        
+        rollBtn.disabled = true;
+        var hintTxt = document.getElementById('stage-hint-text');
+        if (hintTxt) hintTxt.remove();
+        
+        var thisRoundPoints = [];
+        for (var i = 0; i < numToRoll; i++) {
+            var p = Math.floor(Math.random() * 6) + 1;
+            thisRoundPoints.push(p);
+            allHistoryPoints.push(p);
+        }
+        
+        var parentRowIdx = Math.floor(totalRolled / currentLineCapacity);
+        var targetRowDom = document.getElementById('dice-row-' + parentRowIdx);
+        
+        var containersToAnimate = [];
+        for(var i = 0; i < numToRoll; i++) {
+            var finalPoint = thisRoundPoints[i];
+            var containerDom = document.createElement('div');
+            containerDom.className = 'cube-container';
+            
+            var cubeDom = document.createElement('div');
+            cubeDom.className = 'cube';
+            
+            for(var faceNum = 1; faceNum <= 6; faceNum++) {
+                var faceDom = document.createElement('div');
+                faceDom.className = 'cube-face face-' + faceNum;
+                var pipsArr = facePipsConfig[faceNum];
+                for(var pIdx = 0; pIdx < pipsArr.length; pIdx++) {
+                    var pipDom = document.createElement('div');
+                    pipDom.className = 'pip ' + pipsArr[pIdx];
+                    faceDom.appendChild(pipDom);
+                }
+                cubeDom.appendChild(faceDom);
+            }
+            
+            containerDom.appendChild(cubeDom);
+            if(targetRowDom) targetRowDom.appendChild(containerDom);
+            containersToAnimate.push({ el: cubeDom, pt: finalPoint });
+        }
+        
+        totalRolled += numToRoll;
+        currentCountSpan.innerText = totalRolled;
+        
+        setTimeout(function() {
+            for(var k = 0; k < containersToAnimate.length; k++) {
+                var obj = containersToAnimate[k];
+                var t = faceTransforms[obj.pt];
+                var extraX = (Math.floor(Math.random() * 3) + 3) * 360;
+                var extraY = (Math.floor(Math.random() * 3) + 3) * 360;
+                obj.el.style.transform = 'rotateX(' + (t.x + extraX) + 'deg) rotateY(' + (t.y + extraY) + 'deg)';
+            }
+        }, 50);
+        
+        setTimeout(function() {
+            calculatePrices();
+            if(totalRolled >= maxTargetDice) {
+                rollBtn.style.display = "none";
+                rollNumSelect.style.display = "none";
+                document.getElementById('try-status-bar').innerHTML = "💡 试玩局满额！正式减免将在师傅上门清洗时现场开摇。";
+                tryAgainActionBtn.style.display = "block";
+            } else {
+                rollBtn.disabled = false;
+            }
+        }, 1050);
+    }
+
+    // 表单处理与一键复制启动微信
+    function copyAndSubmitToWechat() {
+        var name = document.getElementById('cust-name').value.trim();
+        var phone = document.getElementById('cust-phone').value.trim();
+        var addr = document.getElementById('cust-address').value.trim();
+        var bTime = document.getElementById('book-time').value.trim() || "未指定（稍后等师傅电话联系确认）";
+        
+        var formType = document.getElementById('form-sync-type').value;
+        var formCount = document.getElementById('form-sync-count').value;
+        var discountAmount = allHistoryPoints.reduce((a, b) => a + b, 0);
+
+        if(!name || !phone || !addr || !isPhoneValid) {
+            alert("❌ 无法发送！请正确完整地填写联系人姓名、11位有效手机号和详细上门地址。");
+            return;
+        }
+
+        // 高度结构化的订单对账信息流文本
+        var infoText = "📢 【空调清洗服务预约单】\n" +
+                       "------------------------------\n" +
+                       "👤 客户姓名：" + name + "\n" +
+                       "📞 联系电话：" + phone + "\n" +
+                       "📍 上门地址：" + addr + "\n" +
+                       "⏰ 期望时段：" + bTime + "\n" +
+                       "🛠️ 服务机型：" + formType + "\n" +
+                       "🔢 清洗数量：" + formCount + " 台\n" +
+                       "💰 诚意金状态：已成功付5元锁单\n" +
+                       "------------------------------\n" +
+                       "🎲 试玩情况：模拟投掷累计开出 " + discountAmount + " 点\n" +
+                       "📝 备注说明：已知晓现场盲骰规则，最终实收金额上门当面摇骰子决定！";
+
+        navigator.clipboard.writeText(infoText).then(function() {
+            alert("📋 您的预约单资料已自动复制到手机剪贴板中！\n\n现在将为您拉起微信，请直接在微信客服对话框内「长按粘贴」发送即可！");
+            window.location.href = "weixin://";
+        }).catch(function() {
+            alert("由于浏览器系统权限安全限制，复制失败。请您手动截图或者复制文本发给微信客服。");
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -324,7 +324,7 @@
     </div>
 
     <div class="contact-box">
-        <div class="contact-title">李师傅-专业洗空调</div>
+        <div class="contact-title">李李工-专业洗空调</div>
         <div class="phone-row">
             📞185-0707-8300(同号)
             <a href="tel:18507078300" class="call-btn">拨打电话</a>
@@ -446,18 +446,18 @@
     <div id="page-official" class="page">
         <div class="notice-banner" style="background:#1c2e24; border-color:var(--accent-green); color:#d4fff4; text-align: left; padding: 15px; line-height: 1.6; font-size: 0.95rem;">
             <span style="color: var(--accent-gold); font-weight: bold; display: block; margin-bottom: 6px; font-size: 1.05rem;">📋 预约服务流程：</span>
-            <strong>1、</strong>长按加师傅微信；<br>
+            <strong>1、</strong>长按加李工微信；<br>
             <strong>2、</strong>支付5元诚意金；<br>
             <strong>3、</strong>填写以下预约资料；<br>
-            <strong>4、</strong>点击“复制并发给师傅微信”；<br>
-            <strong>5、</strong>找到师傅微信，粘贴并发送；<br>
-            <strong>6、</strong>联系师傅上门，清洗，摇点减免，支付，结束服务。
+            <strong>4、</strong>点击“复制并发给李工微信”；<br>
+            <strong>5、</strong>找到李工微信，粘贴并发送；<br>
+            <strong>6、</strong>联系李工上门，清洗，摇点减免，支付，结束服务。
        </div>
       
         <div class="qr-area">
             <div class="qr-card">
                 <img src="my.jpg" alt="微信二维码">
-                长按添加师傅微信
+                长按添加李工微信
             </div>
         </div>
 
@@ -505,7 +505,7 @@
             </div>
         </div>
 
-        <button class="btn-submit-wechat" onclick="copyAndSubmitToWechat()">🟢 复制并发给师傅微信</button>
+        <button class="btn-submit-wechat" onclick="copyAndSubmitToWechat()">🟢 复制并发给李工微信</button>
         
         <button class="btn-back-try" onclick="switchPage('try')">↩️ 返回继续摇一摇</button>
     </div>
@@ -827,7 +827,7 @@
             if(totalRolled >= maxTargetDice) {
                 rollBtn.style.display = "none";
                 rollNumSelect.style.display = "none";
-                document.getElementById('try-status-bar').innerHTML = "💡 正式减免将在师傅上门时现场开摇。";
+                document.getElementById('try-status-bar').innerHTML = "💡 正式减免将在李工上门时现场开摇。";
                 tryAgainActionBtn.style.display = "block";
             } else {
                 rollBtn.disabled = false;
@@ -839,7 +839,7 @@
         var name = document.getElementById('cust-name').value.trim();
         var phone = document.getElementById('cust-phone').value.trim();
         var addr = document.getElementById('cust-address').value.trim();
-        var bTime = document.getElementById('book-time').value.trim() || "与师傅电话联系确认";
+        var bTime = document.getElementById('book-time').value.trim() || "与李工电话联系确认";
         
         var formType = document.getElementById('form-sync-type').value;
         var formCount = document.getElementById('form-sync-count').value;
@@ -867,10 +867,10 @@
                        "📝 备注：已知晓规则，最终实收金额将在上门当面摇骰子后，从正常总价中扣减点数和诚意金！";
 
         navigator.clipboard.writeText(infoText).then(function() {
-            alert("📋 您的预约单资料已自动复制到手机剪贴板中！\n\n现在将为您启动微信，请直接在微信师傅对话框内「长按粘贴」发送即可！");
+            alert("📋 您的预约单资料已自动复制到手机剪贴板中！\n\n现在将为您启动微信，请直接在微信李工对话框内「长按粘贴」发送即可！");
             window.location.href = "weixin://";
         }).catch(function() {
-            alert("由于浏览器系统权限安全限制，复制失败。请您手动截图或者复制文本发给微信师傅。");
+            alert("由于浏览器系统权限安全限制，复制失败。请您手动截图或者复制文本发给微信李工。");
         });
     }
 </script>

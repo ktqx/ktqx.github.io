@@ -660,7 +660,7 @@
         var finalPay = (unitPrice * totalCount) - 5 - discountAmount;
         if (finalPay < 0) finalPay = 0;
         logFinalPrice.innerText = finalPay + ' 元';
-        logDetailFormatTitle.innerText = totalCount + "台 " + typeName + " 预计当面实收尾款:";
+        logDetailFormatTitle.innerText = typeName +totalCount +"台 " + " 预计实收尾款共计:";
         
         renderPipsFlow();
     }

@@ -171,9 +171,9 @@
             <div class="config-row">
                 <label>选择您的空调规格：</label>
                 <select id="ac-type" class="inline-select" onchange="resetDiceStageToMode(isOfficialMode ? '正式' : '试玩')">
-                    <option value="wall">室内挂机 (每台摇5颗)</option>
-                    <option value="cabinet">方形柜机 (每台摇10颗)</option>
-                    <option value="ceiling">吸顶天花机 (每台摇7颗)</option>
+                    <option value="wall">室内挂机 (5颗/台)</option>
+                    <option value="cabinet">方形柜机 (10颗/台)</option>
+                    <option value="ceiling">吸顶天花机 (7颗/台)</option>
                 </select>
             </div>
             <div class="config-row">
@@ -184,7 +184,7 @@
 
         <div class="stage-and-bill-block">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <h3 style="margin:0; color:var(--accent-gold); font-size: 0.95rem;" id="stage-title">🔮 模拟手气大舞台</h3>
+                <h3 style="margin:0; color:var(--accent-gold); font-size: 0.95rem;" id="stage-title">🔮 模拟摇骰子省大钱</h3>
                 <div style="font-size:0.8rem; color:#bbb;">
                     已摇颗数: <span id="current-count" style="font-weight:bold; color:var(--accent-green);">0</span> / <span id="target-max-display">5</span> 颗
                 </div>
@@ -228,7 +228,7 @@
                     <option value="3">3颗</option>
                     <option value="5" selected>5颗</option>
                 </select>
-                <button id="roll-btn" class="roll-btn" onclick="rollDice3D()">🎲 摇一摇碰手气！</button>
+                <button id="roll-btn" class="roll-btn" onclick="rollDice3D()">🎲 摇一摇！</button>
             </div>
             
             <button id="convert-final-btn" class="convert-final-btn" onclick="userClickToRevealResults()">➔ 生成凭证和截图</button>
@@ -244,16 +244,16 @@
             </div>
         </div>
 
-        <button id="try-again-action-btn" class="try-again-btn" onclick="resetDiceStageToMode('试玩')">🔄 重新模拟手气</button>
+        <button id="try-again-action-btn" class="try-again-btn" onclick="resetDiceStageToMode('试玩')">🔄 重新模拟摇骰子</button>
 
-        <button class="next-step-btn" id="go-to-pay-btn" onclick="switchToPayPage()">🔥 手气太赞了，立即锁定名额去正式开摇！</button>
+        <button class="next-step-btn" id="go-to-pay-btn" onclick="switchToPayPage()">🔥 不错，立即去正式开摇！</button>
 
         <table class="price-table" id="price-rules-table">
             <thead><tr><th>清洗机型</th><th>清洗1台</th><th>清洗2台</th><th>3台及以上特惠</th><th>单台免费盲骰</th></tr></thead>
             <tbody>
-                <tr><td>室内挂机</td><td>120元</td><td>115元</td><td style="color:var(--accent-gold); font-weight:bold;">110元</td><td>可摇5颗/台</td></tr>
-                <tr><td>方形柜机</td><td>260元</td><td>250元</td><td style="color:var(--accent-gold); font-weight:bold;">240元</td><td>可摇10颗/台</td></tr>
-                <tr><td>吸顶天花机</td><td>200元</td><td>190元</td><td style="color:var(--accent-gold); font-weight:bold;">180元</td><td>可摇7颗/台</td></tr>
+                <tr><td>室内挂机</td><td>120元</td><td>115元</td><td style="color:var(--accent-gold); font-weight:bold;">110元</td><td>限5颗/台</td></tr>
+                <tr><td>方形柜机</td><td>260元</td><td>250元</td><td style="color:var(--accent-gold); font-weight:bold;">240元</td><td>限10颗/台</td></tr>
+                <tr><td>吸顶天花机</td><td>200元</td><td>190元</td><td style="color:var(--accent-gold); font-weight:bold;">180元</td><td>限7颗/台</td></tr>
             </tbody>
         </table>
 
@@ -496,7 +496,7 @@
             }
         }
 
-        var hintStr = type === "正式" ? "💰 5元诚意金已锁定！您可以调整上方规格，点击“摇一摇”即开启对账！" : "🎁 随意点击下方“摇一摇”，提前测试今天的好运能减免多少！";
+        var hintStr = type === "正式" ? "💰 5元诚意金已锁定！您可以调整上方规格，点击“摇一摇”即开启对账！" : "🎁 点击“摇一摇”，试试运气！";
         var hintDiv = document.createElement('div');
         hintDiv.className = 'stage-hint';
         hintDiv.id = 'stage-hint-text';
@@ -600,7 +600,7 @@
             isFirstDiceCast = true;
             acTypeSelect.disabled = true;
             acTotalCountInput.disabled = true;
-            document.getElementById('try-status-bar').innerHTML = "🔒 【盲骰数据已安全封锁锁死】正在进行全自动对账流转...";
+            document.getElementById('try-status-bar').innerHTML = "🔒 【盲骰数据已锁死】正在进行全自动对账流转...";
         }
 
         var desiredRoll = parseInt(rollNumSelect.value) || 1; 
@@ -702,7 +702,7 @@
         // 3. 将极其底层、清理环境的重置重置按钮在最底下释放
         document.getElementById('bottom-reset-zone').style.display = "block";
         
-        convertFinalBtn.innerText = "🔑 凭证核销链条已安全锁定";
+        convertFinalBtn.innerText = "🔑 凭证核销链条已锁定";
     }
 
     function getNowFormatDate() {
@@ -728,7 +728,7 @@
                          "⏰ 封账时间：" + getNowFormatDate();
         
         navigator.clipboard.writeText(textToCopy).then(function() {
-            alert("✅ 核销文本已成功复制！快去发送给微信客服完成锁定吧。");
+            alert("✅ 核销文本已成功复制！快发送给微信客服完成锁定吧。");
         }, function() {
             alert("复制失败，您的核销密匙为：" + currentUUID);
         });
@@ -751,7 +751,7 @@
         ctx.fillStyle = '#ffb703';
         ctx.font = 'bold 24px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('🏆 空调清洗服务·官方手气凭证 🏆', canvas.width / 2, 65);
+        ctx.fillText('🏆 空调清洗服务·点数凭证 🏆', canvas.width / 2, 65);
 
         ctx.textAlign = 'left';
         ctx.fillStyle = '#f8f9fa';
@@ -821,8 +821,8 @@
         document.getElementById('book-time').value = "";
 
         document.getElementById('try-status-bar').className = "status-bar";
-        document.getElementById('try-status-bar').innerHTML = "✨ 随心试摇几把，算一算您的空调清洗能省多少钱！";
-        document.getElementById('stage-title').innerText = "🔮 模拟手气大舞台";
+        document.getElementById('try-status-bar').innerHTML = "✨ 试摇几把，看看能省多少钱！";
+        document.getElementById('stage-title').innerText = "🔮 模拟摇骰子省大钱";
         document.getElementById('bill-title').innerText = "📊 实时【试玩计算明细】";
         
         document.getElementById('roll-action-zone').style.display = "flex";

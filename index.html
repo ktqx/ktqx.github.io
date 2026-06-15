@@ -358,7 +358,7 @@
             <div class="dice-stage" id="dice-stage"></div>
 
             <div class="summary-box">
-                <h3 style="margin-top:0; border-bottom: 1px solid var(--accent-green); padding-bottom:6px; font-size:0.95rem; text-align:center;">📊 实时【费用明细对账】</h3>
+                <h3 style="margin-top:0; border-bottom: 1px solid var(--accent-green); padding-bottom:6px; font-size:0.95rem; text-align:center;">📊【费用明细对账】</h3>
                 
                 <div class="price-line"><span>🛠️ 预选服务规格：</span><span id="log-ac-type-name">-</span></div>
                 <div style="margin: 6px 0 4px 0; font-size:0.85rem; color:#aaa;">🎲 试玩落地减免流水：</div>
@@ -378,7 +378,7 @@
 
         <div class="control-block">
             <div class="action-zone">
-                <label style="font-weight:bold; white-space:nowrap; font-size:0.9rem;">连续投掷：</label>
+                <label style="font-weight:bold; white-space:nowrap; font-size:0.9rem;">每次摇：</label>
                 <select id="roll-num-select" style="width: 75px; padding:6px;">
                     <option value="1">1颗</option>
                     <option value="2">2颗</option>
@@ -425,17 +425,21 @@
                 </tbody>
             </table>
             <div class="table-footer-note">
-                <span class="star-white">★ 注意：</span>未付诚意金不享受本活动，诚意金在结算时自动扣减！。
+                <span class="star-white">★ 注意：</span>5元诚意金在结算时自动扣减，未付不享受本活动！
             </div>
         </div>
     </div>
 
 
     <div id="page-official" class="page">
-        <div class="notice-banner" style="background:#1c2e24; border-color:var(--accent-green); color:#d4fff4;">
-            ✨ 请添加以下微信并支付5元诚意金，填写资料后即可一键发送预约单！
-        </div>
-
+           <div class="notice-banner" style="background:#1c2e24; border-color:var(--accent-green); color:#d4fff4; text-align: left; padding: 15px; line-height: 1.6; font-size: 0.95rem;">
+               <span style="color: var(--accent-gold); font-weight: bold; display: block; margin-bottom: 6px; font-size: 1.05rem;">📋 预约服务流程：</span>
+               <strong>1、</strong>长按加客服微信；<br>
+               <strong>2、</strong>支付5元诚意金；<br>
+               <strong>3、</strong>填写以下预约资料；<br>
+               <strong>4、</strong>点击“一键复制并发送到客服微信”；<br>
+               <strong>5、</strong>找到客服微信，粘贴并发送。
+           </div>
         <div class="qr-area">
             <div class="qr-card">
                 <img src="my.jpg" alt="微信二维码">
@@ -481,7 +485,7 @@
             </div>
         </div>
 
-        <button class="btn-submit-wechat" onclick="copyAndSubmitToWechat()">🟢 完成预约，一键复制并发送给微信客服</button>
+        <button class="btn-submit-wechat" onclick="copyAndSubmitToWechat()">🟢 一键复制并发送到客服微信</button>
         
         <button class="btn-back-try" onclick="switchPage('try')">↩️ 返回继续试玩</button>
     </div>
@@ -608,7 +612,7 @@
         var hintDiv = document.createElement('div');
         hintDiv.className = 'stage-hint';
         hintDiv.id = 'stage-hint-text';
-        hintDiv.innerText = "🎁 点击上方“摇一摇”，率先预估现场折扣！";
+        hintDiv.innerText = "🎁 点击下方“摇一摇”，预估清洗折扣！";
         diceStage.appendChild(hintDiv);
         
         rollBtn.style.display = "block";
@@ -646,7 +650,7 @@
         var finalPay = (unitPrice * totalCount) - 5 - discountAmount;
         if (finalPay < 0) finalPay = 0;
         logFinalPrice.innerText = finalPay + ' 元';
-        logDetailFormatTitle.innerText = " 预计实收尾款共计:";
+        logDetailFormatTitle.innerText = " 预计实收尾款:";
         
         renderPipsFlow();
     }
@@ -803,7 +807,7 @@
                        "⏰ 期望时段：" + bTime + "\n" +
                        "🛠️ 服务机型：" + formType + "\n" +
                        "🔢 清洗数量：" + formCount + " 台\n" +
-                       "💰 诚意金状态：已成功付5元锁单（以微信实收为准！）\n" +
+                       "💰 诚意金状态：以微信实收为准！\n" +
                        "------------------------------\n" +
                        "📝 备注说明：已知晓现场盲骰规则，最终实收金额上门当面摇骰子决定！";
 

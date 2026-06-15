@@ -322,15 +322,9 @@
         <div class="contact-subtitle">（上门当面开摇，1点扣减1元，透明实扣！）</div>
     </div>
 
-
-    <div id="page-try" class="page active">
-        <div class="status-bar" id="try-status-bar">
-            ✨ 试玩区：调整下方空调数量，试摇看看能省多少钱！
-        </div>
-
         <div class="quick-config">
             <div class="config-row">
-                <label>选择您的空调规格：</label>
+                <label>空调规格：</label>
                 <select id="ac-type" class="inline-select" onchange="resetDiceStage()">
                     <option value="wall">室内挂机</option>
                     <option value="cabinet">方形柜机</option>
@@ -338,7 +332,7 @@
                 </select>
             </div>
             <div class="config-row">
-                <label>需要清洗的总台数：</label>
+                <label>空调数量：</label>
                 <div class="stepper-container">
                     <button class="stepper-btn" onclick="changeACCount(-1)">−</button>
                     <input type="text" id="ac-total-count" class="stepper-input" value="1" readonly>

@@ -1082,35 +1082,37 @@
     }
 
     function saveBillScreenshot() {
+    var target = document.querySelector('.summary-box');
+    html2canvas(target,{
+        backgroundColor:"#1e1e1e",
+        scale:3,
+        useCORS:true
+    }).then(function(canvas){
+        var imgData = canvas.toDataURL("image/png");
+        var overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.left = "0";
+        overlay.style.top = "0";
+        overlay.style.width = "100%";
+        overlay.style.height = "100%";
+        overlay.style.background = "rgba(0,0,0,0.95)";
+        overlay.style.zIndex = "99999";
+        overlay.style.display = "flex";
+        overlay.style.flexDirection = "column";
+        overlay.style.justifyContent = "center";
+        overlay.style.alignItems = "center";
 
-        var target = document.querySelector('.summary-box');
+        overlay.innerHTML = ` <div style=" color:#fff; margin-bottom:12px; font-size:14px; "> 长按图片保存到手机 </div>
+        <img src="${imgData}" style=" width:95%; max-width:600px; border-radius:10px;  ">
+        <button style=" margin-top:15px; padding:10px 20px; border:none; border-radius:8px; background:#444; color:#fff; "> 关闭 </button>`;
 
-        html2canvas(target,{
-            backgroundColor:"#1e1e1e",
-            scale:2,
-            useCORS:true
-        }).then(function(canvas){
-
-            var link=document.createElement('a');
-
-            var now=new Date();
-
-            var fileName=
-                '费用明细对账_' +
-                now.getFullYear() +
-                ('0'+(now.getMonth()+1)).slice(-2) +
-                ('0'+now.getDate()).slice(-2) +
-                '_' +
-                ('0'+now.getHours()).slice(-2) +
-                ('0'+now.getMinutes()).slice(-2) +
-                ('0'+now.getSeconds()).slice(-2) +
-                '.png';
-
-            link.download=fileName;
-            link.href=canvas.toDataURL('image/png');
-            link.click();
-        });
-    }
+        overlay.querySelector("button")
+            .onclick=function(){
+                document.body.removeChild(overlay);
+            };
+        document.body.appendChild(overlay);
+    });
+}
 
     function copyAndSubmitToWechat() {
         var name = document.getElementById('cust-name').value.trim();

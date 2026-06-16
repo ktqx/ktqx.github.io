@@ -782,33 +782,19 @@
         document.getElementById('rule-hint-text').innerText = "（" + priceMatrix[acType].rule + "）";
         document.getElementById('try-status-bar').innerHTML = "✨骰子数：室内挂机5颗，方形柜机10颗，天花机7颗";
         
-        diceStage.innerHTML = '';
-        if(acType === 'cabinet') {
-            for(var i = 0; i < totalCount * 2; i++) {
-                var rowDom = document.createElement('div');
-                rowDom.className = 'dice-stage-row';
-                rowDom.id = 'dice-row-' + i;
-                var labelDom = document.createElement('div');
-                labelDom.className = 'dice-row-label';
-                labelDom.innerText = '第 ' + (Math.floor(i/2) + 1) + ' 台(' + (i % 2 === 0 ? '前半段' : '后半段') + ')';
-                rowDom.appendChild(labelDom);
-                diceStage.appendChild(rowDom);
-            }
-        } else {
-            diceStage.innerHTML = `
-            <div id="stage-hint-text"
-            style="
-            color:var(--accent-green);
-            font-size:0.95rem;
-            font-weight:bold;
-            text-align:center;
-            padding:25px 0;
-            ">
-            🎁 点击下方“摇一摇”，预估清洗折扣！
-            </div>
-            `;
-        }
-        
+        diceStage.innerHTML = `
+        <div id="stage-hint-text"
+        style="
+        color:var(--accent-green);
+        font-size:0.95rem;
+        font-weight:bold;
+        text-align:center;
+        padding:25px 0;
+        ">
+        🎁 点击下方“摇一摇”，预估清洗折扣！
+        </div>
+        `;        
+
         var hintDiv = document.createElement('div');
         hintDiv.className = 'stage-hint';
         hintDiv.id = 'stage-hint-text';

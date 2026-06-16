@@ -420,8 +420,10 @@
             <div class="dice-stage" id="dice-stage"></div>
 
             <div class="summary-box">
-                <h3 style="margin-top:0; border-bottom: 1px solid var(--accent-green); padding-bottom:6px; font-size:0.95rem; text-align:center;">📊【费用明细对账】</h3>
-                
+            <div style=" display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--accent-green); padding-bottom:6px; margin-top:0; margin-bottom:10px;">
+            <h3 style=" margin:0; font-size:0.95rem; flex:1; text-align:center; "> 📊【费用明细对账】 </h3>
+            <button id="save-shot-btn" onclick="saveBillScreenshot()" title="截图并下载" style=" border:none; background:none; cursor:pointer; font-size:1.2rem; padding:0; margin-left:6px; "> 📸 </button>
+            </div>
                 <div class="price-line"><span>🛠️ 预选服务规格：</span><span id="log-ac-type-name">-</span></div>
                 <div style="margin: 6px 0 4px 0; font-size:0.85rem; color:#aaa;">🎲 落地减免流水：</div>
                 
@@ -447,7 +449,6 @@
                     <option value="3">3颗</option>
                     <option value="5" selected>5颗</option>
                 </select>
-                <button id="save-shot-btn" class="roll-btn reset-state"  style="flex:0 0 110px;"  onclick="saveBillScreenshot()"> 📸 截图  </button>
                 <button id="roll-btn" class="roll-btn" onclick="handleMainButtonClick()">🎲 摇一摇！</button>
             </div>
         </div>
@@ -1064,7 +1065,7 @@
                 if (finishedCount === numToRoll) {
                     if(totalRolled >= maxTargetDice) {
                         document.getElementById('try-status-bar').innerHTML = "✨骰子数：室内挂机5颗，方形柜机10颗，天花机7颗";
-                        rollBtn.innerText = "🔄 继续摇";
+                        rollBtn.innerText = "🔄 继续摇一摇";
                         rollBtn.classList.add("reset-state");
                         currentButtonMode = "reset";
                         rollBtn.disabled = false;

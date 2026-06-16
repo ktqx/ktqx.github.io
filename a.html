@@ -181,30 +181,47 @@
         }
 
         /* 3D 骰子舞台区域 */
-        .stage-and-bill-block { background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+        .stage-and-bill-block { background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
         .dice-stage {
             display: flex;
-            flex-direction: column; gap: 4px; min-height: 120px; padding: 15px 10px; margin-bottom: 12px;
-            background: var(--stage-bg); border-radius: 10px;
-            box-shadow: inset 0 0 35px rgba(0,0,0,0.95); perspective: 1200px;
+            flex-direction: column;
+            gap: 2px;
+            min-height: 90px;
+            padding: 8px;
+            margin-bottom: 12px;
+            background: var(--stage-bg);
+            border-radius: 10px;
+            box-shadow: inset 0 0 35px rgba(0,0,0,0.95);
+            perspective: 1200px;
             overflow: hidden;
         }
+
         .dice-stage-row {
             display: flex;
-            flex-wrap: wrap; justify-content: flex-start; align-items: center;
-            background: rgba(255, 255, 255, 0.01); padding: 8px 8px; border-radius: 8px; border: 1px dashed #252525;
-            min-height: 68px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: flex-start;
+            background: rgba(255,255,255,0.01);
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px dashed #252525;
+            min-height: 56px;
         }
-        .dice-row-label { font-size: 0.8rem; color: var(--accent-green); font-weight: bold; width: 100%; margin-bottom: 10px; }
-        .stage-hint { color: var(--accent-green); font-size: 0.9rem; text-align: center; width: 100%; font-weight: bold; padding: 30px 0; }
 
-        /* 3D 骰子核心组件 */
-        .cube-container { 
+        .dice-row-label {
+            font-size: 0.8rem;
+            color: var(--accent-green);
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 2px;
+        }
+
+        .cube-container {
             width: 46px;
-            height: 46px; 
-            position: relative; 
-            flex-shrink: 0; 
-            margin: 12px 16px 16px 6px;
+            height: 46px;
+            position: relative;
+            flex-shrink: 0;
+            margin: 2px 10px 4px 2px;
             display: inline-block;
         }
         
@@ -430,15 +447,8 @@
                     <option value="3">3颗</option>
                     <option value="5" selected>5颗</option>
                 </select>
+                <button id="save-shot-btn" class="roll-btn reset-state"  style="flex:0 0 110px;"  onclick="saveBillScreenshot()"> 📸 截图  </button>
                 <button id="roll-btn" class="roll-btn" onclick="handleMainButtonClick()">🎲 摇一摇！</button>
-
-                <button
-                    id="save-shot-btn"
-                    class="roll-btn reset-state"
-                    style="flex:0 0 110px;"
-                    onclick="saveBillScreenshot()">
-                    📸 截图
-                </button>
             </div>
         </div>
 

@@ -184,7 +184,7 @@
         .stage-and-bill-block { background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
         .dice-stage {
             display: flex;
-            flex-direction: column; gap: 10px; min-height: 120px; padding: 15px 10px; margin-bottom: 12px;
+            flex-direction: column; gap: 4px; min-height: 120px; padding: 15px 10px; margin-bottom: 12px;
             background: var(--stage-bg); border-radius: 10px;
             box-shadow: inset 0 0 35px rgba(0,0,0,0.95); perspective: 1200px;
             overflow: hidden;
@@ -192,8 +192,8 @@
         .dice-stage-row {
             display: flex;
             flex-wrap: wrap; justify-content: flex-start; align-items: center;
-            background: rgba(255, 255, 255, 0.01); padding: 12px 8px; border-radius: 8px; border: 1px dashed #252525;
-            min-height: 80px;
+            background: rgba(255, 255, 255, 0.01); padding: 8px 8px; border-radius: 8px; border: 1px dashed #252525;
+            min-height: 68px;
         }
         .dice-row-label { font-size: 0.8rem; color: var(--accent-green); font-weight: bold; width: 100%; margin-bottom: 10px; }
         .stage-hint { color: var(--accent-green); font-size: 0.9rem; text-align: center; width: 100%; font-weight: bold; padding: 30px 0; }
@@ -353,6 +353,7 @@
         .btn-submit-wechat { background: linear-gradient(90deg, #ffb703, #fb8500); color: #000; padding: 15px; font-size: 1.1rem; font-weight: bold; width: 100%; border-radius: 8px; border: none; cursor: pointer; margin-bottom: 12px; text-align: center; box-shadow: 0 4px 15px rgba(255,183,3,0.3); }
         .btn-back-try { background: #333; color: #aaa; padding: 12px; border-radius: 8px; border: none; font-weight: bold; width: 100%; font-size: 0.95rem; cursor: pointer; text-align: center; }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -430,6 +431,14 @@
                     <option value="5" selected>5颗</option>
                 </select>
                 <button id="roll-btn" class="roll-btn" onclick="handleMainButtonClick()">🎲 摇一摇！</button>
+
+                <button
+                    id="save-shot-btn"
+                    class="roll-btn reset-state"
+                    style="flex:0 0 110px;"
+                    onclick="saveBillScreenshot()">
+                    📸 截图
+                </button>
             </div>
         </div>
 
@@ -776,24 +785,28 @@
                 diceStage.appendChild(rowDom);
             }
         } else {
-            for(var i = 0; i < totalCount; i++) {
-                var rowDom = document.createElement('div');
-                rowDom.className = 'dice-stage-row';
-                rowDom.id = 'dice-row-' + i;
-                var labelDom = document.createElement('div');
-                labelDom.className = 'dice-row-label';
-                labelDom.innerText = '第 ' + (i + 1) + ' 台';
-                rowDom.appendChild(labelDom);
-                diceStage.appendChild(rowDom);
-            }
+            diceStage.innerHTML = `
+            <div id="stage-hint-text"
+            style="
+            color:var(--accent-green);
+            font-size:0.95rem;
+            font-weight:bold;
+            text-align:center;
+            padding:25px 0;
+            ">
+            🎁 点击下方“摇一摇”，预估清洗折扣！
+            </div>
+            `;
         }
         
         var hintDiv = document.createElement('div');
         hintDiv.className = 'stage-hint';
         hintDiv.id = 'stage-hint-text';
-        hintDiv.innerText = "🎁 点击下方“摇一摇”，预估清洗折扣！";
-        diceStage.appendChild(hintDiv);
-        
+        hintDiv.style.padding = "0";
+        hintDiv.style.minHeight = "0";
+        hintDiv.style.display = "none";
+        diceStage.appendChild(hintDiv);        
+
         calculatePrices();
     }
 
@@ -908,6 +921,39 @@
     }
 
     function rollDice3D() {
+        if(totalRolled === 0){
+            diceStage.innerHTML = '';
+            var totalCount = parseInt(acTotalCountInput.value) || 1;
+            var acType = acTypeSelect.value;
+            if(acType === 'cabinet'){
+                for(var i=0;i<totalCount*2;i++){
+                    var rowDom=document.createElement('div');
+                    rowDom.className='dice-stage-row';
+                    rowDom.id='dice-row-'+i;
+                    var labelDom=document.createElement('div');
+                    labelDom.className='dice-row-label';
+                    labelDom.innerText=
+                    '第 '+
+                    (Math.floor(i/2)+1)+
+                    ' 台'+
+                    (i%2===0?'(前半段)':'(后半段)');
+                    rowDom.appendChild(labelDom);
+                    diceStage.appendChild(rowDom);
+                }
+            }else{
+                for(var i=0;i<totalCount;i++){
+                    var rowDom=document.createElement('div');
+                    rowDom.className='dice-stage-row';
+                    rowDom.id='dice-row-'+i;
+                    var labelDom=document.createElement('div');
+                    labelDom.className='dice-row-label';
+                    labelDom.innerText='第 '+(i+1)+' 台';
+                    rowDom.appendChild(labelDom);
+                    diceStage.appendChild(rowDom);
+                }
+            }
+        }
+
         var desiredRoll = parseInt(rollNumSelect.value) || 1;
         var acType = acTypeSelect.value;
         var currentLineCapacity = (acType === 'cabinet') ? 5 : singleLimitPerAC;
@@ -919,6 +965,10 @@
         rollBtn.disabled = true;
         rollNumSelect.disabled = true;
         var hintTxt = document.getElementById('stage-hint-text');
+        var titleText=document.querySelector("h3");
+        if(titleText){
+            titleText.innerHTML='🔮 现场盲摇 <span id="rule-hint-text" style="color:var(--accent-green); font-size:0.8rem; font-weight:normal;">（'+priceMatrix[acTypeSelect.value].rule+'）</span>';
+        }
         if (hintTxt) hintTxt.remove();
         
         var parentRowIdx = Math.floor(totalRolled / currentLineCapacity);
@@ -1018,7 +1068,7 @@
                 if (finishedCount === numToRoll) {
                     if(totalRolled >= maxTargetDice) {
                         document.getElementById('try-status-bar').innerHTML = "✨骰子数：室内挂机5颗，方形柜机10颗，天花机7颗";
-                        rollBtn.innerText = "🔄 重新摇一摇";
+                        rollBtn.innerText = "🔄 重新摇";
                         rollBtn.classList.add("reset-state");
                         currentButtonMode = "reset";
                         rollBtn.disabled = false;
@@ -1032,6 +1082,37 @@
         
         totalRolled += numToRoll;
         currentCountSpan.innerText = totalRolled;
+    }
+
+    function saveBillScreenshot() {
+
+        var target = document.querySelector('.summary-box');
+
+        html2canvas(target,{
+            backgroundColor:"#1e1e1e",
+            scale:2,
+            useCORS:true
+        }).then(function(canvas){
+
+            var link=document.createElement('a');
+
+            var now=new Date();
+
+            var fileName=
+                '费用明细对账_' +
+                now.getFullYear() +
+                ('0'+(now.getMonth()+1)).slice(-2) +
+                ('0'+now.getDate()).slice(-2) +
+                '_' +
+                ('0'+now.getHours()).slice(-2) +
+                ('0'+now.getMinutes()).slice(-2) +
+                ('0'+now.getSeconds()).slice(-2) +
+                '.png';
+
+            link.download=fileName;
+            link.href=canvas.toDataURL('image/png');
+            link.click();
+        });
     }
 
     function copyAndSubmitToWechat() {

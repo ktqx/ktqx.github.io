@@ -378,7 +378,7 @@
                 <select id="ac-type" class="inline-select" onchange="resetDiceStage()">
                     <option value="wall">室内挂机</option>
                     <option value="cabinet">方形柜机</option>
-                    <option value="ceiling">吸顶天花机</option>
+                    <option value="ceiling">天花机</option>
                 </select>
             </div>
             <div class="config-row">
@@ -519,7 +519,7 @@
                 <select id="form-sync-type" onchange="onFormConfigChange()">
                     <option value="室内挂机">室内挂机</option>
                     <option value="方形柜机">方形柜机</option>
-                    <option value="吸顶天花机">吸顶天花机</option>
+                    <option value="天花机">天花机</option>
                 </select>
             </div>
             <div class="form-group">
@@ -634,7 +634,7 @@
     var priceMatrix = {
         wall:    { name: "室内挂机", price: { 1: 120, 2: 115, 3: 110 }, rule: "限5颗/台" }, 
         cabinet: { name: "方形柜机", price: { 1: 260, 2: 250, 3: 240 }, rule: "限10颗/台" }, 
-        ceiling: { name: "吸顶天花机", price: { 1: 200, 2: 190, 3: 180 }, rule: "限7颗/台" }  
+        ceiling: { name: "天花机", price: { 1: 200, 2: 190, 3: 180 }, rule: "限7颗/台" }  
     };
     var diceLimitMatrix = { wall: 5, ceiling: 7, cabinet: 10 };
 
@@ -702,7 +702,7 @@
     function syncFormToPage1(formTypeName, count) {
         var page1Type = "wall";
         if (formTypeName === "方形柜机") page1Type = "cabinet";
-        if (formTypeName === "吸顶天花机") page1Type = "ceiling";
+        if (formTypeName === "天花机") page1Type = "ceiling";
         acTypeSelect.value = page1Type;
         acTotalCountInput.value = count;
         resetDiceStage();
@@ -714,7 +714,7 @@
         
         var matrixKey = "wall";
         if (formType === "方形柜机") matrixKey = "cabinet";
-        if (formType === "吸顶天花机") matrixKey = "ceiling";
+        if (formType === "天花机") matrixKey = "ceiling";
         
         var step = formCount > 3 ? 3 : formCount;
         var unitPrice = priceMatrix[matrixKey].price[step];
@@ -732,7 +732,7 @@
             var selectVal = acTypeSelect.value;
             var mappedName = "室内挂机";
             if (selectVal === 'cabinet') mappedName = "方形柜机";
-            if (selectVal === 'ceiling') mappedName = "吸顶天花机";
+            if (selectVal === 'ceiling') mappedName = "天花机";
             document.getElementById('form-sync-type').value = mappedName;
             document.getElementById('form-sync-count').value = acTotalCountInput.value;
             document.getElementById('page-official').style.display = "flex";

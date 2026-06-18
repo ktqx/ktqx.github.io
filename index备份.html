@@ -347,13 +347,13 @@
          </div>
          <div id="page-try" class="page active">
             <div class="status-bar" id="try-status-bar">
-               ✨骰子数：室内挂机5颗，方形柜机10颗，天花机7颗
+               ✨单台骰数：家用挂机5颗，方形柜机10颗，天花机7颗
             </div>
             <div class="quick-config" style="display: flex; align-items: center; justify-content: space-between; gap: 5px;">
                <div class="config-row" style="display: flex; align-items: center; margin: 0;">
                   <label style="white-space: nowrap;">空调规格：</label>
                   <select id="ac-type" class="inline-select" onchange="resetDiceStage()">
-                     <option value="wall">室内挂机</option>
+                     <option value="wall">家用挂机</option>
                      <option value="cabinet">方形柜机</option>
                      <option value="ceiling">天花机</option>
                   </select>
@@ -421,19 +421,19 @@
                   </thead>
                   <tbody>
                      <tr>
-                        <td>室内挂机(拆壳)</td>
+                        <td>家用挂机(拆壳洗)</td>
                         <td>120元</td>
                         <td>115元</td>
                         <td class="text-highlight-gold">110元/台</td>
                      </tr>
                      <tr>
-                        <td>方形柜机(开背)</td>
+                        <td>方形柜机(开背洗)</td>
                         <td>260元</td>
                         <td>250元</td>
                         <td class="text-highlight-gold">240元/台</td>
                      </tr>
                      <tr>
-                        <td>天花机(拆壳)</td>
+                        <td>天花机(拆壳洗)</td>
                         <td>200元</td>
                         <td>190元</td>
                         <td class="text-highlight-gold">180元/台</td>
@@ -441,7 +441,7 @@
                   </tbody>
                </table>
                <div class="table-footer-note">
-                  <span class="star-white">★ 注意：</span>诚意金结算自动扣减，未支付无法享受此活动！
+                  <span class="star-white">★ 备注：</span>诚意金结算自动扣减，未支付无法享受此活动！
                </div>
             </div>
          </div>
@@ -452,8 +452,8 @@
                <strong>2、</strong>支付5元诚意金；<br>
                <strong>3、</strong>填写以下预约资料；<br>
                <strong>4、</strong>点击“复制并发给李工微信”；<br>
-               <strong>5、</strong>找到李工微信，粘贴并发送；<br>
-               <strong>6、</strong>联系上门，清洗，摇点减免，支付，结束。
+               <strong>5、</strong>点开李工微信，粘贴并发送；<br>
+               <strong>6、</strong>联系上门，摇点减免，清洗，支付，结束。
             </div>
             <div class="qr-area">
                <div class="qr-card">
@@ -483,7 +483,7 @@
                <div class="form-group">
                   <label>确认空调规格：</label>
                   <select id="form-sync-type" onchange="onFormConfigChange()">
-                     <option value="室内挂机">室内挂机</option>
+                     <option value="家用挂机">家用挂机</option>
                      <option value="方形柜机">方形柜机</option>
                      <option value="天花机">天花机</option>
                   </select>
@@ -647,7 +647,7 @@
          }
          
          var priceMatrix = {
-             wall:    { name: "室内挂机", price: { 1: 120, 2: 115, 3: 110 }, rule: "限5颗/台" }, 
+             wall:    { name: "家用挂机", price: { 1: 120, 2: 115, 3: 110 }, rule: "限5颗/台" }, 
              cabinet: { name: "方形柜机", price: { 1: 260, 2: 250, 3: 240 }, rule: "限10颗/台" }, 
              ceiling: { name: "天花机", price: { 1: 200, 2: 190, 3: 180 }, rule: "限7颗/台" }  
          };
@@ -745,7 +745,7 @@
                  document.getElementById('page-try').style.display = "flex";
              } else if (target === 'official') {
                  var selectVal = acTypeSelect.value;
-                 var mappedName = "室内挂机";
+                 var mappedName = "家用挂机";
                  if (selectVal === 'cabinet') mappedName = "方形柜机";
                  if (selectVal === 'ceiling') mappedName = "天花机";
                  document.getElementById('form-sync-type').value = mappedName;
@@ -776,7 +776,7 @@
              activeDiceRenderQueue = new Array(maxTargetDice).fill(null);
              
              document.getElementById('rule-hint-text').innerText = "（" + priceMatrix[acType].rule + "）";
-             document.getElementById('try-status-bar').innerHTML = "✨骰子数：室内挂机5颗，方形柜机10颗，天花机7颗";
+             document.getElementById('try-status-bar').innerHTML = "✨骰子数：家用挂机5颗，方形柜机10颗，天花机7颗";
              
              diceStage.innerHTML = `
              <div id="stage-hint-text"
@@ -1059,7 +1059,7 @@
                      finishedCount++;
                      if (finishedCount === numToRoll) {
                          if(totalRolled >= maxTargetDice) {
-                             document.getElementById('try-status-bar').innerHTML = "✨骰子数：室内挂机5颗，方形柜机10颗，天花机7颗";
+                             document.getElementById('try-status-bar').innerHTML = "✨骰子数：家用挂机5颗，方形柜机10颗，天花机7颗";
                              rollBtn.innerText = "🔄 继续摇一摇";
                              rollBtn.classList.add("reset-state");
                              currentButtonMode = "reset";
@@ -1113,7 +1113,7 @@
              var name = document.getElementById('cust-name').value.trim();
              var phone = document.getElementById('cust-phone').value.trim();
              var addr = document.getElementById('cust-address').value.trim();
-             var bTime = document.getElementById('book-time').value.trim() || "与李工电话联系确认";
+             var bTime = document.getElementById('book-time').value.trim() || "电话联系为准";
              
              var formType = document.getElementById('form-sync-type').value;
              var formCount = document.getElementById('form-sync-count').value;
@@ -1126,17 +1126,15 @@
              var priceObj = updateFormNormalPrice();
              var normalPriceText = priceObj.unit + "元/台 * " + formCount + "台 = " + priceObj.total + "元";
              var infoText = "📢 【空调清洗服务预约单】\n" +
-                            "------------------------------\n" +
                             "👤 客户姓名：" + name + "\n" +
                             "📞 联系电话：" + phone + "\n" +
                             "📍 上门地址：" + addr + "\n" +
                             "⏰ 期望时段：" + bTime + "\n" +
                             "🛠 服务机型：" + formType + "\n" +
                             "🔢 清洗数量：" + formCount + " 台\n" +
-                            "💵 正常服务总价：" + normalPriceText + "\n" +
-                            "💰 诚意金状态：以微信实收为准！\n" +
-                            "------------------------------\n" +
-                            "📝 备注：已知晓规则，最终实收金额将在上门当面摇骰子后，从正常总价中扣减点数和诚意金！";
+                            "💵 正常清洗总价：" + normalPriceText + "\n" +
+                            "💰 说明：未付诚意金不回复；以微信实收为准！\n" +
+                            "📝 实收尾款=正常清洗总价-诚意金-盲摇总点数。";
          
              navigator.clipboard.writeText(infoText).then(function() {
                  alert("📋 您的预约单资料已自动复制到手机剪贴板中！\n\n现在将为您启动微信，请直接在微信李工对话框内「长按粘贴」发送即可！");

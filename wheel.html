@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎡 幸运大转盘 - 力度感应转盘游戏</title>
+  <style>
+    /* ===== CSS 变量 ===== */
+    :root {
+      --primary-color:   #ff6b35;
+      --secondary-color: #004e89;
+      --accent-gold:     #f7b801;
+      --dark-bg:         #0f1419;
+      --light-text:      #ffffff;
+      --text-secondary:  #b0b3c1;
+    }
+
+    /* ===== 全局重置 ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%);
+      color: var(--light-text);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 15px;
+    }
+
+    /* ===== 主容器 ===== */
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(15, 20, 25, 0.95);
+      border: 3px solid var(--accent-gold);
+      border-radius: 25px;
+      padding: 25px;
+      box-shadow: 0 0 50px rgba(247, 184, 1, 0.2), inset 0 0 30px rgba(247, 184, 1, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    /* ===== 标题区 ===== */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+      margin-bottom: 8px;
+      text-shadow: 0 0 20px rgba(247, 184, 1, 0.4);
+      letter-spacing: 2px;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    /* ===== 配置面板 ===== */
+    .config-panel {
+      background: linear-gradient(135deg, rgba(0, 78, 137, 0.1), rgba(255, 107, 53, 0.1));
+      border: 2px solid rgba(247, 184, 1, 0.3);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .config-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .config-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .config-input, .config-textarea {
+      padding: 10px 12px;
+      background: rgba(26, 35, 50, 0.9);
+      border: 2px solid rgba(247, 184, 1, 0.2);
+      border-radius: 8px;
+      color: var(--light-text);
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .config-input:focus, .config-textarea:focus {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 15px rgba(247, 184, 1, 0.3);
+    }
+
+    .config-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* ===== 转盘区域 ===== */
+    .wheel-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 25px;
+      margin-bottom: 25px;
+    }
+
+    /* ===== 转盘容器 ===== */
+    .wheel-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      aspect-ratio: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 指针 */
+    .pointer {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 25px solid var(--accent-gold);
+      z-index: 10;
+      filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
+    }
+
+    /* 转盘 */
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffffff 0%, #f0f0f0 100%);
+      box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.5),
+        inset 0 0 30px rgba(0, 0, 0, 0.1),
+        0 0 0 8px var(--accent-gold),
+        0 0 0 12px rgba(247, 184, 1, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.05s linear;
+    }
+
+    .wheel svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 中心圆 */
+    .wheel-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, var(--accent-gold) 0%, #d4a500 100%);
+      border-radius: 50%;
+      box-shadow: 
+        0 5px 15px rgba(0, 0, 0, 0.4),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.3);
+      z-index: 5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--dark-bg);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ===== 控制面板 ===== */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+    }
+
+    /* 蓄力条 */
+    .power-bar-container {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(26, 35, 50, 0.8);
+      border: 2px solid rgba(247, 184, 1, 0.2);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .power-bar-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .power-bar {
+      width: 100%;
+      height: 30px;
+      background: linear-gradient(90deg, #333 0%, #555 100%);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .power-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff6b35 0%, #ff9500 50%, #ffb700 100%);
+      transition: width 0.05s linear;
+      box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+    }
+
+    .power-text {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    /* 按钮 */
+    .btn-spin {
+      width: 100%;
+      max-width: 300px;
+      padding: 18px 30px;
+      background: linear-gradient(135deg, var(--primary-color), #ff8c42);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .btn-spin:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(255, 107, 53, 0.5);
+    }
+
+    .btn-spin:active:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .btn-spin:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-spin.charging {
+      background: linear-gradient(135deg, #ff9500, #ffb700);
+      box-shadow: 0 0 30px rgba(255, 107, 53, 0.6);
+      animation: pulse 0.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* ===== 结果弹窗 ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, var(--dark-bg), #1a2332);
+      border: 3px solid var(--accent-gold);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 500px;
+      animation: modalBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 50px rgba(247, 184, 1, 0.4);
+    }
+
+    @keyframes modalBounce {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-title {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+      margin-bottom: 15px;
+      letter-spacing: 2px;
+    }
+
+    .modal-result {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: var(--primary-color);
+      margin: 25px 0;
+      animation: resultPulse 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      text-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
+    }
+
+    @keyframes resultPulse {
+      0% { transform: scale(0.3); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .modal-btn-primary {
+      background: linear-gradient(135deg, var(--primary-color), #ff8c42);
+      color: #fff;
+      box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+    }
+
+    .modal-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(255, 107, 53, 0.5);
+    }
+
+    .modal-btn-secondary {
+      background: rgba(247, 184, 1, 0.1);
+      color: var(--accent-gold);
+      border: 2px solid var(--accent-gold);
+    }
+
+    .modal-btn-secondary:hover {
+      background: rgba(247, 184, 1, 0.2);
+    }
+
+    /* ===== 响应式设计 ===== */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+        border-radius: 15px;
+      }
+
+      .title {
+        font-size: 1.8rem;
+      }
+
+      .config-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .wheel-container {
+        max-width: 350px;
+      }
+
+      .modal-content {
+        padding: 30px 20px;
+        margin: 20px;
+      }
+
+      .modal-result {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- 标题 -->
+    <div class="header">
+      <div class="title">🎡 幸运大转盘</div>
+      <div class="subtitle">按住转盘按钮蓄力，力度越大转得越快</div>
+    </div>
+
+    <!-- 配置面板 -->
+    <div class="config-panel">
+      <div class="config-group">
+        <label class="config-label">转盘等分数</label>
+        <input type="number" class="config-input" id="sectorCount" value="20" min="4" max="50" onchange="updateWheel()">
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">每个数字的个数</label>
+        <input type="text" class="config-input" id="sectorCounts" value="7,7,6" placeholder="如: 7,7,6">
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">转盘文字内容</label>
+        <input type="text" class="config-input" id="sectorTexts" value="8,9,10" placeholder="如: 8,9,10">
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">转盘文字颜色</label>
+        <input type="text" class="config-input" id="sectorColors" value="#FF6B35,#004E89,#F7B801" placeholder="如: #FF6B35,#004E89,#F7B801">
+      </div>
+    </div>
+
+    <!-- 转盘区域 -->
+    <div class="wheel-section">
+      <div class="wheel-container">
+        <div class="pointer"></div>
+        <div class="wheel" id="wheel">
+          <svg id="wheelSvg" viewBox="0 0 400 400"></svg>
+          <div class="wheel-center">🎯</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 控制面板 -->
+    <div class="control-panel">
+      <div class="power-bar-container">
+        <div class="power-bar-label">蓄力进度</div>
+        <div class="power-bar">
+          <div class="power-fill" id="powerFill"></div>
+        </div>
+        <div class="power-text">
+          <span id="powerText">0%</span> - <span id="powerTime">0.0秒</span>
+        </div>
+      </div>
+
+      <button class="btn-spin" id="spinBtn" onmousedown="startCharging()" onmouseup="stopCharging()" ontouchstart="startCharging()" ontouchend="stopCharging()">
+        🎲 转一转
+      </button>
+    </div>
+
+  </div>
+
+  <!-- 结果弹窗 -->
+  <div class="modal-overlay" id="resultModal">
+    <div class="modal-content">
+      <div class="modal-title">🎉 恭喜你！</div>
+      <div class="modal-result" id="resultText"></div>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-primary" onclick="closeResultModal()">再转一次</button>
+        <button class="modal-btn modal-btn-secondary" onclick="location.reload()">刷新页面</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ===== 游戏状态 ===== */
+    const gameState = {
+      isSpinning: false,
+      isCharging: false,
+      chargeTime: 0,
+      chargeInterval: null,
+      currentRotation: 0,
+      sectors: []
+    };
+
+    const colorMap = {};
+
+    /* ===== 初始化转盘 ===== */
+    function updateWheel() {
+      const sectorCount = parseInt(document.getElementById('sectorCount').value) || 20;
+      const sectorCountsStr = document.getElementById('sectorCounts').value;
+      const sectorTextsStr = document.getElementById('sectorTexts').value;
+      const sectorColorsStr = document.getElementById('sectorColors').value;
+
+      const counts = sectorCountsStr.split(',').map(s => parseInt(s.trim()));
+      const texts = sectorTextsStr.split(',').map(s => s.trim());
+      const colors = sectorColorsStr.split(',').map(s => s.trim());
+
+      // 构建颜色映射
+      Object.keys(colorMap).forEach(key => delete colorMap[key]);
+      texts.forEach((text, idx) => {
+        colorMap[text] = colors[idx] || '#' + Math.floor(Math.random() * 16777215).toString(16);
+      });
+
+      // 生成扇区数据
+      gameState.sectors = [];
+      let totalCount = 0;
+      for (let i = 0; i < texts.length; i++) {
+        for (let j = 0; j < counts[i]; j++) {
+          gameState.sectors.push(texts[i]);
+        }
+        totalCount += counts[i];
+      }
+
+      // 随机打乱
+      for (let i = gameState.sectors.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [gameState.sectors[i], gameState.sectors[j]] = [gameState.sectors[j], gameState.sectors[i]];
+      }
+
+      // 如果扇区数不等于等分数，进行调整
+      if (gameState.sectors.length !== sectorCount) {
+        console.warn(`扇区数 (${gameState.sectors.length}) 与等分数 (${sectorCount}) 不匹配，已自动调整`);
+        while (gameState.sectors.length < sectorCount) {
+          gameState.sectors.push(texts[Math.floor(Math.random() * texts.length)]);
+        }
+        gameState.sectors = gameState.sectors.slice(0, sectorCount);
+      }
+
+      renderWheel();
+    }
+
+    /* ===== 渲染转盘 ===== */
+    function renderWheel() {
+      const svg = document.getElementById('wheelSvg');
+      svg.innerHTML = '';
+
+      const sectorCount = gameState.sectors.length;
+      const anglePerSector = 360 / sectorCount;
+      const radius = 200;
+      const innerRadius = 50;
+
+      gameState.sectors.forEach((text, idx) => {
+        const startAngle = idx * anglePerSector;
+        const endAngle = (idx + 1) * anglePerSector;
+
+        // 绘制扇形
+        const startRad = (startAngle - 90) * Math.PI / 180;
+        const endRad = (endAngle - 90) * Math.PI / 180;
+
+        const x1 = 200 + radius * Math.cos(startRad);
+        const y1 = 200 + radius * Math.sin(startRad);
+        const x2 = 200 + radius * Math.cos(endRad);
+        const y2 = 200 + radius * Math.sin(endRad);
+
+        const largeArc = anglePerSector > 180 ? 1 : 0;
+
+        const path = `
+          M 200 200
+          L ${x1} ${y1}
+          A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}
+          Z
+        `;
+
+        const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathElement.setAttribute('d', path);
+        pathElement.setAttribute('fill', colorMap[text] || '#' + Math.floor(Math.random() * 16777215).toString(16));
+        pathElement.setAttribute('stroke', '#fff');
+        pathElement.setAttribute('stroke-width', '2');
+        svg.appendChild(pathElement);
+
+        // 添加文字
+        const midAngle = (startAngle + endAngle) / 2;
+        const midRad = (midAngle - 90) * Math.PI / 180;
+        const textX = 200 + (radius + innerRadius) / 2 * Math.cos(midRad);
+        const textY = 200 + (radius + innerRadius) / 2 * Math.sin(midRad);
+
+        const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        textElement.setAttribute('x', textX);
+        textElement.setAttribute('y', textY);
+        textElement.setAttribute('text-anchor', 'middle');
+        textElement.setAttribute('dominant-baseline', 'middle');
+        textElement.setAttribute('font-size', '20');
+        textElement.setAttribute('font-weight', 'bold');
+        textElement.setAttribute('fill', '#fff');
+        textElement.setAttribute('transform', `rotate(${midAngle} ${textX} ${textY})`);
+        textElement.textContent = text;
+        svg.appendChild(textElement);
+      });
+    }
+
+    /* ===== 蓄力系统 ===== */
+    function startCharging() {
+      if (gameState.isSpinning) return;
+
+      gameState.isCharging = true;
+      gameState.chargeTime = 0;
+      document.getElementById('spinBtn').classList.add('charging');
+
+      gameState.chargeInterval = setInterval(() => {
+        gameState.chargeTime += 0.05;
+        const maxChargeTime = 5; // 最多蓄力 5 秒
+        const chargePercent = Math.min((gameState.chargeTime / maxChargeTime) * 100, 100);
+
+        document.getElementById('powerFill').style.width = chargePercent + '%';
+        document.getElementById('powerText').textContent = Math.round(chargePercent) + '%';
+        document.getElementById('powerTime').textContent = gameState.chargeTime.toFixed(1) + '秒';
+
+        if (gameState.chargeTime >= maxChargeTime) {
+          clearInterval(gameState.chargeInterval);
+        }
+      }, 50);
+    }
+
+    function stopCharging() {
+      if (!gameState.isCharging) return;
+
+      gameState.isCharging = false;
+      clearInterval(gameState.chargeInterval);
+      document.getElementById('spinBtn').classList.remove('charging');
+
+      // 根据蓄力时间计算转速和时长
+      const maxChargeTime = 5;
+      const chargeRatio = Math.min(gameState.chargeTime / maxChargeTime, 1);
+      
+      // 转动时长：2 秒到 20 秒
+      const spinDuration = 2 + chargeRatio * 18;
+      
+      // 转动圈数：根据蓄力时间增加
+      const rotations = 5 + chargeRatio * 15;
+
+      spinWheel(spinDuration, rotations);
+
+      // 重置蓄力条
+      gameState.chargeTime = 0;
+      document.getElementById('powerFill').style.width = '0%';
+      document.getElementById('powerText').textContent = '0%';
+      document.getElementById('powerTime').textContent = '0.0秒';
+    }
+
+    /* ===== 转盘旋转 ===== */
+    function spinWheel(duration, rotations) {
+      if (gameState.isSpinning) return;
+
+      gameState.isSpinning = true;
+      document.getElementById('spinBtn').disabled = true;
+
+      const wheel = document.getElementById('wheel');
+      const startTime = Date.now();
+      const startRotation = gameState.currentRotation;
+      const totalRotation = rotations * 360 + Math.random() * 360;
+
+      // 使用缓动函数实现逐渐减速
+      const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / (duration * 1000), 1);
+        const easeProgress = easeOut(progress);
+
+        gameState.currentRotation = startRotation + totalRotation * easeProgress;
+        wheel.style.transform = `rotate(${gameState.currentRotation}deg)`;
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          gameState.isSpinning = false;
+          document.getElementById('spinBtn').disabled = false;
+          getResult();
+        }
+      };
+
+      animate();
+    }
+
+    /* ===== 获取结果 ===== */
+    function getResult() {
+      const sectorCount = gameState.sectors.length;
+      const anglePerSector = 360 / sectorCount;
+      
+      // 正下方是 0 度，所以我们需要计算当前旋转角度对应的扇区
+      const normalizedRotation = gameState.currentRotation % 360;
+      const sectorIndex = Math.floor((360 - normalizedRotation) / anglePerSector) % sectorCount;
+      const result = gameState.sectors[sectorIndex];
+
+      showResultModal(result);
+    }
+
+    /* ===== 显示结果弹窗 ===== */
+    function showResultModal(result) {
+      document.getElementById('resultText').textContent = result;
+      document.getElementById('resultModal').classList.add('active');
+    }
+
+    function closeResultModal() {
+      document.getElementById('resultModal').classList.remove('active');
+    }
+
+    /* ===== 初始化 ===== */
+    window.addEventListener('load', () => {
+      updateWheel();
+    });
+
+    // 防止移动端长按默认行为
+    document.getElementById('spinBtn').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      startCharging();
+    });
+
+    document.getElementById('spinBtn').addEventListener('touchend', (e) => {
+      e.preventDefault();
+      stopCharging();
+    });
+  </script>
+</body>
+</html>

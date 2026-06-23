@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎡 幸运大转盘 Pro - 力度感应与多模式概率</title>
+  <style>
+    /* ===== CSS 变量 ===== */
+    :root {
+      --primary-color:   #ff6b35;
+      --secondary-color: #004e89;
+      --accent-gold:     #f7b801;
+      --dark-bg:         #0f1419;
+      --light-text:      #ffffff;
+      --text-secondary:  #b0b3c1;
+    }
+
+    /* ===== 全局重置 ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%);
+      color: var(--light-text);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 15px;
+    }
+
+    /* ===== 主容器 ===== */
+    .container {
+      width: 100%;
+      max-width: 950px;
+      background: rgba(15, 20, 25, 0.95);
+      border: 3px solid var(--accent-gold);
+      border-radius: 25px;
+      padding: 25px;
+      box-shadow: 0 0 50px rgba(247, 184, 1, 0.2), inset 0 0 30px rgba(247, 184, 1, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    /* ===== 标题区 ===== */
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+      margin-bottom: 8px;
+      text-shadow: 0 0 20px rgba(247, 184, 1, 0.4);
+      letter-spacing: 2px;
+    }
+
+    /* ===== 配置面板 ===== */
+    .config-panel {
+      background: linear-gradient(135deg, rgba(0, 78, 137, 0.15), rgba(255, 107, 53, 0.15));
+      border: 2px solid rgba(247, 184, 1, 0.3);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 25px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .config-input, .config-select {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      background: rgba(26, 35, 50, 0.9);
+      border: 2px solid rgba(247, 184, 1, 0.2);
+      border-radius: 8px;
+      color: var(--light-text);
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .config-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .config-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .config-input, .config-select {
+      padding: 10px 12px;
+      background: rgba(26, 35, 50, 0.9);
+      border: 2px solid rgba(247, 184, 1, 0.2);
+      border-radius: 8px;
+      color: var(--light-text);
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .config-input:focus, .config-select:focus {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 15px rgba(247, 184, 1, 0.3);
+    }
+
+    .distribution-preview {
+      grid-column: 1 / -1;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border-left: 4px solid var(--accent-gold);
+    }
+
+    /* ===== 转盘区域 ===== */
+    .wheel-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 25px;
+      margin-bottom: 25px;
+    }
+
+    .wheel-container {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      aspect-ratio: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 12点位置指针 */
+    .pointer {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 25px solid var(--accent-gold);
+      z-index: 10;
+      filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
+    }
+
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.5),
+        0 0 0 8px var(--accent-gold),
+        0 0 0 12px rgba(247, 184, 1, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.05s linear;
+    }
+
+    .wheel svg { width: 100%; height: 100%; }
+
+    .wheel-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70px;
+      height: 70px;
+      background: radial-gradient(circle, var(--accent-gold) 0%, #d4a500 100%);
+      border-radius: 50%;
+      z-index: 5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.8rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+
+    /* ===== 控制面板 ===== */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+    }
+
+    .power-bar-container {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(26, 35, 50, 0.8);
+      border: 2px solid rgba(247, 184, 1, 0.2);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .power-bar {
+      width: 100%;
+      height: 25px;
+      background: #333;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .power-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff6b35, #ffb700);
+      box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+    }
+
+    .status-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      text-align: center;
+      min-height: 35px;
+    }
+
+    .btn-spin {
+      width: 100%;
+      max-width: 320px;
+      padding: 18px 30px;
+      background: linear-gradient(135deg, var(--primary-color), #ff8c42);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+      user-select: none;
+    }
+
+    .btn-spin.charging {
+      background: linear-gradient(135deg, #ff9500, #ffb700);
+      animation: pulse 0.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @media (max-width: 768px) {
+      .title { font-size: 1.6rem; }
+      .config-panel { grid-template-columns: 1fr; }
+      .wheel-container { max-width: 340px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title">🎡 幸运大转盘 Pro</div>
+    </div>
+
+    <!-- 配置面板 -->
+    <div class="config-panel">
+      <div class="config-group">
+        <label class="config-label">转盘总等分数</label>
+        <input type="number" class="config-input" id="sectorCount" value="20" min="4" max="60" onchange="updateWheel()">
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">转盘文字内容</label>
+        <input type="text" class="config-input" id="sectorTexts" value="8,9,10" placeholder="如: 8,9,10" onchange="updateWheel()">
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">概率分布模式</label>
+        <select class="config-select" id="distMode" onchange="updateWheel()">
+          <option value="equal">⚖️ 绝对平分 (所有项概率相同)</option>
+          <option value="jackpot">🏆 大奖模式 (首项稀有，其余平分)</option>
+          <option value="asc">📈 递增分布 (按顺序概率变大)</option>
+          <option value="desc">📉 递减分布 (按顺序概率变小)</option>
+          <option value="polar">🔥 极化分布 (两头多，中间少)</option>
+          <option value="manual">⌨️ 专家自定义 (手动输入数量)</option>
+        </select>
+      </div>
+
+      <div class="config-group" id="manualInputGroup" style="display: none;">
+        <label class="config-label">手动分配数量</label>
+        <input type="text" class="config-input" id="sectorCounts" value="7,7,6" placeholder="如: 7,7,6" onchange="updateWheel()">
+      </div>
+
+      <div class="distribution-preview" id="distPreview">当前分配：正在计算...</div>
+    </div>
+
+    <!-- 转盘区域 -->
+    <div class="wheel-section">
+      <div class="wheel-container">
+        <div class="pointer"></div>
+        <div class="wheel" id="wheel">
+          <svg id="wheelSvg" viewBox="0 0 400 400"></svg>
+          <div class="wheel-center">🎯</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 控制面板 -->
+    <div class="control-panel">
+      <div class="power-bar-container">
+        <div class="power-bar"><div class="power-fill" id="powerFill"></div></div>
+        <div style="text-align: center; font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+          长按按钮蓄力：<span id="powerText">0%</span> (<span id="powerTime">0.0s</span>)
+        </div>
+      </div>
+
+      <div class="status-text" id="statusText">准备就绪</div>
+      
+      <button class="btn-spin" id="spinBtn" 
+        onmousedown="startCharging()" onmouseup="stopCharging()" 
+        ontouchstart="startCharging()" ontouchend="stopCharging()">
+        🎲 转一转
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const gameState = {
+      isSpinning: false,
+      isCharging: false,
+      chargeTime: 0,
+      chargeInterval: null,
+      currentRotation: 0,
+      sectors: []
+    };
+
+    const colors = ["#ff6b35", "#004e89", "#f7b801", "#2ec4b6", "#e71d36", "#7209b7", "#4cc9f0"];
+
+    function updateWheel() {
+      const sectorCount = parseInt(document.getElementById('sectorCount').value) || 20;
+      const texts = document.getElementById('sectorTexts').value.split(',').map(s => s.trim());
+      const mode = document.getElementById('distMode').value;
+      
+      document.getElementById('manualInputGroup').style.display = (mode === 'manual') ? 'flex' : 'none';
+
+      let counts = [];
+      const n = texts.length;
+
+      if (mode === 'equal') {
+        const base = Math.floor(sectorCount / n);
+        counts = new Array(n).fill(base);
+        for(let i=0; i < sectorCount % n; i++) counts[i]++;
+      } else if (mode === 'jackpot') {
+        counts = new Array(n).fill(Math.floor((sectorCount - 1) / (n - 1)));
+        counts[0] = 1;
+        let sum = counts.reduce((a,b) => a+b, 0);
+        while(sum < sectorCount) { counts[n-1]++; sum++; }
+      } else if (mode === 'asc' || mode === 'desc') {
+        let totalWeight = (n * (n + 1)) / 2;
+        let unit = sectorCount / totalWeight;
+        counts = texts.map((_, i) => Math.max(1, Math.round((i + 1) * unit)));
+        if (mode === 'desc') counts.reverse();
+        adjustCounts(counts, sectorCount);
+      } else if (mode === 'polar') {
+        counts = texts.map((_, i) => {
+          const mid = (n - 1) / 2;
+          const dist = Math.abs(i - mid);
+          return Math.max(1, Math.round(dist + 1));
+        });
+        adjustCounts(counts, sectorCount);
+      } else if (mode === 'manual') {
+        counts = document.getElementById('sectorCounts').value.split(',').map(s => parseInt(s.trim()) || 1);
+        while(counts.length < n) counts.push(1);
+        counts = counts.slice(0, n);
+      }
+
+      document.getElementById('distPreview').textContent = `当前分配：` + texts.map((t, i) => `${t}(${counts[i]}份)`).join(' | ');
+
+      gameState.sectors = [];
+      texts.forEach((text, i) => {
+        for(let j=0; j < counts[i]; j++) gameState.sectors.push(text);
+      });
+      
+      // 智能随机洗牌：尽量避免相同内容相邻
+      gameState.sectors = smartShuffle(gameState.sectors);
+
+      renderWheel(texts);
+    }
+
+    function adjustCounts(counts, target) {
+      let sum = counts.reduce((a,b) => a+b, 0);
+      while(sum !== target) {
+        if(sum < target) { counts[counts.length-1]++; sum++; }
+        else { 
+          const maxIdx = counts.indexOf(Math.max(...counts));
+          if(counts[maxIdx] > 1) { counts[maxIdx]--; sum--; }
+          else break;
+        }
+      }
+    }
+
+    // 智能洗牌算法：尝试将相同元素分散开
+    function smartShuffle(arr) {
+      let result = [];
+      let tempArr = [...arr];
+      
+      // 先打乱原始数组
+      for (let i = tempArr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempArr[i], tempArr[j]] = [tempArr[j], tempArr[i]];
+      }
+
+      // 贪心放置，尽量不让连续两个相同
+      while (tempArr.length > 0) {
+        let found = false;
+        for (let i = 0; i < tempArr.length; i++) {
+          if (result.length === 0 || tempArr[i] !== result[result.length - 1]) {
+            result.push(tempArr.splice(i, 1)[0]);
+            found = true;
+            break;
+          }
+        }
+        // 如果剩下的全是相同的，只能强行放入
+        if (!found) {
+          result.push(tempArr.splice(0, 1)[0]);
+        }
+      }
+
+      // 处理首尾相接的情况（因为转盘是圆的）
+      if (result.length > 1 && result[0] === result[result.length - 1]) {
+        for (let i = 1; i < result.length - 1; i++) {
+          if (result[i] !== result[0] && result[i+1] !== result[0]) {
+            // 交换位置
+            [result[result.length - 1], result[i]] = [result[i], result[result.length - 1]];
+            break;
+          }
+        }
+      }
+
+      return result;
+    }
+
+    function renderWheel(texts) {
+      const svg = document.getElementById('wheelSvg');
+      svg.innerHTML = '';
+      const sectorCount = gameState.sectors.length;
+      const anglePerSector = 360 / sectorCount;
+      const colorMap = {};
+      texts.forEach((t, i) => colorMap[t] = colors[i % colors.length]);
+
+      gameState.sectors.forEach((text, idx) => {
+        const startAngle = idx * anglePerSector;
+        const endAngle = (idx + 1) * anglePerSector;
+        const startRad = (startAngle - 90) * Math.PI / 180;
+        const endRad = (endAngle - 90) * Math.PI / 180;
+
+        const x1 = 200 + 200 * Math.cos(startRad);
+        const y1 = 200 + 200 * Math.sin(startRad);
+        const x2 = 200 + 200 * Math.cos(endRad);
+        const y2 = 200 + 200 * Math.sin(endRad);
+
+        const path = `M 200 200 L ${x1} ${y1} A 200 200 0 ${anglePerSector > 180 ? 1 : 0} 1 ${x2} ${y2} Z`;
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('d', path);
+        p.setAttribute('fill', colorMap[text]);
+        p.setAttribute('stroke', '#fff');
+        p.setAttribute('stroke-width', '1');
+        svg.appendChild(p);
+
+        const midAngle = (startAngle + endAngle) / 2;
+        const midRad = (midAngle - 90) * Math.PI / 180;
+        const tx = 200 + 130 * Math.cos(midRad);
+        const ty = 200 + 130 * Math.sin(midRad);
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', tx); t.setAttribute('y', ty);
+        t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'middle');
+        t.setAttribute('font-size', sectorCount > 30 ? '12' : '18');
+        t.setAttribute('font-weight', 'bold'); t.setAttribute('fill', '#fff');
+        t.setAttribute('transform', `rotate(${midAngle} ${tx} ${ty})`);
+        t.textContent = text;
+        svg.appendChild(t);
+      });
+    }
+
+    function startCharging() {
+      if (gameState.isSpinning) return;
+      gameState.isCharging = true;
+      gameState.chargeTime = 0;
+      document.getElementById('spinBtn').classList.add('charging');
+      gameState.chargeInterval = setInterval(() => {
+        gameState.chargeTime += 0.05;
+        const percent = Math.min((gameState.chargeTime / 5) * 100, 100);
+        document.getElementById('powerFill').style.width = percent + '%';
+        document.getElementById('powerText').textContent = Math.round(percent) + '%';
+        document.getElementById('powerTime').textContent = gameState.chargeTime.toFixed(1) + 's';
+        if (gameState.chargeTime >= 5) clearInterval(gameState.chargeInterval);
+      }, 50);
+    }
+
+    function stopCharging() {
+      if (!gameState.isCharging) return;
+      gameState.isCharging = false;
+      clearInterval(gameState.chargeInterval);
+      document.getElementById('spinBtn').classList.remove('charging');
+      const ratio = Math.min(gameState.chargeTime / 5, 1);
+      spinWheel(2 + ratio * 18, 5 + ratio * 15);
+    }
+
+    function spinWheel(duration, rotations) {
+      if (gameState.isSpinning) return;
+      gameState.isSpinning = true;
+      document.getElementById('spinBtn').disabled = true;
+      document.getElementById('statusText').textContent = '转盘正在飞速旋转...';
+      const startTime = Date.now();
+      const startRot = gameState.currentRotation;
+      const totalRot = rotations * 360 + Math.random() * 360;
+      const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+      const animate = () => {
+        const progress = Math.min((Date.now() - startTime) / (duration * 1000), 1);
+        gameState.currentRotation = startRot + totalRot * easeOut(progress);
+        document.getElementById('wheel').style.transform = `rotate(${gameState.currentRotation}deg)`;
+        if (progress < 1) requestAnimationFrame(animate);
+        else {
+          gameState.isSpinning = false;
+          document.getElementById('spinBtn').disabled = false;
+          getResult();
+        }
+      };
+      animate();
+    }
+
+    function getResult() {
+      const sectorCount = gameState.sectors.length;
+      const anglePerSector = 360 / sectorCount;
+      const normalizedRot = (gameState.currentRotation % 360 + 360) % 360;
+      // 12点位置指针是 0 度。转盘顺时针转，所以要逆向找索引
+      const sectorIndex = Math.floor((360 - normalizedRot) / anglePerSector) % sectorCount;
+      const result = gameState.sectors[sectorIndex];
+      document.getElementById('statusText').innerHTML = `🎉 最终结果：<span style="font-size: 1.8rem; color: var(--primary-color);">${result}</span>`;
+      document.getElementById('powerFill').style.width = '0%';
+    }
+
+    window.addEventListener('load', updateWheel);
+  </script>
+</body>
+</html>

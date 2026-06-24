@@ -1,227 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>幸运砸金蛋 - 华丽版</title>
-    <style>
-        :root {
-            --gold: #ffd700;
-            --gold-dark: #b8860b;
-            --bg-color: #f0f2f5;
-            --primary-color: #ff4d4f;
-        }
-
-        body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: radial-gradient(circle, #2c3e50, #000);
-            color: #fff;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1000px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 3rem;
-            color: var(--gold);
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
-            margin-bottom: 30px;
-            letter-spacing: 5px;
-        }
-
-        /* 配置面板 */
-        .config-panel {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .config-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .config-item label {
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-            color: #ccc;
-        }
-
-        .config-item input {
-            padding: 8px 12px;
-            border-radius: 5px;
-            border: none;
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            width: 100px;
-        }
-
-        .btn-start {
-            padding: 10px 30px;
-            background: linear-gradient(to bottom, #ff4d4f, #cf1322);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: bold;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 15px;
-            align-self: center;
-        }
-
-        .btn-start:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 77, 79, 0.5);
-        }
-
-        /* 游戏区域 */
-        .game-board {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 40px;
-            perspective: 1000px;
-            min-height: 300px;
-            padding: 40px;
-        }
-
-        .egg-wrapper {
-            position: relative;
-            width: 120px;
-            height: 160px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .egg-wrapper:hover {
-            transform: translateY(-10px);
-        }
-
-        .egg {
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 30% 30%, #fff7ad, #ffd700, #b8860b);
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            position: relative;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            overflow: hidden;
-        }
-
-        .egg.broken {
-            background: none !important;
-            box-shadow: none;
-            cursor: default;
-        }
-
-        /* 碎片效果 */
-        .egg-fragment {
-            position: absolute;
-            background: var(--gold);
-            pointer-events: none;
-            opacity: 0;
-            z-index: 5;
-        }
-
-        @keyframes fragment-fly {
-            0% { transform: translate(0, 0) rotate(0); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) rotate(var(--tr)); opacity: 0; }
-        }
-
-        /* 奖项展示 */
-        .prize-label {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #ff4d4f;
-            text-shadow: 0 0 10px #fff;
-            white-space: nowrap;
-            z-index: 10;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .egg-wrapper.is-broken .prize-label {
-            transform: translate(-50%, -50%) scale(1.2);
-        }
-
-        /* 状态统计 */
-        .stats {
-            margin-top: 40px;
-            font-size: 1.2rem;
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            color: #ddd;
-        }
-
-        .stat-val {
-            color: var(--gold);
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-
-        /* 提示信息 */
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 77, 79, 0.9);
-            color: white;
-            padding: 10px 30px;
-            border-radius: 25px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            font-weight: bold;
-        }
-
-        /* 锤子动画 */
-        .hammer {
-            position: fixed;
-            width: 80px;
-            height: 80px;
-            pointer-events: none;
-            z-index: 100;
-            display: none;
-            transform-origin: bottom right;
-        }
-
-        @keyframes hammer-hit {
-            0% { transform: rotate(45deg); }
-            50% { transform: rotate(-30deg); }
-            100% { transform: rotate(45deg); }
-        }
-
-        .hit-anim {
-            animation: hammer-hit 0.3s ease-out;
-        }
-
-    
-    /* ===== 统一导航栏样式 ===== */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🥚 幸运砸金蛋 Pro</title>
+  <style>
+    /* ===== 统一导航栏样式（完全对齐转盘与截图） ===== */
     .navbar {
       position: fixed;
       top: 0;
@@ -276,6 +60,9 @@
       transition: all 0.3s ease;
       padding: 8px 12px;
       border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .navbar-nav a:hover {
@@ -289,23 +76,436 @@
       border: 1px solid #d946ef;
     }
 
-    /* 响应式导航 */
+    /* ===== 全局 CSS 变量与重置（对齐大转盘） ===== */
+    :root {
+      --primary-color:   #ff6b35;
+      --secondary-color: #004e89;
+      --accent-gold:     #f7b801;
+      --dark-bg:         #0f1419;
+      --light-text:      #ffffff;
+      --text-secondary:  #b0b3c1;
+      --gold-light:      #fff380;
+      --gold-dark:       #cc9900;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%);
+      color: var(--light-text);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px;
+      padding-top: 85px;
+    }
+
+    /* ===== 主容器 ===== */
+    .container {
+      width: 100%;
+      max-width: 950px;
+      background: rgba(15, 20, 25, 0.95);
+      border: 3px solid var(--accent-gold);
+      border-radius: 25px;
+      padding: 25px;
+      box-shadow: 0 0 50px rgba(247, 184, 1, 0.2), inset 0 0 30px rgba(247, 184, 1, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    /* ===== 标题区 ===== */
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+      margin-bottom: 8px;
+      text-shadow: 0 0 20px rgba(247, 184, 1, 0.4);
+      letter-spacing: 2px;
+    }
+
+    /* ===== 配置面板 ===== */
+    .config-panel {
+      background: linear-gradient(135deg, rgba(0, 78, 137, 0.15), rgba(255, 107, 53, 0.15));
+      border: 2px solid rgba(247, 184, 1, 0.3);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 25px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      width: 100%;
+      overflow: hidden;
+      align-items: flex-end;
+    }
+
+    .config-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .config-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .config-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(26, 35, 50, 0.9);
+      border: 2px solid rgba(247, 184, 1, 0.2);
+      border-radius: 8px;
+      color: var(--light-text);
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .config-input:focus {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 15px rgba(247, 184, 1, 0.3);
+    }
+
+    /* ===== 赛博风按钮 ===== */
+    .btn-start {
+      width: 100%;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--primary-color), #ff8c42);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+      height: 42px;
+    }
+
+    .btn-start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(255, 107, 53, 0.5);
+    }
+
+    /* ===== 实时统计看板 ===== */
+    .stats-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: rgba(26, 35, 50, 0.6);
+      border: 2px solid rgba(247, 184, 1, 0.2);
+      padding: 12px 25px;
+      border-radius: 12px;
+      min-width: 160px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      text-shadow: 0 2px 10px rgba(247, 184, 1, 0.2);
+    }
+
+    /* ===== 3D 金蛋舞台区域 ===== */
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 30px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 15px;
+      padding: 35px 20px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+    
+    /* 核心改进：仅在游戏区内隐藏默认鼠标，显示锤子 */
+    @media (min-width: 769px) {
+      .game-board { cursor: none; }
+    }
+
+    .egg-wrapper {
+      position: relative;
+      height: 170px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 3D立体逼真金蛋 */
+    .egg {
+      width: 105px;
+      height: 145px;
+      background: radial-gradient(circle at 35% 30%, var(--gold-light) 0%, var(--accent-gold) 50%, var(--gold-dark) 85%, #664400 100%);
+      border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+      box-shadow: 
+        inset -6px -12px 25px rgba(0,0,0,0.3),
+        inset 4px 8px 12px rgba(255,255,255,0.6),
+        0 15px 25px rgba(0, 0, 0, 0.5);
+      transform-origin: bottom center;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: absolute;
+      z-index: 2;
+    }
+
+    .egg-wrapper:hover .egg:not(.broken) {
+      transform: translateY(-10px) scale(1.05) rotate(2deg);
+      box-shadow: 
+        inset -6px -12px 25px rgba(0,0,0,0.3),
+        inset 4px 8px 12px rgba(255,255,255,0.6),
+        0 25px 35px rgba(247, 184, 1, 0.3);
+    }
+
+    /* 蛋下阴影 */
+    .egg-shadow {
+      position: absolute;
+      bottom: 5px;
+      width: 80px;
+      height: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 50%;
+      filter: blur(3px);
+      z-index: 1;
+      transition: transform 0.4s;
+    }
+
+    .egg-wrapper:hover .egg-shadow {
+      transform: scale(0.8);
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    /* 金蛋粉碎落幕动画 */
+    .egg.broken {
+      background: none;
+      box-shadow: none;
+      animation: crackDown 0.6s ease-out forwards;
+    }
+
+    /* 金蛋破裂后的碎壳残余底座 */
+    .egg.broken::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 7px;
+      width: 90px;
+      height: 40px;
+      background: radial-gradient(circle at 50% 100%, var(--accent-gold) 20%, var(--gold-dark) 80%);
+      clip-path: polygon(0% 100%, 100% 100%, 95% 40%, 80% 60%, 65% 20%, 50% 50%, 35% 15%, 20% 55%, 5% 30%);
+    }
+
+    @keyframes crackDown {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: translateY(10px) scaleY(0.8); opacity: 1; }
+      100% { transform: translateY(20px) scaleY(0.6); opacity: 0; pointer-events: none; }
+    }
+
+    /* 粒子碎片 */
+    .egg-fragment {
+      position: absolute;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0;
+    }
+
+    @keyframes fragment-fly {
+      0% { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) rotate(var(--tr)) scale(0.3); opacity: 0; }
+    }
+
+    /* 中奖金额标签显示 */
+    .prize-label {
+      position: absolute;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #581c87;
+      background: linear-gradient(135deg, var(--gold-light), var(--accent-gold));
+      padding: 5px 10px;
+      border-radius: 6px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.4), inset 0 1px 1px #fff;
+      transform: scale(0);
+      z-index: 3;
+      pointer-events: none;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+    }
+
+    .egg-wrapper.is-broken .prize-label {
+      transform: scale(1);
+    }
+
+    /* ===== 酷炫3D跟随式锤子 ===== */
+    .hammer {
+      position: fixed;
+      width: 65px;
+      height: 65px;
+      pointer-events: none;
+      z-index: 10000;
+      display: none;
+      transform-origin: 50px 50px;
+      filter: drop-shadow(4px 8px 6px rgba(0,0,0,0.5));
+    }
+
+    @keyframes hammer-hit {
+      0% { transform: rotate(0deg); }
+      30% { transform: rotate(-45deg); }
+      70% { transform: rotate(35deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .hit-anim {
+      animation: hammer-hit 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    /* ===== Toast 提示 ===== */
+    .toast {
+      position: fixed;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(239, 68, 68, 0.95);
+      color: white;
+      padding: 10px 25px;
+      border-radius: 30px;
+      z-index: 2000;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      font-weight: bold;
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== 华丽终极获奖弹窗 ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(9, 5, 20, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 5000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
+      border: 3px solid var(--accent-gold);
+      padding: 35px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 20px 50px rgba(247, 184, 1, 0.3);
+      transform: scale(0.7);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-title {
+      font-size: 2rem;
+      color: var(--accent-gold);
+      margin-bottom: 12px;
+      text-shadow: 0 0 15px rgba(247, 184, 1, 0.5);
+    }
+
+    .modal-amount {
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: #fff;
+      margin: 15px 0;
+      text-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
+    }
+
+    .btn-close {
+      padding: 10px 35px;
+      background: var(--accent-gold);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      font-weight: 900;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(247, 184, 1, 0.4);
+      transition: transform 0.2s;
+    }
+
+    .btn-close:hover {
+      transform: scale(1.05);
+    }
+
+    /* ===== 响应式适配 ===== */
     @media (max-width: 768px) {
+      body { padding-top: 75px; }
       .navbar { padding: 0 15px; height: 60px; }
       .navbar-logo { font-size: 1.2rem; }
       .navbar-logo span { width: 35px; height: 35px; font-size: 1rem; }
-      .navbar-nav { gap: 10px; }
-      .navbar-nav a { padding: 6px 10px; font-size: 0.9rem; }
+      .title { font-size: 1.6rem; }
+      .config-panel { grid-template-columns: 1fr; }
+      .stats-container { gap: 15px; }
+      .stat-card { min-width: 120px; padding: 8px; }
+      .stat-val { font-size: 1.4rem; }
     }
 
     @media (max-width: 480px) {
+      body { padding: 70px 10px 15px; }
       .navbar-nav { display: none; }
+      .container { padding: 15px; border-radius: 15px; }
+      .title { font-size: 1.3rem; margin-bottom: 15px; }
     }
-
-</style>
+  </style>
 </head>
 <body>
-  <!-- 统一导航栏 -->
+
   <nav class="navbar">
     <a href="index.html" class="navbar-logo">
       <span>🎮</span>
@@ -315,260 +515,313 @@
     <div class="navbar-nav">
       <a href="index.html">首页</a>
       <a href="game-lucky-wheel.html">🎡 幸运转盘</a>
-      <a href="game-dart-wheel.html">🎯 飞镖</a>
+      <a href="game-darts.html">🎯 飞镖</a>
       <a href="game-flip-card.html">🎰 翻牌</a>
       <a href="game-red-envelope.html">🧧 红包</a>
-      <a href="game-dice-arena.html">🎲 骰子</a>
-      <a href="game-golden-egg.html" class="active">🥚 金蛋</a>
+      <a href="game-dice.html">🎲 骰子</a>
+      <a href="game-egg.html" class="active">🥚 金蛋</a>
     </div>
   </nav>
 
-    <div class="container">
-        <h1>幸运砸金蛋</h1>
-
-        <div class="config-panel">
-            <div class="config-item">
-                <label>金蛋总数</label>
-                <input type="number" id="eggCount" value="9" min="1" max="30">
-            </div>
-            <div class="config-item">
-                <label>活动总额</label>
-                <input type="number" id="totalAmount" value="60" min="1">
-            </div>
-            <div class="config-item">
-                <label>最小金额</label>
-                <input type="number" id="minAmount" value="3" step="0.1">
-            </div>
-            <div class="config-item">
-                <label>最大金额</label>
-                <input type="number" id="maxAmount" value="20" step="0.1">
-            </div>
-            <div class="config-item">
-                <label>可砸个数</label>
-                <input type="number" id="limitCount" value="3" min="1">
-            </div>
-            <button class="btn-start" onclick="initGame()">重新开始</button>
-        </div>
-
-        <div class="stats">
-            <div>剩余机会: <span id="remainingClicks" class="stat-val">0</span></div>
-            <div>已中奖总额: <span id="wonAmount" class="stat-val">0.00</span></div>
-        </div>
-
-        <div id="gameBoard" class="game-board">
-            <!-- 金蛋将在这里生成 -->
-        </div>
+  <div class="container">
+    <div class="header">
+      <div class="title">🥚 幸运砸金蛋 Pro</div>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <div class="config-panel">
+      <div class="config-group">
+        <label class="config-label">金蛋总数</label>
+        <input type="number" class="config-input" id="eggCount" value="8" min="1" max="24">
+      </div>
+      <div class="config-group">
+        <label class="config-label">活动总额 (元)</label>
+        <input type="number" class="config-input" id="totalAmount" value="60" min="1">
+      </div>
+      <div class="config-group">
+        <label class="config-label">最小金额</label>
+        <input type="number" class="config-input" id="minAmount" value="2" step="0.1">
+      </div>
+      <div class="config-group">
+        <label class="config-label">最大金额</label>
+        <input type="number" class="config-input" id="maxAmount" value="25" step="0.1">
+      </div>
+      <div class="config-group">
+        <label class="config-label">可砸个数</label>
+        <input type="number" class="config-input" id="limitCount" value="3" min="1">
+      </div>
+      <button class="btn-start" onclick="initGame()">重新生成</button>
+    </div>
 
-    <!-- 锤子图标 (SVG) -->
-    <svg id="hammer" class="hammer" viewBox="0 0 512 512">
-        <path fill="#8B4513" d="M448 320l-96-96-256 256 96 96z"/>
-        <path fill="#708090" d="M480 32l-224 224 96 96 224-224z"/>
-        <path fill="#A9A9A9" d="M416 0l-160 160 96 96 160-160z"/>
-    </svg>
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-label">剩余机会</div>
+        <div id="remainingClicks" class="stat-val">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">已中奖总额</div>
+        <div id="wonAmount" class="stat-val">￥0.00</div>
+      </div>
+    </div>
 
-    <!-- 音效模拟 (使用 Web Audio API) -->
-    <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    <div id="gameBoard" class="game-board"></div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="resultModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-title">🎉 恭喜中奖！</div>
+      <p style="color: var(--text-secondary);">您在本次砸金蛋中一共斩获</p>
+      <div id="modalAmount" class="modal-amount">￥0.00</div>
+      <button class="btn-close" onclick="closeModal()">收下好运</button>
+    </div>
+  </div>
+
+  <svg id="hammer" class="hammer" viewBox="0 0 512 512">
+    <path fill="url(#handleGrad)" d="M410 370l-280-280-45 45 280 280z"/>
+    <path fill="url(#headGrad)" d="M320 120l120-120 90 90-120 120z"/>
+    <path fill="#e2e8f0" d="M360 80l80-80 30 30-80 80z"/>
+    <defs>
+      <linearGradient id="handleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#78350f" />
+        <stop offset="100%" stop-color="#451a03" />
+      </linearGradient>
+      <linearGradient id="headGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#94a3b8" />
+        <stop offset="50%" stop-color="#475569" />
+        <stop offset="100%" stop-color="#1e293b" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <script>
+    // 使用 Web Audio API 模拟音效
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      if (type === 'hit') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(170, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.12);
+      } else if (type === 'break') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(750, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.2);
+      }
+    }
+
+    let gameState = {
+      prizes: [],
+      remainingClicks: 0,
+      wonAmount: 0,
+      isProcessing: false
+    };
+
+    // 智能金额随机分布算法
+    function distributePrizes(count, total, min, max) {
+      if (count * min > total) {
+        showToast("错误：总额不足以支撑最小金额设定");
+        return null;
+      }
+      if (count * max < total) {
+        showToast("错误：总额超出了最大金额上限");
+        return null;
+      }
+
+      let result = [];
+      let remaining = total;
+      
+      for (let i = 0; i < count - 1; i++) {
+        let currentMax = Math.min(max, remaining - (count - 1 - i) * min);
+        let currentMin = Math.max(min, remaining - (count - 1 - i) * max);
         
-        function playBreakSound() {
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.type = 'sawtooth';
-            oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
-            
-            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.2);
+        let amount = Math.random() * (currentMax - currentMin) + currentMin;
+        amount = Math.round(amount * 100) / 100;
+        
+        result.push(amount);
+        remaining -= amount;
+      }
+      result.push(Math.round(remaining * 100) / 100);
+      
+      // 洗牌
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
 
-            // 增加一点高频碎裂感
-            const noise = audioCtx.createOscillator();
-            noise.type = 'square';
-            noise.frequency.setValueAtTime(1000, audioCtx.currentTime);
-            const noiseGain = audioCtx.createGain();
-            noiseGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            noiseGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-            noise.connect(noiseGain);
-            noiseGain.connect(audioCtx.destination);
-            noise.start();
-            noise.stop(audioCtx.currentTime + 0.05);
-        }
+    function initGame() {
+      const eggCount = parseInt(document.getElementById('eggCount').value) || 8;
+      const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 60;
+      const minAmount = parseFloat(document.getElementById('minAmount').value) || 2;
+      const maxAmount = parseFloat(document.getElementById('maxAmount').value) || 25;
+      const limitCount = parseInt(document.getElementById('limitCount').value) || 3;
 
-        let gameState = {
-            prizes: [],
-            remainingClicks: 0,
-            wonAmount: 0,
-            isProcessing: false
-        };
+      const prizes = distributePrizes(eggCount, totalAmount, minAmount, maxAmount);
+      if (!prizes) return;
 
-        function distributePrizes(count, total, min, max) {
-            if (count * min > total) {
-                showToast("错误：总额不足以支撑最小金额设定");
-                return null;
-            }
-            if (count * max < total) {
-                showToast("错误：总额超出了最大金额设定的上限");
-                return null;
-            }
+      gameState.prizes = prizes;
+      gameState.remainingClicks = Math.min(limitCount, eggCount);
+      gameState.wonAmount = 0;
+      gameState.isProcessing = false;
 
-            let result = [];
-            let remaining = total;
-            
-            for (let i = 0; i < count - 1; i++) {
-                let currentMax = Math.min(max, remaining - (count - 1 - i) * min);
-                let currentMin = Math.max(min, remaining - (count - 1 - i) * max);
-                
-                // 智能随机：在允许范围内进行随机，增加波动性
-                let amount = Math.random() * (currentMax - currentMin) + currentMin;
-                amount = Math.round(amount * 100) / 100;
-                
-                result.push(amount);
-                remaining -= amount;
-            }
-            
-            result.push(Math.round(remaining * 100) / 100);
-            
-            // 洗牌
-            for (let i = result.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [result[i], result[j]] = [result[j], result[i]];
-            }
-            
-            return result;
-        }
+      updateStats();
+      renderEggs();
+    }
 
-        function initGame() {
-            const eggCount = parseInt(document.getElementById('eggCount').value);
-            const totalAmount = parseFloat(document.getElementById('totalAmount').value);
-            const minAmount = parseFloat(document.getElementById('minAmount').value);
-            const maxAmount = parseFloat(document.getElementById('maxAmount').value);
-            const limitCount = parseInt(document.getElementById('limitCount').value);
+    function renderEggs() {
+      const board = document.getElementById('gameBoard');
+      board.innerHTML = '';
+      
+      gameState.prizes.forEach((prize, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'egg-wrapper';
+        wrapper.onclick = (e) => breakEgg(index, wrapper, e);
+        
+        wrapper.innerHTML = `
+          <div class="egg-shadow"></div>
+          <div class="egg" id="egg-${index}"></div>
+          <div class="prize-label">￥${prize.toFixed(2)}</div>
+        `;
+        board.appendChild(wrapper);
+      });
+    }
 
-            const prizes = distributePrizes(eggCount, totalAmount, minAmount, maxAmount);
-            if (!prizes) return;
+    function breakEgg(index, wrapper, event) {
+      if (gameState.isProcessing) return;
 
-            gameState.prizes = prizes;
-            gameState.remainingClicks = Math.min(limitCount, eggCount);
-            gameState.wonAmount = 0;
-            gameState.isProcessing = false;
+      if (gameState.remainingClicks <= 0) {
+        showToast("没有剩余挑战次数啦！");
+        return;
+      }
+      
+      const egg = wrapper.querySelector('.egg');
+      if (egg.classList.contains('broken')) return;
 
-            updateStats();
-            renderEggs();
-        }
+      gameState.isProcessing = true;
+      playSound('hit');
 
-        function renderEggs() {
-            const board = document.getElementById('gameBoard');
-            board.innerHTML = '';
-            
-            gameState.prizes.forEach((prize, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'egg-wrapper';
-                wrapper.onclick = (e) => breakEgg(index, wrapper, e);
-                
-                wrapper.innerHTML = `
-                    <div class="egg" id="egg-${index}"></div>
-                    <div class="prize-label">￥${prize.toFixed(2)}</div>
-                `;
-                board.appendChild(wrapper);
-            });
-        }
+      const hammer = document.getElementById('hammer');
+      if (window.innerWidth > 768) {
+        hammer.classList.add('hit-anim');
+      }
 
-        function breakEgg(index, wrapper, event) {
-            if (gameState.remainingClicks <= 0 || gameState.isProcessing) {
-                if (gameState.remainingClicks <= 0) showToast("没有剩余次数了！");
-                return;
-            }
-            
-            const egg = wrapper.querySelector('.egg');
-            if (egg.classList.contains('broken')) return;
-
-            gameState.isProcessing = true;
-            
-            // 锤子定位
-            const hammer = document.getElementById('hammer');
-            hammer.style.display = 'block';
-            hammer.style.left = (event.clientX - 40) + 'px';
-            hammer.style.top = (event.clientY - 40) + 'px';
-            hammer.classList.add('hit-anim');
-
+      setTimeout(() => {
+        playSound('break');
+        createFragments(wrapper);
+        
+        egg.classList.add('broken');
+        wrapper.classList.add('is-broken');
+        
+        gameState.remainingClicks--;
+        gameState.wonAmount += gameState.prizes[index];
+        updateStats();
+        
+        setTimeout(() => {
+          if (window.innerWidth > 768) {
+            hammer.classList.remove('hit-anim');
+          }
+          gameState.isProcessing = false;
+          
+          if (gameState.remainingClicks === 0) {
             setTimeout(() => {
-                playBreakSound();
-                createFragments(wrapper);
-                egg.classList.add('broken');
-                wrapper.classList.add('is-broken');
-                
-                gameState.remainingClicks--;
-                gameState.wonAmount += gameState.prizes[index];
-                updateStats();
-                
-                // 震动
-                wrapper.style.transform = 'scale(0.9) translateY(5px)';
-                
-                setTimeout(() => {
-                    wrapper.style.transform = '';
-                    hammer.classList.remove('hit-anim');
-                    hammer.style.display = 'none';
-                    gameState.isProcessing = false;
-                    
-                    if (gameState.remainingClicks === 0) {
-                        setTimeout(() => showToast(`恭喜！共获得 ￥${gameState.wonAmount.toFixed(2)}`), 500);
-                    }
-                }, 200);
-            }, 150);
-        }
+              document.getElementById('modalAmount').innerText = `￥${gameState.wonAmount.toFixed(2)}`;
+              document.getElementById('resultModal').classList.add('active');
+            }, 500);
+          }
+        }, 200);
+      }, 150);
+    }
 
-        function createFragments(container) {
-            const fragmentCount = 20;
-            const colors = ['#ffd700', '#fff7ad', '#b8860b', '#fdf5e6'];
-            for (let i = 0; i < fragmentCount; i++) {
-                const frag = document.createElement('div');
-                frag.className = 'egg-fragment';
-                
-                const size = Math.random() * 12 + 4;
-                frag.style.width = size + 'px';
-                frag.style.height = size + 'px';
-                frag.style.left = '50%';
-                frag.style.top = '50%';
-                frag.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                frag.style.clipPath = `polygon(${Math.random()*100}% ${Math.random()*100}%, ${Math.random()*100}% ${Math.random()*100}%, ${Math.random()*100}% ${Math.random()*100}%)`;
-                
-                const tx = (Math.random() - 0.5) * 400;
-                const ty = (Math.random() - 0.5) * 400 - 100;
-                const tr = Math.random() * 1080;
-                
-                frag.style.setProperty('--tx', `${tx}px`);
-                frag.style.setProperty('--ty', `${ty}px`);
-                frag.style.setProperty('--tr', `${tr}deg`);
-                
-                frag.style.animation = `fragment-fly ${Math.random() * 0.6 + 0.4}s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`;
-                
-                container.appendChild(frag);
-                setTimeout(() => frag.remove(), 1000);
-            }
-        }
+    function createFragments(container) {
+      const fragmentCount = 20;
+      const colors = ['#ffd700', '#fff380', '#ff6b35', '#38bdf8', '#ffffff'];
+      
+      for (let i = 0; i < fragmentCount; i++) {
+        const frag = document.createElement('div');
+        frag.className = 'egg-fragment';
+        
+        const size = Math.random() * 12 + 5;
+        frag.style.width = size + 'px';
+        frag.style.height = size + 'px';
+        frag.style.left = '50%';
+        frag.style.top = '40%';
+        frag.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        frag.style.borderRadius = Math.random() > 0.4 ? '50%' : '2px';
+        
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 140 + 50;
+        const tx = Math.cos(angle) * radius;
+        const ty = Math.sin(angle) * radius - 60;
+        const tr = Math.random() * 720 - 360;
+        
+        frag.style.setProperty('--tx', `${tx}px`);
+        frag.style.setProperty('--ty', `${ty}px`);
+        frag.style.setProperty('--tr', `${tr}deg`);
+        
+        frag.style.animation = `fragment-fly ${Math.random() * 0.5 + 0.4}s cubic-bezier(0.1, 0.8, 0.3, 1) forwards`;
+        
+        container.appendChild(frag);
+        setTimeout(() => frag.remove(), 800);
+      }
+    }
 
-        function updateStats() {
-            document.getElementById('remainingClicks').innerText = gameState.remainingClicks;
-            document.getElementById('wonAmount').innerText = gameState.wonAmount.toFixed(2);
-        }
+    function updateStats() {
+      document.getElementById('remainingClicks').innerText = gameState.remainingClicks;
+      document.getElementById('wonAmount').innerText = `￥${gameState.wonAmount.toFixed(2)}`;
+    }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.style.opacity = 1;
-            setTimeout(() => toast.style.opacity = 0, 3000);
-        }
+    let toastTimer = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+    }
 
-        window.onload = initGame;
-    </script>
+    function closeModal() {
+      document.getElementById('resultModal').classList.remove('active');
+      initGame();
+    }
+
+    // 核心改进：PC端3D悬浮锤子仅在舞台范围内跟随并激活
+    if (window.innerWidth > 768) {
+      const hmr = document.getElementById('hammer');
+      const board = document.getElementById('gameBoard');
+      
+      board.addEventListener('mousemove', (e) => {
+        hmr.style.display = 'block';
+        hmr.style.left = (e.clientX - 50) + 'px';
+        hmr.style.top = (e.clientY - 50) + 'px';
+      });
+      
+      board.addEventListener('mouseleave', () => {
+        hmr.style.display = 'none';
+      });
+    }
+
+    window.onload = initGame;
+  </script>
 </body>
 </html>

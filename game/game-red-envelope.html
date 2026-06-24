@@ -3,249 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>🧧 疯狂抢红包PRO</title>
+  <title>🧧 疯狂抢红包 Pro</title>
   <style>
-    :root {
-      --red-primary: #ff1744;
-      --red-dark: #d50000;
-      --gold: #ffd700;
-      --gold-light: #ffed4e;
-      --dark-bg: #1a1a2e;
-      --light-text: #ffffff;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    body {
-      font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
-      background: #000;
-      color: var(--light-text);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 900px;
-      height: 100vh;
-      background: linear-gradient(180deg, #1a1a2e 0%, #000000 100%);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* ===== 配置面板 ===== */
-    .config-panel {
-      background: rgba(255, 23, 68, 0.1);
-      border-bottom: 2px solid var(--gold);
-      padding: 15px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
-      z-index: 110;
-    }
-
-    .config-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .config-label {
-      font-size: 0.7rem;
-      color: #ffb3ba;
-      font-weight: bold;
-    }
-
-    .config-input {
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid var(--gold);
-      color: var(--gold-light);
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      outline: none;
-    }
-
-    /* ===== 顶部信息区 ===== */
-    .header {
-      padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.6);
-      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-      z-index: 100;
-    }
-
-    .stat-group {
-      display: flex;
-      gap: 20px;
-    }
-
-    .stat-box { text-align: left; }
-    .stat-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
-    .stat-value { font-size: 1.2rem; font-weight: 900; color: var(--gold-light); }
-
-    .budget-info {
-      font-size: 0.75rem;
-      color: #ffb3ba;
-      margin-top: 2px;
-    }
-
-    /* ===== 游戏核心区 ===== */
-    .game-area {
-      flex: 1;
-      position: relative;
-      width: 100%;
-      cursor: crosshair;
-      overflow: hidden;
-    }
-
-    .envelope {
-      position: absolute;
-      width: 52px;
-      height: 68px;
-      cursor: pointer;
-      user-select: none;
-      z-index: 10;
-      will-change: transform;
-    }
-
-    .envelope-inner {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, var(--red-primary), var(--red-dark));
-      border-radius: 8px;
-      border: 1px solid rgba(255, 215, 0, 0.4);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
-      position: relative;
-    }
-
-    .envelope-inner::after {
-      content: '🧧';
-      font-size: 1.5rem;
-    }
-
-    /* 击中动效 */
-    .envelope.hit {
-      animation: hitAnim 0.3s ease-out forwards;
-      pointer-events: none;
-    }
-
-    @keyframes hitAnim {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(1.6); opacity: 0; }
-    }
-
-    .float-text {
-      position: absolute;
-      font-weight: 900;
-      color: var(--gold-light);
-      pointer-events: none;
-      z-index: 50;
-      animation: floatUp 0.8s ease-out forwards;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-      font-size: 1.2rem;
-    }
-
-    @keyframes floatUp {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(-100px); opacity: 0; }
-    }
-
-    /* ===== 底部控制区 ===== */
-    .footer {
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      justify-content: center;
-      z-index: 100;
-    }
-
-    .main-btn {
-      width: 100%;
-      max-width: 380px;
-      height: 55px;
-      border: none;
-      border-radius: 28px;
-      background: linear-gradient(90deg, var(--red-primary), var(--red-dark));
-      color: white;
-      font-size: 1.2rem;
-      font-weight: 900;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
-      box-shadow: 0 6px 20px rgba(255, 23, 68, 0.5);
-    }
-
-    .main-btn:disabled { cursor: default; background: #333; box-shadow: none; }
-
-    .btn-progress {
-      position: absolute;
-      left: 0; top: 0; height: 100%;
-      background: rgba(255, 215, 0, 0.4);
-      width: 0%;
-    }
-
-    .btn-content { position: relative; z-index: 2; }
-
-    /* 结算层 */
-    .overlay {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 200;
-      backdrop-filter: blur(12px);
-    }
-
-    .overlay.active { display: flex; }
-
-    .result-card {
-      text-align: center;
-      padding: 35px;
-      border: 2px solid var(--gold);
-      border-radius: 24px;
-      background: #1a1a2e;
-      width: 85%;
-      max-width: 400px;
-    }
-
-    .result-title { font-size: 1.8rem; color: var(--gold); margin-bottom: 15px; }
-    .result-score { font-size: 3.5rem; font-weight: 900; color: #fff; margin-bottom: 5px; }
-    .result-detail { color: #aaa; line-height: 1.6; margin-bottom: 25px; }
-
-    @media (max-width: 600px) {
-      .config-panel { grid-template-columns: 1fr 1fr; }
-      .header { padding: 10px; }
-      .stat-value { font-size: 1rem; }
-    }
-  
-    /* ===== 统一导航栏样式 ===== */
+    /* ===== 统一导航栏样式（完全对齐转盘与金蛋） ===== */
     .navbar {
       position: fixed;
       top: 0;
@@ -300,6 +60,9 @@
       transition: all 0.3s ease;
       padding: 8px 12px;
       border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .navbar-nav a:hover {
@@ -313,23 +76,305 @@
       border: 1px solid #d946ef;
     }
 
-    /* 响应式导航 */
+    /* ===== 全局 CSS 变量与重置 ===== */
+    :root {
+      --red-primary: #ef4444;
+      --red-dark: #b91c1c;
+      --accent-gold: #f7b801;
+      --gold-light: #fff380;
+      --dark-bg: #0f1419;
+      --light-text: #ffffff;
+      --text-secondary: #b0b3c1;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%);
+      color: var(--light-text);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px;
+      padding-top: 85px; /* 留出导航栏高度 */
+    }
+
+    /* ===== 主容器 ===== */
+    .container {
+      width: 100%;
+      max-width: 950px;
+      height: calc(100vh - 105px); /* 动态适配屏幕高度，留出外边距 */
+      background: rgba(15, 20, 25, 0.95);
+      border: 3px solid #d946ef;
+      border-radius: 25px;
+      padding: 20px;
+      box-shadow: 0 0 40px rgba(217, 70, 239, 0.15);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ===== 配置面板（融合金蛋与大转盘风格） ===== */
+    .config-panel {
+      background: linear-gradient(135deg, rgba(0, 78, 137, 0.15), rgba(217, 70, 239, 0.15));
+      border: 2px solid rgba(217, 70, 239, 0.3);
+      border-radius: 15px;
+      padding: 12px;
+      margin-bottom: 15px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      width: 100%;
+      align-items: flex-end;
+      transition: all 0.3s ease;
+      z-index: 110;
+    }
+
+    .config-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .config-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #d946ef;
+      letter-spacing: 1px;
+    }
+
+    .config-input {
+      width: 100%;
+      padding: 8px 10px;
+      background: rgba(26, 35, 50, 0.9);
+      border: 2px solid rgba(217, 70, 239, 0.2);
+      border-radius: 8px;
+      color: var(--light-text);
+      font-size: 0.9rem;
+      font-weight: 600;
+      outline: none;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .config-input:focus {
+      border-color: #d946ef;
+      box-shadow: 0 0 12px rgba(217, 70, 239, 0.3);
+    }
+
+    /* ===== 顶部看板状态区 ===== */
+    .header {
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(26, 35, 50, 0.6);
+      border: 2px solid rgba(217, 70, 239, 0.2);
+      border-radius: 12px;
+      margin-bottom: 15px;
+      z-index: 100;
+    }
+
+    .stat-group {
+      display: flex;
+      gap: 40px;
+      width: 100%;
+      justify-content: space-around;
+    }
+
+    .stat-box { text-align: center; }
+    .stat-label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px; }
+    .stat-value { font-size: 1.6rem; font-weight: 800; color: var(--accent-gold); text-shadow: 0 2px 10px rgba(247, 184, 1, 0.2); }
+    .budget-info { font-size: 0.75rem; color: #a0aec0; margin-top: 2px; }
+
+    /* ===== 核心游戏舞台区 ===== */
+    .game-area {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 15px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* 赛博风立体红包 */
+    .envelope {
+      position: absolute;
+      width: 55px;
+      height: 72px;
+      cursor: pointer;
+      user-select: none;
+      z-index: 10;
+      will-change: transform;
+    }
+
+    .envelope-inner {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--red-primary), var(--red-dark));
+      border-radius: 10px;
+      border: 2px solid var(--accent-gold);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255,255,255,0.2);
+      position: relative;
+    }
+
+    .envelope-inner::after {
+      content: '🧧';
+      font-size: 1.6rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    /* 红包呼吸微发光 */
+    .envelope:not(.hit) .envelope-inner {
+      animation: glowPulse 2s infinite ease-in-out;
+    }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4); }
+      50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+    }
+
+    /* 击中裂开飞散动画 */
+    .envelope.hit {
+      animation: hitAnim 0.25s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes hitAnim {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.5) rotate(15deg); opacity: 0; }
+    }
+
+    /* 飘字特效 */
+    .float-text {
+      position: absolute;
+      font-weight: 900;
+      color: var(--gold-light);
+      pointer-events: none;
+      z-index: 50;
+      animation: floatUp 0.7s ease-out forwards;
+      text-shadow: 0 0 8px rgba(247,184,1,0.6), 0 2px 4px rgba(0,0,0,0.8);
+      font-size: 1.3rem;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(0.8); opacity: 1; }
+      100% { transform: translateY(-80px) scale(1.2); opacity: 0; }
+    }
+
+    /* ===== 底部控制区按钮 ===== */
+    .footer {
+      padding-top: 15px;
+      display: flex;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .main-btn {
+      width: 100%;
+      max-width: 380px;
+      height: 50px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #d946ef, #a855f7);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4);
+      letter-spacing: 1px;
+    }
+
+    .main-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(217, 70, 239, 0.6);
+    }
+
+    .main-btn:disabled { cursor: default; background: #2d3748; box-shadow: none; color: #718096; }
+
+    .btn-progress {
+      position: absolute;
+      left: 0; top: 0; height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      width: 0%;
+    }
+
+    .btn-content { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+    /* ===== 结算弹窗层 ===== */
+    .overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(9, 5, 20, 0.85);
+      backdrop-filter: blur(10px);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+
+    .overlay.active { display: flex; }
+
+    .result-card {
+      text-align: center;
+      padding: 35px;
+      border: 3px solid var(--accent-gold);
+      border-radius: 20px;
+      background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
+      width: 85%;
+      max-width: 400px;
+      box-shadow: 0 20px 50px rgba(247, 184, 1, 0.3);
+      animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes modalPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .result-title { font-size: 2rem; color: var(--accent-gold); margin-bottom: 12px; text-shadow: 0 0 15px rgba(247, 184, 1, 0.5); }
+    .result-score { font-size: 3.2rem; font-weight: 900; color: #fff; margin-bottom: 10px; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+    .result-detail { color: var(--text-secondary); line-height: 1.6; margin-bottom: 25px; font-size: 0.95rem; }
+
+    /* ===== 响应式适配 ===== */
     @media (max-width: 768px) {
+      body { padding-top: 75px; }
       .navbar { padding: 0 15px; height: 60px; }
       .navbar-logo { font-size: 1.2rem; }
       .navbar-logo span { width: 35px; height: 35px; font-size: 1rem; }
-      .navbar-nav { gap: 10px; }
-      .navbar-nav a { padding: 6px 10px; font-size: 0.9rem; }
+      .container { height: calc(100vh - 90px); border-radius: 15px; padding: 12px; }
+      .config-panel { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .stat-group { gap: 10px; }
+      .stat-value { font-size: 1.3rem; }
     }
 
     @media (max-width: 480px) {
       .navbar-nav { display: none; }
     }
-
-</style>
+  </style>
 </head>
 <body>
-  <!-- 统一导航栏 -->
+
   <nav class="navbar">
     <a href="index.html" class="navbar-logo">
       <span>🎮</span>
@@ -339,16 +384,15 @@
     <div class="navbar-nav">
       <a href="index.html">首页</a>
       <a href="game-lucky-wheel.html">🎡 幸运转盘</a>
-      <a href="game-dart-wheel.html">🎯 飞镖</a>
+      <a href="game-darts.html">🎯 飞镖</a>
       <a href="game-flip-card.html">🎰 翻牌</a>
       <a href="game-red-envelope.html" class="active">🧧 红包</a>
-      <a href="game-dice-arena.html">🎲 骰子</a>
-      <a href="game-golden-egg.html">🥚 金蛋</a>
+      <a href="game-dice.html">🎲 骰子</a>
+      <a href="game-egg.html">🥚 金蛋</a>
     </div>
   </nav>
 
   <div class="container">
-    <!-- 商业配置面板 -->
     <div class="config-panel" id="configPanel">
       <div class="config-group">
         <label class="config-label">总预算 (元)</label>
@@ -372,7 +416,6 @@
       </div>
     </div>
 
-    <!-- 顶部状态栏 -->
     <div class="header">
       <div class="stat-group">
         <div class="stat-box">
@@ -388,10 +431,8 @@
       </div>
     </div>
 
-    <!-- 游戏舞台 -->
     <div class="game-area" id="gameArea"></div>
 
-    <!-- 控制按钮 -->
     <div class="footer">
       <button class="main-btn" id="mainBtn" onclick="startGame()">
         <div class="btn-progress" id="btnProgress"></div>
@@ -399,21 +440,37 @@
       </button>
     </div>
 
-    <!-- 结算层 -->
     <div class="overlay" id="overlay">
       <div class="result-card">
         <div class="result-title">🧧 恭喜发财</div>
         <div class="result-score">¥<span id="finalScore">0.00</span></div>
         <div class="result-detail">
           共抢到 <span id="finalCount">0</span> 个红包<br>
-          <span id="finalMsg" style="color: var(--gold-light);"></span>
+          <span id="finalMsg" style="color: var(--gold-light); font-weight: bold;"></span>
         </div>
-        <button class="main-btn" onclick="resetGame()" style="max-width: 180px;">重新配置</button>
+        <button class="main-btn" onclick="resetGame()" style="max-width: 200px; height: 45px; font-size: 1rem;">重新配置</button>
       </div>
     </div>
   </div>
 
   <script>
+    // 使用 Web Audio API 快速模拟清脆的高频点击反馈音效
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playClickSound() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(850, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    }
+
     const gameArea = document.getElementById('gameArea');
     const mainBtn = document.getElementById('mainBtn');
     const btnProgress = document.getElementById('btnProgress');
@@ -437,12 +494,11 @@
       state.cfg = {
         totalBudget: parseFloat(document.getElementById('cfgTotalBudget').value) || 100,
         totalCount: parseInt(document.getElementById('cfgTotalCount').value) || 100,
-        duration: parseInt(document.getElementById('cfgDuration').value) || 30,
+        duration: parseInt(document.getElementById('cfgDuration').value) || 15,
         minAmt: parseFloat(document.getElementById('cfgMinAmt').value) || 0.1,
         maxAmt: parseFloat(document.getElementById('cfgMaxAmt').value) || 5
       };
 
-      // 简单逻辑校验：最小额 * 总数 不能超过 总预算
       if (state.cfg.minAmt * state.cfg.totalCount > state.cfg.totalBudget) {
         alert("❌ 配置冲突：最小额 * 总数 已经超过了总预算，请重新调整！");
         return;
@@ -457,11 +513,11 @@
       state.remCount = state.cfg.totalCount;
 
       configPanel.style.pointerEvents = 'none';
-      configPanel.style.opacity = '0.5';
+      configPanel.style.opacity = '0.4';
       mainBtn.disabled = true;
       updateDisplay();
 
-      // 3. 启动视觉倒计时
+      // 3. 启动进度条平滑倒计时
       btnProgress.style.transition = 'none';
       btnProgress.style.width = '0%';
       setTimeout(() => {
@@ -469,7 +525,7 @@
         btnProgress.style.width = '100%';
       }, 50);
 
-      // 4. 游戏主循环
+      // 4. 游戏主循环倒计时
       const gameTimer = setInterval(() => {
         state.timeLeft--;
         btnText.textContent = `⏱️ 倒计时: ${state.timeLeft}s`;
@@ -485,20 +541,17 @@
 
     function spawnLoop() {
       if (!state.active) return;
-
-      // 如果红包已经发完，提前结束生成
       if (state.remCount <= 0) return;
 
-      // 计算生成密度：确保在剩余时间内发完剩余红包
-      // 密度 = 剩余个数 / 剩余秒数
+      // 根据剩余时间和剩余个数智能计算当前的生成密度
       const idealDensity = state.remCount / (state.timeLeft || 1);
-      const spawnCount = Math.ceil(idealDensity / 4); // 每次生成循环尝试产生 1/4 的秒密度
+      const spawnCount = Math.ceil(idealDensity / 4);
 
-      for(let i=0; i<spawnCount; i++) {
+      for(let i = 0; i < spawnCount; i++) {
         if (state.remCount > 0) createEnvelope();
       }
 
-      setTimeout(spawnLoop, 250); // 每250ms检测一次生成
+      setTimeout(spawnLoop, 250);
     }
 
     function createEnvelope() {
@@ -508,28 +561,23 @@
       inner.className = 'envelope-inner';
       envelope.appendChild(inner);
 
-      const left = Math.random() * (gameArea.clientWidth - 55);
+      const left = Math.random() * (gameArea.clientWidth - 60);
       envelope.style.left = left + 'px';
-      envelope.style.top = '-80px';
+      envelope.style.top = '-85px';
 
-      // 智能控额逻辑：
-      // 1. 基础随机范围 [min, max]
-      // 2. 限制不能超过 剩余预算 - (剩余个数-1)*最小额 (确保后面还有钱发)
+      // 智能控额算法
       const safetyBuffer = (state.remCount - 1) * state.cfg.minAmt;
       const currentMax = Math.min(state.cfg.maxAmt, state.remBudget - safetyBuffer);
-      const currentMin = Math.max(state.cfg.minAmt, (state.remBudget - state.cfg.maxAmt * state.remCount) / state.remCount || 0);
-      
       const amount = Math.random() * (currentMax - state.cfg.minAmt) + state.cfg.minAmt;
       
-      // 下落速度与金额挂钩
-      const speed = 4 + (amount / state.cfg.maxAmt) * 6 + Math.random() * 2;
+      // 让大面额红包下落速度稍快以增加刺激感
+      const speed = 3.5 + (amount / state.cfg.maxAmt) * 4.5 + Math.random() * 2;
 
       state.remCount--; 
       updateDisplay();
-
       gameArea.appendChild(envelope);
 
-      let currentTop = -80;
+      let currentTop = -85;
       const fall = () => {
         if (!state.active && !envelope.classList.contains('hit')) {
           envelope.remove();
@@ -537,12 +585,11 @@
         }
 
         currentTop += speed;
-        envelope.style.transform = `translateY(${currentTop}px) rotate(${(currentTop/5)%10 - 5}deg)`;
+        envelope.style.transform = `translateY(${currentTop}px) rotate(${(currentTop / 4) % 12 - 6}deg)`;
 
         if (currentTop > gameArea.clientHeight) {
-          // 红包未被抢到，预算和个数回收
+          // 未抢到，数量和钱回收
           state.remCount++;
-          state.remBudget += 0; // 金额其实没发出去，不需要扣除
           envelope.remove();
           updateDisplay();
         } else if (envelope.parentElement) {
@@ -555,7 +602,6 @@
         if (state.remBudget >= amount) {
           hitEnvelope(envelope, amount);
         } else if (state.remBudget > 0) {
-          // 预算不足支付该红包，发完最后的钱
           hitEnvelope(envelope, state.remBudget);
         }
       };
@@ -566,6 +612,7 @@
     function hitEnvelope(el, amt) {
       if (el.classList.contains('hit')) return;
       el.classList.add('hit');
+      playClickSound();
 
       state.score += amt;
       state.count++;
@@ -574,17 +621,17 @@
       showFloatText(el.offsetLeft, el.offsetTop, `+¥${amt.toFixed(2)}`);
       updateDisplay();
 
-      setTimeout(() => el.remove(), 300);
+      setTimeout(() => el.remove(), 250);
     }
 
     function showFloatText(x, y, text) {
       const ft = document.createElement('div');
       ft.className = 'float-text';
-      ft.style.left = x + 'px';
+      ft.style.left = (x + 10) + 'px';
       ft.style.top = y + 'px';
       ft.textContent = text;
       gameArea.appendChild(ft);
-      setTimeout(() => ft.remove(), 800);
+      setTimeout(() => ft.remove(), 700);
     }
 
     function updateDisplay() {
@@ -600,9 +647,9 @@
       document.getElementById('finalCount').textContent = state.count;
       
       let msg = "";
-      if (state.score >= state.cfg.totalBudget * 0.8) msg = "💰 太厉害了，预算快被你掏空了！";
-      else if (state.count >= state.cfg.totalCount * 0.8) msg = "🎯 手速惊人，红包全落你手！";
-      else msg = "🧧 手气不错，下次继续努力！";
+      if (state.score >= state.cfg.totalBudget * 0.75) msg = "💰 太强了！手速快如闪电，预算空了！";
+      else if (state.count >= state.cfg.totalCount * 0.75) msg = "🎯 红包被你一网打尽，满载而归！";
+      else msg = "🧧 手气不错！快去试试游戏集市里其它游戏吧！";
       
       document.getElementById('finalMsg').textContent = msg;
       document.getElementById('overlay').classList.add('active');

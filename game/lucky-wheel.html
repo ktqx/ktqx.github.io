@@ -388,7 +388,7 @@
 
   <div class="container">
     <div class="header">
-      <div class="title">🎡 幸运大转盘 Pro</div>
+      <div class="title">🎡 幸运大转盘</div>
     </div>
 
     <!-- 配置面板 -->
@@ -406,11 +406,11 @@
       <div class="config-group">
         <label class="config-label">概率分布模式</label>
         <select class="config-select" id="distMode" onchange="updateWheel()">
-          <option value="equal">⚖️ 绝对平分 (所有项概率相同)</option>
           <option value="jackpot">🏆 大奖模式 (首项稀有，其余平分)</option>
+           <option value="polar">🔥 极化分布 (两头多，中间少)</option>
+         <option value="equal">⚖️ 绝对平分 (所有项概率相同)</option>
           <option value="asc">📈 递增分布 (按顺序概率变大)</option>
           <option value="desc">📉 递减分布 (按顺序概率变小)</option>
-          <option value="polar">🔥 极化分布 (两头多，中间少)</option>
           <option value="manual">⌨️ 专家自定义 (手动输入数量)</option>
         </select>
       </div>

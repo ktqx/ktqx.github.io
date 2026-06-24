@@ -150,19 +150,6 @@
       margin-bottom: 15px;
     }
 
-    /* ===== 状态栏 ===== */
-    .status-bar {
-      background: #17312e;
-      border: 1px solid var(--accent-green);
-      color: #99ffea;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 0.9rem;
-      font-weight: bold;
-      margin-bottom: 15px;
-    }
-
     /* ===== 快速配置区 ===== */
     .quick-config {
       background: rgba(255, 255, 255, 0.04);
@@ -355,18 +342,24 @@
     .face-4 { transform: rotateX(-90deg)  translateZ(23px); }
 
     .pip {
-      width: 9px;
-      height: 9px;
+      width: 12px;
+      height: 12px;
       background-color: #111;
       border-radius: 50%;
       box-shadow: inset 0 1.5px 1.5px rgba(0, 0, 0, 0.8);
     }
 
+    /* 1点：大红圆点 18px */
     .face-1 .pip {
-      width: 15px;
-      height: 15px;
+      width: 18px;
+      height: 18px;
       background-color: #d90429;
       box-shadow: inset 0 2px 2px rgba(0, 0, 0, 0.6);
+    }
+
+    /* 4点：红圆点 12px */
+    .face-4 .pip {
+      background-color: #d90429;
     }
 
     .pip.top-left    { grid-area: 1 / 1; }
@@ -679,8 +672,6 @@
     <!-- ===== 摇骰子页面 ===== -->
     <div id="page-try" class="page active">
 
-
-
       <!-- 空调规格 & 数量选择 -->
       <div class="quick-config" style="display: flex; align-items: center; justify-content: space-between; gap: 5px;">
         <div class="config-row" style="display: flex; align-items: center; margin: 0;">
@@ -721,7 +712,7 @@
         <!-- 3D 骰子舞台 -->
         <div class="dice-stage" id="dice-stage"></div>
 
-        <!-- 修改点三：操作控制行移至账单上方 -->
+        <!-- 操作控制行 -->
         <div class="control-block" style="margin-bottom: 10px;">
           <div class="action-zone">
             <label style="font-weight: bold; white-space: nowrap; font-size: 0.9rem;">每次摇：</label>
@@ -754,10 +745,21 @@
             <span>🎁 累计减免金额 (1点=1元)：</span>
             <span id="log-discount-amount" style="color: var(--accent-gold); font-weight: bold;">-0 元</span>
           </div>
+
+          <!-- 修改点：诚意金选择 -->
+          <div class="price-line" style="align-items: center;">
+            <span>💰 诚意金状态：</span>
+            <select id="deposit-status" onchange="calculatePrices()" style="padding: 2px 8px; font-size: 0.85rem; background: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 4px;">
+              <option value="5" selected>已付 (扣减5元)</option>
+              <option value="0">未付 (不扣减)</option>
+            </select>
+          </div>
+
           <div class="final-line">
-            <div style="font-size: 0.85rem; color: #bbb; font-weight: normal;">尾款预估（已扣除5元诚意金）：</div>
+            <!-- 修改点：文案简化 -->
+            <div style="font-size: 0.85rem; color: #bbb; font-weight: normal;">尾款预估：</div>
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-              <span id="log-detail-format-title" style="font-size: 0.95rem; color: #fff;">尾款实收共计:</span>
+              <span id="log-detail-format-title" style="font-size: 0.95rem; color: #fff;">预计实收尾款:</span>
               <span id="log-final-price" style="color: var(--accent-gold); font-size: 1.4rem;">- 元</span>
             </div>
           </div>
@@ -1146,8 +1148,6 @@
       document.getElementById('rule-hint-text').innerText =
         "（" + priceMatrix[acType].rule + "）";
 
-
-
       diceStage.innerHTML = `
         <div id="stage-hint-text"
           style="
@@ -1200,6 +1200,9 @@
       var step       = totalCount > 3 ? 3 : totalCount;
       var unitPrice  = priceMatrix[type].price[step];
       var typeName   = priceMatrix[type].name;
+      
+      // 获取诚意金状态
+      var depositVal = parseInt(document.getElementById('deposit-status').value) || 0;
 
       logAcTypeName.innerText = typeName + " (" + totalCount + "台，" + unitPrice + "元/台)";
 
@@ -1209,10 +1212,11 @@
       );
       logDiscountAmount.innerText = '-' + settledDiscountAmount + ' 元';
 
-      var finalPay = (unitPrice * totalCount) - 5 - settledDiscountAmount;
+      // 计算公式：总价 - 诚意金 - 减免金额
+      var finalPay = (unitPrice * totalCount) - depositVal - settledDiscountAmount;
       if (finalPay < 0) finalPay = 0;
       logFinalPrice.innerText        = finalPay + ' 元';
-      logDetailFormatTitle.innerText = " 预计实收尾款:";
+      logDetailFormatTitle.innerText = "预计实收尾款:";
 
       renderPipsFlow();
     }
@@ -1430,10 +1434,17 @@
               var newPips = facePipsConfig[targetPoint];
               newPips.forEach(function(pClass) {
                 var pDiv = document.createElement('div');
-                pDiv.className            = 'pip ' + pClass;
-                pDiv.style.backgroundColor = '#111';
-                pDiv.style.width           = '9px';
-                pDiv.style.height          = '9px';
+                pDiv.className = 'pip ' + pClass;
+                // 根据点数设置颜色和大小
+                if (targetPoint === 4) {
+                  pDiv.style.backgroundColor = '#d90429';
+                  pDiv.style.width = '12px';
+                  pDiv.style.height = '12px';
+                } else {
+                  pDiv.style.backgroundColor = '#111';
+                  pDiv.style.width = '12px';
+                  pDiv.style.height = '12px';
+                }
                 primaryFace.appendChild(pDiv);
               });
             }
@@ -1445,7 +1456,6 @@
             finishedCount++;
             if (finishedCount === numToRoll) {
               if (totalRolled >= maxTargetDice) {
-
                 rollBtn.innerText = "🔄 继续摇一摇";
                 rollBtn.classList.add("reset-state");
                 currentButtonMode  = "reset";
@@ -1511,6 +1521,10 @@
 
       var priceObj       = updateFormNormalPrice();
       var normalPriceText = priceObj.unit + "元/台 * " + formCount + "台 = " + priceObj.total + "元";
+      
+      // 获取当前诚意金状态
+      var depositSelect = document.getElementById('deposit-status');
+      var depositText = depositSelect.options[depositSelect.selectedIndex].text;
 
       var infoText =
         "📢 【空调清洗服务预约单】\n" +
@@ -1521,6 +1535,7 @@
         "🛠 服务机型：" + formType + "\n" +
         "🔢 清洗数量：" + formCount + " 台\n" +
         "💵 正常清洗总价：" + normalPriceText + "\n" +
+        "💰 诚意金状态：" + depositText + "\n" +
         "📝 实收尾款=正常清洗总价-诚意金-盲摇总点数。";
 
       navigator.clipboard.writeText(infoText).then(function() {

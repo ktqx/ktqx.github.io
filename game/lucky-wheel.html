@@ -394,17 +394,17 @@
     <!-- 配置面板 -->
     <div class="config-panel">
       <div class="config-group">
-        <label class="config-label">转盘总等分数</label>
+        <label class="config-label">转盘等分</label>
         <input type="number" class="config-input" id="sectorCount" value="20" min="4" max="60" onchange="updateWheel()">
       </div>
 
       <div class="config-group">
-        <label class="config-label">转盘文字内容</label>
-        <input type="text" class="config-input" id="sectorTexts" value="8,9,10" placeholder="如: 8,9,10" onchange="updateWheel()">
+        <label class="config-label">转盘内容</label>
+        <input type="text" class="config-input" id="sectorTexts" value="好,中,差" placeholder="如: 8,9,10" onchange="updateWheel()">
       </div>
 
       <div class="config-group">
-        <label class="config-label">概率分布模式</label>
+        <label class="config-label">概率分布</label>
         <select class="config-select" id="distMode" onchange="updateWheel()">
           <option value="jackpot">🏆 大奖模式 (首项稀有，其余平分)</option>
            <option value="polar">🔥 极化分布 (两头多，中间少)</option>

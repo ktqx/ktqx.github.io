@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🧧 疯狂抢红包 V3 - 商业控量版</title>
+  <style>
+    :root {
+      --red-primary: #ff1744;
+      --red-dark: #d50000;
+      --gold: #ffd700;
+      --gold-light: #ffed4e;
+      --dark-bg: #1a1a2e;
+      --light-text: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+      background: #000;
+      color: var(--light-text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      height: 100vh;
+      background: linear-gradient(180deg, #1a1a2e 0%, #000000 100%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ===== 配置面板 ===== */
+    .config-panel {
+      background: rgba(255, 23, 68, 0.1);
+      border-bottom: 2px solid var(--gold);
+      padding: 15px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      z-index: 110;
+    }
+
+    .config-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .config-label {
+      font-size: 0.7rem;
+      color: #ffb3ba;
+      font-weight: bold;
+    }
+
+    .config-input {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      outline: none;
+    }
+
+    /* ===== 顶部信息区 ===== */
+    .header {
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.6);
+      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+      z-index: 100;
+    }
+
+    .stat-group {
+      display: flex;
+      gap: 20px;
+    }
+
+    .stat-box { text-align: left; }
+    .stat-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
+    .stat-value { font-size: 1.2rem; font-weight: 900; color: var(--gold-light); }
+
+    .budget-info {
+      font-size: 0.75rem;
+      color: #ffb3ba;
+      margin-top: 2px;
+    }
+
+    /* ===== 游戏核心区 ===== */
+    .game-area {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      cursor: crosshair;
+      overflow: hidden;
+    }
+
+    .envelope {
+      position: absolute;
+      width: 52px;
+      height: 68px;
+      cursor: pointer;
+      user-select: none;
+      z-index: 10;
+      will-change: transform;
+    }
+
+    .envelope-inner {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--red-primary), var(--red-dark));
+      border-radius: 8px;
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .envelope-inner::after {
+      content: '🧧';
+      font-size: 1.5rem;
+    }
+
+    /* 击中动效 */
+    .envelope.hit {
+      animation: hitAnim 0.3s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes hitAnim {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .float-text {
+      position: absolute;
+      font-weight: 900;
+      color: var(--gold-light);
+      pointer-events: none;
+      z-index: 50;
+      animation: floatUp 0.8s ease-out forwards;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+      font-size: 1.2rem;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-100px); opacity: 0; }
+    }
+
+    /* ===== 底部控制区 ===== */
+    .footer {
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .main-btn {
+      width: 100%;
+      max-width: 380px;
+      height: 55px;
+      border: none;
+      border-radius: 28px;
+      background: linear-gradient(90deg, var(--red-primary), var(--red-dark));
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 900;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(255, 23, 68, 0.5);
+    }
+
+    .main-btn:disabled { cursor: default; background: #333; box-shadow: none; }
+
+    .btn-progress {
+      position: absolute;
+      left: 0; top: 0; height: 100%;
+      background: rgba(255, 215, 0, 0.4);
+      width: 0%;
+    }
+
+    .btn-content { position: relative; z-index: 2; }
+
+    /* 结算层 */
+    .overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+      backdrop-filter: blur(12px);
+    }
+
+    .overlay.active { display: flex; }
+
+    .result-card {
+      text-align: center;
+      padding: 35px;
+      border: 2px solid var(--gold);
+      border-radius: 24px;
+      background: #1a1a2e;
+      width: 85%;
+      max-width: 400px;
+    }
+
+    .result-title { font-size: 1.8rem; color: var(--gold); margin-bottom: 15px; }
+    .result-score { font-size: 3.5rem; font-weight: 900; color: #fff; margin-bottom: 5px; }
+    .result-detail { color: #aaa; line-height: 1.6; margin-bottom: 25px; }
+
+    @media (max-width: 600px) {
+      .config-panel { grid-template-columns: 1fr 1fr; }
+      .header { padding: 10px; }
+      .stat-value { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 商业配置面板 -->
+    <div class="config-panel" id="configPanel">
+      <div class="config-group">
+        <label class="config-label">总预算 (元)</label>
+        <input type="number" class="config-input" id="cfgTotalBudget" value="100">
+      </div>
+      <div class="config-group">
+        <label class="config-label">红包总数 (个)</label>
+        <input type="number" class="config-input" id="cfgTotalCount" value="100">
+      </div>
+      <div class="config-group">
+        <label class="config-label">游戏时长 (秒)</label>
+        <input type="number" class="config-input" id="cfgDuration" value="30">
+      </div>
+      <div class="config-group">
+        <label class="config-label">单项最小 (元)</label>
+        <input type="number" class="config-input" id="cfgMinAmt" value="0.1" step="0.1">
+      </div>
+      <div class="config-group">
+        <label class="config-label">单项最大 (元)</label>
+        <input type="number" class="config-input" id="cfgMaxAmt" value="5" step="0.1">
+      </div>
+    </div>
+
+    <!-- 顶部状态栏 -->
+    <div class="header">
+      <div class="stat-group">
+        <div class="stat-box">
+          <div class="stat-label">已抢金额</div>
+          <div class="stat-value">¥<span id="score">0.00</span></div>
+          <div class="budget-info">剩余预算: ¥<span id="remBudget">0.00</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">抢到数量</div>
+          <div class="stat-value"><span id="count">0</span></div>
+          <div class="budget-info">剩余红包: <span id="remCount">0</span>个</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 游戏舞台 -->
+    <div class="game-area" id="gameArea"></div>
+
+    <!-- 控制按钮 -->
+    <div class="footer">
+      <button class="main-btn" id="mainBtn" onclick="startGame()">
+        <div class="btn-progress" id="btnProgress"></div>
+        <span class="btn-content" id="btnText">🚀 开启红包雨 (配置已锁定)</span>
+      </button>
+    </div>
+
+    <!-- 结算层 -->
+    <div class="overlay" id="overlay">
+      <div class="result-card">
+        <div class="result-title">🧧 恭喜发财</div>
+        <div class="result-score">¥<span id="finalScore">0.00</span></div>
+        <div class="result-detail">
+          共抢到 <span id="finalCount">0</span> 个红包<br>
+          <span id="finalMsg" style="color: var(--gold-light);"></span>
+        </div>
+        <button class="main-btn" onclick="resetGame()" style="max-width: 180px;">重新配置</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const gameArea = document.getElementById('gameArea');
+    const mainBtn = document.getElementById('mainBtn');
+    const btnProgress = document.getElementById('btnProgress');
+    const btnText = document.getElementById('btnText');
+    const configPanel = document.getElementById('configPanel');
+
+    let state = {
+      active: false,
+      score: 0,
+      count: 0,
+      timeLeft: 0,
+      remBudget: 0,
+      remCount: 0,
+      cfg: {}
+    };
+
+    function startGame() {
+      if (state.active) return;
+
+      // 1. 读取并校验配置
+      state.cfg = {
+        totalBudget: parseFloat(document.getElementById('cfgTotalBudget').value) || 100,
+        totalCount: parseInt(document.getElementById('cfgTotalCount').value) || 100,
+        duration: parseInt(document.getElementById('cfgDuration').value) || 30,
+        minAmt: parseFloat(document.getElementById('cfgMinAmt').value) || 0.1,
+        maxAmt: parseFloat(document.getElementById('cfgMaxAmt').value) || 5
+      };
+
+      // 简单逻辑校验：最小额 * 总数 不能超过 总预算
+      if (state.cfg.minAmt * state.cfg.totalCount > state.cfg.totalBudget) {
+        alert("❌ 配置冲突：最小额 * 总数 已经超过了总预算，请重新调整！");
+        return;
+      }
+
+      // 2. 初始化运行状态
+      state.active = true;
+      state.score = 0;
+      state.count = 0;
+      state.timeLeft = state.cfg.duration;
+      state.remBudget = state.cfg.totalBudget;
+      state.remCount = state.cfg.totalCount;
+
+      configPanel.style.pointerEvents = 'none';
+      configPanel.style.opacity = '0.5';
+      mainBtn.disabled = true;
+      updateDisplay();
+
+      // 3. 启动视觉倒计时
+      btnProgress.style.transition = 'none';
+      btnProgress.style.width = '0%';
+      setTimeout(() => {
+        btnProgress.style.transition = `width ${state.cfg.duration}s linear`;
+        btnProgress.style.width = '100%';
+      }, 50);
+
+      // 4. 游戏主循环
+      const gameTimer = setInterval(() => {
+        state.timeLeft--;
+        btnText.textContent = `⏱️ 倒计时: ${state.timeLeft}s`;
+        
+        if (state.timeLeft <= 0) {
+          clearInterval(gameTimer);
+          endGame();
+        }
+      }, 1000);
+
+      spawnLoop();
+    }
+
+    function spawnLoop() {
+      if (!state.active) return;
+
+      // 如果红包已经发完，提前结束生成
+      if (state.remCount <= 0) return;
+
+      // 计算生成密度：确保在剩余时间内发完剩余红包
+      // 密度 = 剩余个数 / 剩余秒数
+      const idealDensity = state.remCount / (state.timeLeft || 1);
+      const spawnCount = Math.ceil(idealDensity / 4); // 每次生成循环尝试产生 1/4 的秒密度
+
+      for(let i=0; i<spawnCount; i++) {
+        if (state.remCount > 0) createEnvelope();
+      }
+
+      setTimeout(spawnLoop, 250); // 每250ms检测一次生成
+    }
+
+    function createEnvelope() {
+      const envelope = document.createElement('div');
+      envelope.className = 'envelope';
+      const inner = document.createElement('div');
+      inner.className = 'envelope-inner';
+      envelope.appendChild(inner);
+
+      const left = Math.random() * (gameArea.clientWidth - 55);
+      envelope.style.left = left + 'px';
+      envelope.style.top = '-80px';
+
+      // 智能控额逻辑：
+      // 1. 基础随机范围 [min, max]
+      // 2. 限制不能超过 剩余预算 - (剩余个数-1)*最小额 (确保后面还有钱发)
+      const safetyBuffer = (state.remCount - 1) * state.cfg.minAmt;
+      const currentMax = Math.min(state.cfg.maxAmt, state.remBudget - safetyBuffer);
+      const currentMin = Math.max(state.cfg.minAmt, (state.remBudget - state.cfg.maxAmt * state.remCount) / state.remCount || 0);
+      
+      const amount = Math.random() * (currentMax - state.cfg.minAmt) + state.cfg.minAmt;
+      
+      // 下落速度与金额挂钩
+      const speed = 4 + (amount / state.cfg.maxAmt) * 6 + Math.random() * 2;
+
+      state.remCount--; 
+      updateDisplay();
+
+      gameArea.appendChild(envelope);
+
+      let currentTop = -80;
+      const fall = () => {
+        if (!state.active && !envelope.classList.contains('hit')) {
+          envelope.remove();
+          return;
+        }
+
+        currentTop += speed;
+        envelope.style.transform = `translateY(${currentTop}px) rotate(${(currentTop/5)%10 - 5}deg)`;
+
+        if (currentTop > gameArea.clientHeight) {
+          // 红包未被抢到，预算和个数回收
+          state.remCount++;
+          state.remBudget += 0; // 金额其实没发出去，不需要扣除
+          envelope.remove();
+          updateDisplay();
+        } else if (envelope.parentElement) {
+          requestAnimationFrame(fall);
+        }
+      };
+
+      envelope.onclick = (e) => {
+        e.stopPropagation();
+        if (state.remBudget >= amount) {
+          hitEnvelope(envelope, amount);
+        } else if (state.remBudget > 0) {
+          // 预算不足支付该红包，发完最后的钱
+          hitEnvelope(envelope, state.remBudget);
+        }
+      };
+
+      requestAnimationFrame(fall);
+    }
+
+    function hitEnvelope(el, amt) {
+      if (el.classList.contains('hit')) return;
+      el.classList.add('hit');
+
+      state.score += amt;
+      state.count++;
+      state.remBudget -= amt;
+
+      showFloatText(el.offsetLeft, el.offsetTop, `+¥${amt.toFixed(2)}`);
+      updateDisplay();
+
+      setTimeout(() => el.remove(), 300);
+    }
+
+    function showFloatText(x, y, text) {
+      const ft = document.createElement('div');
+      ft.className = 'float-text';
+      ft.style.left = x + 'px';
+      ft.style.top = y + 'px';
+      ft.textContent = text;
+      gameArea.appendChild(ft);
+      setTimeout(() => ft.remove(), 800);
+    }
+
+    function updateDisplay() {
+      document.getElementById('score').textContent = state.score.toFixed(2);
+      document.getElementById('count').textContent = state.count;
+      document.getElementById('remBudget').textContent = Math.max(0, state.remBudget).toFixed(2);
+      document.getElementById('remCount').textContent = Math.max(0, state.remCount);
+    }
+
+    function endGame() {
+      state.active = false;
+      document.getElementById('finalScore').textContent = state.score.toFixed(2);
+      document.getElementById('finalCount').textContent = state.count;
+      
+      let msg = "";
+      if (state.score >= state.cfg.totalBudget * 0.8) msg = "💰 太厉害了，预算快被你掏空了！";
+      else if (state.count >= state.cfg.totalCount * 0.8) msg = "🎯 手速惊人，红包全落你手！";
+      else msg = "🧧 手气不错，下次继续努力！";
+      
+      document.getElementById('finalMsg').textContent = msg;
+      document.getElementById('overlay').classList.add('active');
+    }
+
+    function resetGame() {
+      document.getElementById('overlay').classList.remove('active');
+      gameArea.innerHTML = '';
+      btnText.textContent = '🚀 开启红包雨 (配置已锁定)';
+      btnProgress.style.width = '0%';
+      mainBtn.disabled = false;
+      configPanel.style.pointerEvents = 'auto';
+      configPanel.style.opacity = '1';
+      state.score = 0;
+      state.count = 0;
+      updateDisplay();
+    }
+  </script>
+</body>
+</html>

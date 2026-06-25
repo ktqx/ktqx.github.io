@@ -79,8 +79,8 @@
     :root {
       --primary-color:   #ff6b35;
       --secondary-color: #004e89;
-      --accent-gold:     #f7b801;
-      --dark-bg:         #0f1419;
+      --accent-gold:      #f7b801;
+      --dark-bg:          #0f1419;
       --light-text:      #ffffff;
       --text-secondary:  #b0b3c1;
       --big-prize:       #ff4d4f;
@@ -259,6 +259,9 @@
       cursor: pointer;
       position: relative;
       transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .egg-container:hover:not(.smashed) {
@@ -269,46 +272,48 @@
       cursor: default;
     }
 
-    /* ===== 【美化】3D立体金蛋视觉优化 ===== */
+    /* ===== 3D立体真实金蛋视觉优化 ===== */
     .egg {
-      width: 100%;
+      width: 85%;
       height: 100%;
-      /* 更细腻的渐变，增加金属质感 */
-      background: radial-gradient(circle at 35% 30%, #fff7b3 0%, #f7b801 40%, #cc9900 75%, #805500 100%);
-      border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+      /* 优化多层高光与暗部渐变，模拟真实生动的金属蛋壳曲面 */
+      background: radial-gradient(circle at 35% 25%, #ffffff 0%, #fff4b3 15%, #fcd34d 35%, #d97706 70%, #78350f 100%);
+      border-radius: 50% 50% 50% 50% / 68% 68% 32% 32%;
       box-shadow: 
-        inset -8px -15px 30px rgba(0,0,0,0.4),
-        inset 5px 10px 15px rgba(255,255,255,0.7),
-        0 15px 25px rgba(0, 0, 0, 0.5);
+        inset -10px -20px 35px rgba(0,0,0,0.5),
+        inset 6px 12px 18px rgba(255,255,255,0.8),
+        0 15px 25px rgba(0, 0, 0, 0.4);
       position: absolute;
+      top: 0;
+      left: 7.5%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 2.5rem;
       transition: all 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* 增加反光层 */
+    /* 增强表面反光条 */
     .egg::after {
       content: '';
       position: absolute;
-      top: 15%;
-      left: 20%;
-      width: 30%;
-      height: 20%;
-      background: rgba(255, 255, 255, 0.4);
+      top: 12%;
+      left: 18%;
+      width: 25%;
+      height: 15%;
+      background: rgba(255, 255, 255, 0.6);
       border-radius: 50%;
-      filter: blur(5px);
-      transform: rotate(-30deg);
+      filter: blur(4px);
+      transform: rotate(-25deg);
     }
 
     .egg-container:hover:not(.smashed) .egg {
       transform: translateY(-10px) scale(1.05) rotate(2deg);
       box-shadow: 
-        inset -8px -15px 30px rgba(0,0,0,0.4),
-        inset 5px 10px 15px rgba(255,255,255,0.7),
-        0 25px 35px rgba(247, 184, 1, 0.3);
+        inset -10px -20px 35px rgba(0,0,0,0.5),
+        inset 6px 12px 18px rgba(255,255,255,0.8),
+        0 25px 35px rgba(247, 184, 1, 0.35);
     }
 
     /* 金蛋阴影 */
@@ -369,7 +374,7 @@
       100% { transform: translate(var(--tx), var(--ty)) rotate(var(--tr)) scale(0.3); opacity: 0; }
     }
 
-    /* 奖金显示标签 */
+    /* 奖金显示标签：优化为金蛋的正中间定位 */
     .prize-label {
       position: absolute;
       font-size: 1.3rem;
@@ -383,25 +388,37 @@
       z-index: 3;
       pointer-events: none;
       transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+      /* 确保上下左右完美居中 */
+      top: 70%;
+      left: 50%;
+      margin-top: -20px; /* 元素高度的一半左右，保持完全对齐 */
+      transform: translate(-50%, -50%) scale(0);
     }
 
     .egg-container.smashed .prize-label {
-      transform: scale(1);
+      transform: translate(-50%, -50%) scale(1);
     }
 
-    /* ===== 【优化】未砸金蛋的透视样式：调亮显示 ===== */
+    /* ===== 未砸金蛋透视样式：保留外观，但文字（金额）显示为黑灰色 ===== */
     .egg-container.dimmed .egg {
-      background: radial-gradient(circle at 35% 30%, rgba(230, 230, 230, 0.8) 0%, rgba(180, 180, 180, 0.8) 50%, rgba(130, 130, 130, 0.8) 85%, rgba(100, 100, 100, 0.8) 100%);
-      opacity: 0.8; /* 调亮透明度 */
-      filter: brightness(1.1); /* 整体提亮 */
+      background: radial-gradient(circle at 35% 25%, #ffffff 0%, #fff4b3 15%, #fcd34d 35%, #d97706 70%, #78350f 100%);
+      opacity: 0.4; /* 降低整蛋透明度实现灰暗透视感 */
+    }
+
+    /* 未砸中的金蛋，显示的透视金额标签：背景变淡，文字使用黑灰色 */
+    .egg-container.dimmed .prize-label {
+      background: rgba(220, 220, 220, 0.85); /* 浅灰白背景 */
+      color: #2d3748; /* 深黑灰色文本 */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      text-shadow: none;
     }
 
     .egg-container.dimmed:hover .egg {
       transform: none;
       box-shadow: 
-        inset -6px -12px 25px rgba(0,0,0,0.3),
-        inset 4px 8px 12px rgba(255,255,255,0.3),
-        0 15px 25px rgba(0, 0, 0, 0.3);
+        inset -10px -20px 35px rgba(0,0,0,0.5),
+        inset 6px 12px 18px rgba(255,255,255,0.8),
+        0 15px 25px rgba(0, 0, 0, 0.4);
     }
 
     /* 状态与结果展示 */
@@ -448,7 +465,7 @@
       .egg { font-size: 2rem; }
     }
 
-    /* ===== 【优化】手机端导航栏适配：支持横向滚动 ===== */
+    /* ===== 手机端导航栏适配：支持横向滚动 ===== */
     @media (max-width: 480px) {
       body { padding: 70px 10px 15px; }
       
@@ -581,7 +598,7 @@
     // 音频上下文
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // ===== 【优化】更真实的砸蛋音效：敲击 + 破碎声 =====
+    // ===== 更真实的砸蛋音效 =====
     function playSound(type) {
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
@@ -601,7 +618,7 @@
         osc1.start();
         osc1.stop(audioCtx.currentTime + 0.1);
 
-        // 2. 陶瓷破碎的高频脆响 (使用白噪声模拟)
+        // 2. 陶瓷破碎的高频脆响
         const bufferSize = audioCtx.sampleRate * 0.2;
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);

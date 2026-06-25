@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎮 Game Hub - 游戏合集</title>
+  <style>
+    /* ===== CSS 变量与主题 ===== */
+    :root {
+      --primary-color: #d946ef;
+      --secondary-color: #06b6d4;
+      --accent-gold: #f7b801;
+      --dark-bg: #0a0e27;
+      --light-text: #ffffff;
+      --text-secondary: #a0aec0;
+      --glass-bg: rgba(20, 25, 50, 0.5);
+      --glass-border: rgba(217, 70, 239, 0.2);
+    }
+
+    /* ===== 全局重置 ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a3e 100%);
+      color: var(--light-text);
+      min-height: 100vh;
+      padding-top: 85px;
+    }
+
+    /* ===== 统一导航栏样式 (完美同步各子游戏主框架) ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: rgba(10, 14, 39, 0.95);
+      border-bottom: 2px solid var(--primary-color);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2);
+    }
+
+    .navbar-logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--primary-color);
+      text-shadow: 0 0 10px rgba(217, 70, 239, 0.5);
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .navbar-logo span {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary-color), #a855f7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .navbar-spacer { flex: 1; }
+
+    .navbar-nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .navbar-nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 8px 12px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .navbar-nav a:hover {
+      color: var(--primary-color);
+      background: rgba(217, 70, 239, 0.1);
+    }
+
+    .navbar-nav a.active {
+      color: var(--primary-color);
+      background: rgba(217, 70, 239, 0.2);
+      border: 1px solid var(--primary-color);
+    }
+
+    /* ===== 主容器 ===== */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 15px 20px 40px;
+    }
+
+    /* ===== 英雄区 ===== */
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(217, 70, 239, 0.1);
+      border: 1px solid var(--primary-color);
+      border-radius: 20px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      color: var(--primary-color);
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 15px;
+      line-height: 1.2;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 30px;
+      line-height: 1.6;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--primary-color);
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    /* ===== 游戏网格 ===== */
+    .games-section {
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+      font-size: 1rem;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    /* ===== 游戏卡片 ===== */
+    .game-card {
+      position: relative;
+      height: 280px;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(217, 70, 239, 0.1), rgba(6, 182, 212, 0.1));
+      border: 2px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(217, 70, 239, 0.05), rgba(6, 182, 212, 0.05));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 0;
+    }
+
+    .game-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--primary-color);
+      box-shadow: 0 20px 40px rgba(217, 70, 239, 0.3), inset 0 0 20px rgba(217, 70, 239, 0.1);
+    }
+
+    .game-card:hover::before { opacity: 1; }
+
+    .game-card-content { position: relative; z-index: 1; }
+
+    .game-emoji {
+      font-size: 3.5rem;
+      margin-bottom: 15px;
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .game-card:hover .game-emoji {
+      transform: scale(1.15) rotate(5deg);
+    }
+
+    .game-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--light-text);
+    }
+
+    .game-description {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 15px;
+    }
+
+    .game-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--primary-color);
+      font-weight: 600;
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .game-card:hover .game-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* ===== 页脚 ===== */
+    .footer {
+      text-align: center;
+      padding: 30px 20px;
+      border-top: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .footer-text { margin-bottom: 8px; }
+
+    /* ===== 动画 ===== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .game-card { animation: fadeInUp 0.6s ease-out backwards; }
+    .game-card:nth-child(1) { animation-delay: 0.05s; }
+    .game-card:nth-child(2) { animation-delay: 0.1s; }
+    .game-card:nth-child(3) { animation-delay: 0.15s; }
+    .game-card:nth-child(4) { animation-delay: 0.2s; }
+    .game-card:nth-child(5) { animation-delay: 0.25s; }
+    .game-card:nth-child(6) { animation-delay: 0.3s; }
+
+    /* ===== 统一响应式与手机紧凑优化布局 ===== */
+    @media (max-width: 768px) {
+      body { padding-top: 75px; }
+      .navbar { padding: 0 15px; height: 60px; }
+      .navbar-logo { font-size: 1.2rem; }
+      .navbar-logo span { width: 35px; height: 35px; font-size: 1rem; }
+      .hero h1 { font-size: 2.2rem; }
+      .games-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 70px 10px 15px; }
+      
+      /* 手机端同步全局横向滚动导航栏框架 */
+      .navbar {
+        padding: 0 10px;
+        justify-content: space-between;
+      }
+      
+      .navbar-spacer { display: none; }
+      
+      .navbar-nav {
+        display: flex; 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch;
+        gap: 10px;
+        padding: 0 5px;
+        flex: 1;
+        margin-left: 10px;
+        scrollbar-width: none; 
+      }
+      
+      .navbar-nav::-webkit-scrollbar { display: none; }
+      
+      .navbar-nav a {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+      }
+
+      .container { padding: 10px 5px 15px; }
+      .hero { margin-bottom: 20px; }
+      .hero-badge { padding: 6px 12px; margin-bottom: 10px; font-size: 0.8rem; }
+      .hero h1 { font-size: 1.7rem; margin-bottom: 8px; }
+      .hero p { font-size: 0.85rem; margin-bottom: 15px; }
+      
+      /* 核心修改：将面板状态极致压缩为一行紧凑滚动横条 */
+      .hero-stats {
+        display: inline-flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        width: 100%;
+        background: rgba(20, 25, 50, 0.4);
+        padding: 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(217, 70, 239, 0.1);
+      }
+      
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+      
+      .stat-value {
+        font-size: 0.95rem;
+        margin-bottom: 0;
+        display: inline-block;
+      }
+      
+      .stat-label {
+        font-size: 0.8rem;
+        color: #e2e8f0;
+      }
+
+      /* 间隔分界线 */
+      .stat-item:not(:last-child)::after {
+        content: "•";
+        color: var(--primary-color);
+        margin-left: 8px;
+        opacity: 0.6;
+      }
+
+      .section-title { font-size: 1.3rem; margin-bottom: 4px; }
+      .section-subtitle { font-size: 0.85rem; margin-bottom: 15px; }
+
+      .games-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 25px; }
+      .game-card { height: 140px; padding: 16px; border-radius: 12px; }
+      .game-emoji { font-size: 2rem; margin-bottom: 6px; }
+      .game-title { font-size: 1.05rem; margin-bottom: 4px; }
+      .game-description { font-size: 0.8rem; margin-bottom: 6px; }
+      .game-arrow { opacity: 1; transform: translateX(0); font-size: 0.8rem; }
+      
+      .footer { padding: 20px 10px; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-logo"><span>🎮</span> Game Hub</a>
+    <div class="navbar-spacer"></div>
+    <div class="navbar-nav">
+      <a href="index.html" class="active">首页</a>
+      <a href="lucky-wheel.html">🎡 大转盘</a>
+      <a href="flip-card.html">🎰 幸运牌</a>
+      <a href="dart-wheel.html">🎯 枪击轮盘</a>
+      <a href="golden-egg.html">🥚 砸金蛋</a>
+      <a href="red-envelope.html">🧧 抢红包</a>
+      <a href="dice-arena.html">🎲 摇骰子</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="hero">
+      <div class="hero-badge">欢迎来到游戏宇宙</div>
+      <h1>进入 <span class="highlight">Game Hub</span></h1>
+      <p>精选互动游戏，融合科技感与游戏乐趣。开启一段充满惊喜的冒险之旅。</p>
+      
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-value">6</span>
+          <span class="stat-label">款精选游戏</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">∞</span>
+          <span class="stat-label">无限乐趣</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">24/7</span>
+          <span class="stat-label">随时可玩</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="games-section" id="games">
+      <h2 class="section-title">选择你的游戏</h2>
+      <p class="section-subtitle">点击任意游戏卡片开始体验</p>
+
+      <div class="games-grid">
+        <a href="lucky-wheel.html" class="game-card">
+          <div class="game-card-content">
+            <div class="game-emoji">🎡</div>
+            <h3 class="game-title">幸运大转盘</h3>
+            <p class="game-description">转盘抽奖，运气爆棚</p>
+            <span class="game-arrow">进入游戏 →</span>
+          </div>
+        </a>
+
+        <a href="flip-card.html" class="game-card">
+          <div class="game-card-content">
+            <div class="game-emoji">🎰</div>
+            <h3 class="game-title">幸运大翻牌</h3>
+            <p class="game-description">翻牌抽奖，惊喜连连</p>
+            <span class="game-arrow">进入游戏 →</span>
+          </div>
+        </a>
+
+        <a href="dart-wheel.html" class="game-card">
+          <div class="game-card-content">
+            <div class="game-emoji">🎯</div>
+            <h3 class="game-title">枪击大轮盘</h3>
+            <p class="game-description">精准枪击，一击即中</p>
+            <span class="game-arrow">进入游戏 →</span>
+          </div>
+        </a>
+
+        <a href="golden-egg.html" class="game-card">
+          <div class="game-card-content">
+            <div class="game-emoji">🥚</div>
+            <h3 class="game-title">幸运砸金蛋</h3>
+            <p class="game-description">砸蛋抽奖，豪礼等你</p>
+            <span class="game-arrow">进入游戏 →</span>
+          </div>
+        </a>
+
+        <a href="red-envelope.html" class="game-card">
+          <div class="game-card-content">
+            <div class="game-emoji">🧧</div>
+            <h3 class="game-title">疯狂抢红包</h3>
+            <p class="game-description">红包争夺，手速至上</p>
+            <span class="game-arrow">进入游戏 →</span>
+          </div>
+        </a>
+
+        <a href="dice-arena.html" class="game-card">
+          <div class="game-card-content">
+            <div class="game-emoji">🎲</div>
+            <h3 class="game-title">骰子对战竞技场</h3>
+            <p class="game-description">多人竞技，一决高下</p>
+            <span class="game-arrow">进入游戏 →</span>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-text">© 2026 Game Hub. 所有游戏均为娱乐用途。</div>
+    <div class="footer-text">持续更新中... 更多精彩游戏敬请期待 ✨</div>
+  </footer>
+</body>
+</html>

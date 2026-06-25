@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎲 疯狂摇骰子 - Game Hub</title>
+  <style>
+    /* ===== 统一导航栏样式 (完全同步对齐 lucky-wheel.html) ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: rgba(10, 14, 39, 0.95);
+      border-bottom: 2px solid #d946ef;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2);
+    }
+
+    .navbar-logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #d946ef;
+      text-shadow: 0 0 10px rgba(217, 70, 239, 0.5);
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .navbar-logo span {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #d946ef, #a855f7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .navbar-spacer { flex: 1; }
+
+    .navbar-nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .navbar-nav a {
+      color: #a0aec0;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 8px 12px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .navbar-nav a:hover {
+      color: #d946ef;
+      background: rgba(217, 70, 239, 0.1);
+    }
+
+    .navbar-nav a.active {
+      color: #d946ef;
+      background: rgba(217, 70, 239, 0.2);
+      border: 1px solid #d946ef;
+    }
+
+    /* ===== 核心配色变量 ===== */
+    :root {
+      --primary-color:   #ff6b35;
+      --secondary-color: #004e89;
+      --accent-gold:      #f7b801;
+      --dark-bg:          #0f1419;
+      --light-text:      #ffffff;
+      --text-secondary:  #b0b3c1;
+    }
+
+    /* ===== 全局重置 ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%);
+      color: var(--light-text);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 100vh;
+      padding: 12px;
+      padding-top: 85px;
+    }
+
+    /* ===== 极限收紧的主容器 (黄金框极限包围，绝不空旷空隙) ===== */
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(15, 20, 25, 0.95);
+      border: 2px solid var(--accent-gold);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 0 35px rgba(247, 184, 1, 0.15), inset 0 0 15px rgba(247, 184, 1, 0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .title {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+      text-shadow: 0 0 15px rgba(247, 184, 1, 0.4);
+      letter-spacing: 2px;
+    }
+
+    /* ===== 配置面板 (紧凑化) ===== */
+    .config-panel {
+      background: linear-gradient(135deg, rgba(0, 78, 137, 0.12), rgba(255, 107, 53, 0.12));
+      border: 1px solid rgba(247, 184, 1, 0.25);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      width: 100%;
+    }
+
+    .config-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .config-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .config-input, .config-select {
+      width: 100%;
+      padding: 8px 10px;
+      background: rgba(26, 35, 50, 0.9);
+      border: 1.5px solid rgba(247, 184, 1, 0.2);
+      border-radius: 6px;
+      color: var(--light-text);
+      font-size: 0.9rem;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .config-input:focus, .config-select:focus {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 10px rgba(247, 184, 1, 0.25);
+    }
+
+    /* ===== 骰子竞技舞台 (高度缩减，多颗时紧贴排列) ===== */
+    .dice-stage {
+      width: 100%;
+      min-height: 180px;
+      background: radial-gradient(circle at center, #111827 0%, #090d12 100%);
+      border-radius: 14px;
+      border: 2px solid rgba(247, 184, 1, 0.2);
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.65);
+      position: relative;
+      overflow: hidden;
+      padding: 12px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stage-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .stage-head b {
+      color: var(--accent-gold);
+    }
+
+    .dice-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
+      gap: 8px 6px; /* 进一步压低横纵间隙 */
+      width: 100%;
+      justify-content: center;
+      justify-items: center;
+      align-content: center;
+      align-items: center;
+    }
+
+    .dice-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+    }
+
+    /* ===== 3D 骰子物理图层与暗中阴影还原 ===== */
+    .cube-container {
+      width: 68px;
+      height: 68px;
+      position: relative;
+      perspective: 800px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    }
+
+    .cube-shadow {
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48px;
+      height: 6px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 50%;
+      filter: blur(3px);
+      z-index: 1;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .cube {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      transform-style: preserve-3d;
+      z-index: 2;
+      transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+      transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.25, 1);
+    }
+
+    /* 落地物理震颤动效 */
+    @keyframes dice-impact {
+      0%   { transform: translateY(0) scaleY(1); }
+      20%  { transform: translateY(-10px) scaleY(1.04); }
+      50%  { transform: translateY(1.5px) scaleY(0.94); }
+      80%  { transform: translateY(-2px) scaleY(1.01); }
+      100% { transform: translateY(0) scaleY(1); }
+    }
+
+    .cube.impact-effect {
+      animation: dice-impact 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+
+    .cube-face {
+      position: absolute;
+      width: 68px;
+      height: 68px;
+      background: radial-gradient(circle at 30% 30%, #ffffff 0%, #f0f0f0 60%, #bebebe 100%);
+      border: 1.5px solid #9f9f9f;
+      border-radius: 10px;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.35), 0 1px 1px rgba(0, 0, 0, 0.3);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      padding: 5px;
+      box-sizing: border-box;
+      align-items: center;
+      justify-items: center;
+    }
+
+    /* 3D 转换矩阵轴向 */
+    .face-1 { transform: rotateY(0deg)    translateZ(34px); }
+    .face-6 { transform: rotateY(180deg)  translateZ(34px); }
+    .face-2 { transform: rotateY(90deg)   translateZ(34px); }
+    .face-5 { transform: rotateY(-90deg)  translateZ(34px); }
+    .face-3 { transform: rotateX(90deg)   translateZ(34px); }
+    .face-4 { transform: rotateX(-90deg)  translateZ(34px); }
+
+    .pip {
+      width: 13px;
+      height: 13px;
+      background-color: #151515;
+      border-radius: 50%;
+      box-shadow: inset 0 1px 1.5px rgba(0, 0, 0, 0.85);
+    }
+
+    .pip.red {
+      background-color: #d90429 !important;
+      box-shadow: inset 0 1.5px 1.5px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .face-1 .pip {
+      width: 18px;
+      height: 18px;
+    }
+
+    .pip.top-left    { grid-area: 1 / 1; }
+    .pip.top-right   { grid-area: 1 / 3; }
+    .pip.mid-left    { grid-area: 2 / 1; }
+    .pip.mid-right   { grid-area: 2 / 3; }
+    .pip.center      { grid-area: 2 / 2; }
+    .pip.bottom-left  { grid-area: 3 / 1; }
+    .pip.bottom-right { grid-area: 3 / 3; }
+
+    /* ===== 操作区域 ===== */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .btn-spin {
+      width: 100%;
+      max-width: 300px;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, var(--primary-color), #ff8c42);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      box-shadow: 0 6px 15px rgba(255, 107, 53, 0.25);
+      user-select: none;
+    }
+
+    .btn-spin:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ===== 统计层 ===== */
+    .result-panel {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(247, 184, 1, 0.15);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: inset 0 0 15px rgba(0,0,0,.3);
+      margin-top: 14px;
+    }
+
+    .result-title {
+      font-size: 0.9rem;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .result-summary {
+      display: flex;
+      justify-content: space-around;
+      color: #dfe4ea;
+      font-size: 0.9rem;
+    }
+
+    .result-summary b {
+      color: var(--accent-gold);
+    }
+
+    /* ===== 移动端流式缩进断点 ===== */
+    @media (max-width: 768px) {
+      body { padding-top: 80px; }
+      .navbar { padding: 0 15px; height: 60px; }
+      .navbar-logo { font-size: 1.2rem; }
+      .navbar-logo span { width: 34px; height: 34px; font-size: 1rem; }
+      .navbar-nav { gap: 8px; }
+      .navbar-nav a { padding: 5px 8px; font-size: 0.85rem; }
+      .title { font-size: 1.5rem; }
+    }
+
+    @media (max-width: 580px) {
+      .navbar-spacer { display: none; }
+      .navbar-nav { width: 100%; justify-content: space-between; overflow-x: auto; padding-bottom: 2px; }
+      .navbar { height: auto; padding: 8px; flex-direction: column; gap: 4px; }
+      body { padding-top: 105px; padding: 8px; }
+      .container { padding: 10px; border-radius: 12px; }
+      .cube-container, .cube-face { width: 56px; height: 56px; }
+      .face-1 { transform: rotateY(0deg) translateZ(28px); }
+      .face-6 { transform: rotateY(180deg) translateZ(28px); }
+      .face-2 { transform: rotateY(90deg) translateZ(28px); }
+      .face-5 { transform: rotateY(-90deg) translateZ(28px); }
+      .face-3 { transform: rotateX(90deg) translateZ(28px); }
+      .face-4 { transform: rotateX(-90deg) translateZ(28px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 补全统一的顶级导航栏 -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-logo">
+      <span>🎮</span> Game Hub
+    </a>
+    <div class="navbar-spacer"></div>
+    <div class="navbar-nav">
+      <a href="index.html">首页</a>
+      <a href="lucky-wheel.html">🎡 大转盘</a>
+      <a href="flip-card.html">🎰 幸运牌</a>
+      <a href="dart-wheel.html">🎯 飞镖轮盘</a>
+      <a href="golden-egg.html">🥚 砸金蛋</a>
+      <a href="red-envelope.html">🧧 抢红包</a>
+      <a href="dice-arena.html" class="active">🎲 摇骰子</a>
+    </div>
+  </nav>
+
+  <!-- 紧凑包裹的黄金外框容器 -->
+  <div class="container">
+    <div class="header">
+      <div class="title">🎲 疯狂摇骰子</div>
+    </div>
+
+    <!-- 精调微型配置栏 -->
+    <div class="config-panel">
+      <div class="config-group">
+        <label class="config-label">摇骰次数</label>
+        <select id="diceCount" class="config-select" onchange="resetGame()">
+          <option value="1">1次</option>
+          <option value="2">2次</option>
+          <option value="3" selected>3次</option>
+          <option value="5">5次</option>
+          <option value="10">10次</option>
+        </select>
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">单次摇骰数</label>
+        <select id="rollBatch" class="config-select" onchange="resetGame()">
+          <option value="1">1颗</option>
+          <option value="2">2颗</option>
+          <option value="3">3颗</option>
+          <option value="5" selected>5颗</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 紧凑高密度舞台 -->
+    <div class="dice-stage">
+      <div class="stage-head">
+        <div>状态: <span id="statusText">准备就绪</span></div>
+        <div>总骰子数: <b id="rolledCount">0</b> / <span id="targetTotal">15</span> 颗</div>
+      </div>
+      <div class="dice-grid" id="diceGrid">
+        <!-- 骰子载入区 -->
+      </div>
+    </div>
+
+    <!-- 动态文案按钮控制面板 -->
+    <div class="control-panel">
+      <button class="btn-spin" id="spinBtn" onclick="handleSpinClick()">
+        第 1 次摇一摇
+      </button>
+    </div>
+
+    <!-- 紧凑小巧数据面板 -->
+    <div class="result-panel">
+      <div class="result-title">实时数据统计</div>
+      <div class="result-summary">
+        <div>当前总点数：<b id="sumValue">0</b></div>
+        <div>平均点数：<b id="avgValue">0.0</b></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* 音频合成驱动层 */
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playRollSound(duration) {
+      initAudio();
+      if (!audioCtx) return;
+      const bufferSize = audioCtx.sampleRate * duration;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(500, audioCtx.currentTime);
+      filter.Q.setValueAtTime(3.5, audioCtx.currentTime);
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+      noise.stop(audioCtx.currentTime + duration);
+    }
+
+    function playClickSound(pitchFactor = 1.0) {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const freq = (160 + Math.random() * 140) * pitchFactor;
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.04);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.06);
+    }
+
+    /* 3D 几何常数映射表 */
+    const facePipsConfig = {
+      1: ['center'],
+      2: ['top-left', 'bottom-right'],
+      3: ['top-left', 'center', 'bottom-right'],
+      4: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+      5: ['top-left', 'top-right', 'center', 'bottom-left', 'bottom-right'],
+      6: ['top-left', 'top-right', 'mid-left', 'mid-right', 'bottom-left', 'bottom-right']
+    };
+
+    const faceTransforms = {
+      1: { x: 0,    y: 0,   z: 0 },
+      2: { x: 0,    y: -90, z: 0 },
+      3: { x: -90,  y: 0,   z: 0 },
+      4: { x: 90,   y: 0,   z: 0 },
+      5: { x: 0,    y: 90,  z: 0 },
+      6: { x: 180,  y: 0,   z: 0 }
+    };
+
+    /* 核心逻辑状态器 */
+    let state = {
+      isRolling: false,
+      currentRound: 1,  // 当前是第几次点击摇骰
+      totalRounds: 3,   // 目标总次数
+      batchSize: 5,     // 每次摇几颗
+      rolledDiceCount: 0, // 当前屏幕上已经落定的骰子总数
+      sum: 0,
+      isFinished: false
+    };
+
+    // 构建去除了数字标签的纯立体骰子外壳
+    function createDie() {
+      const card = document.createElement('div');
+      card.className = 'dice-card';
+      const container = document.createElement('div');
+      container.className = 'cube-container';
+      const shadow = document.createElement('div');
+      shadow.className = 'cube-shadow';
+      const cube = document.createElement('div');
+      cube.className = 'cube';
+
+      for (let f = 1; f <= 6; f++) {
+        const faceDom = document.createElement('div');
+        faceDom.className = 'cube-face face-' + f;
+        const pipsArr = facePipsConfig[f];
+        pipsArr.forEach(pClass => {
+          const pip = document.createElement('div');
+          pip.className = 'pip ' + pClass;
+          if (f === 1 || f === 4) pip.classList.add('red');
+          faceDom.appendChild(pip);
+        });
+        cube.appendChild(faceDom);
+      }
+
+      container.appendChild(shadow);
+      container.appendChild(cube);
+      card.appendChild(container);
+      // 深度优化：完全移除原始的 label 节点，保持底层干净紧凑
+      return { card, cube, shadow };
+    }
+
+    function updateButtonText() {
+      const spinBtn = document.getElementById('spinBtn');
+      if (state.isFinished) {
+        spinBtn.textContent = '🔄 重新开始';
+      } else {
+        if (state.totalRounds > 1) {
+          spinBtn.textContent = `第 ${state.currentRound} 次摇一摇`;
+        } else {
+          spinBtn.textContent = '🎲 摇一摇！';
+        }
+      }
+    }
+
+    function resetGame() {
+      state.isRolling = false;
+      state.currentRound = 1;
+      state.isFinished = false;
+      state.rolledDiceCount = 0;
+      state.sum = 0;
+
+      state.totalRounds = parseInt(document.getElementById('diceCount').value);
+      state.batchSize = parseInt(document.getElementById('rollBatch').value);
+      
+      const totalTargetDice = state.totalRounds * state.batchSize;
+      document.getElementById('targetTotal').textContent = totalTargetDice;
+      document.getElementById('rolledCount').textContent = '0';
+      document.getElementById('sumValue').textContent = '0';
+      document.getElementById('avgValue').textContent = '0.0';
+      document.getElementById('statusText').textContent = '准备就绪';
+      
+      const spinBtn = document.getElementById('spinBtn');
+      spinBtn.disabled = false;
+      updateButtonText();
+
+      const grid = document.getElementById('diceGrid');
+      grid.innerHTML = '';
+      
+      // 一步到位预先生成好全量的透视槽位，保持网格高度饱满且紧凑不变形
+      for (let i = 0; i < totalTargetDice; i++) {
+        const die = createDie();
+        // 初始状态让内部骨架半透明隐藏，显得更高级
+        die.cube.style.opacity = '0.15';
+        die.shadow.style.opacity = '0.1';
+        grid.appendChild(die.card);
+      }
+    }
+
+    function handleSpinClick() {
+      if (state.isFinished) {
+        resetGame();
+        return;
+      }
+      rollNextBatch();
+    }
+
+    function rollNextBatch() {
+      if (state.isRolling) return;
+      state.isRolling = true;
+      
+      document.getElementById('statusText').textContent = `第 ${state.currentRound} 轮摇动中...`;
+      document.getElementById('spinBtn').disabled = true;
+      
+      const grid = document.getElementById('diceGrid');
+      const diceCards = grid.querySelectorAll('.dice-card');
+      playRollSound(1.1);
+
+      let finishedInBatch = 0;
+      const rollDuration = 1400;
+
+      for (let i = 0; i < state.batchSize; i++) {
+        // 精准索引当前点击轮次对应的骰子位置
+        const currentIdx = (state.currentRound - 1) * state.batchSize + i;
+        const dieCard = diceCards[currentIdx];
+        if (!dieCard) continue;
+
+        const cube = dieCard.querySelector('.cube');
+        const shadow = dieCard.querySelector('.cube-shadow');
+        
+        // 唤醒当前被投掷的骰子视觉亮显
+        cube.style.opacity = '1';
+        shadow.style.opacity = '1';
+
+        const result = Math.floor(Math.random() * 6) + 1;
+        state.sum += result;
+
+        const base = faceTransforms[result];
+        const rotX = base.x + (4 + Math.floor(Math.random() * 2)) * 360;
+        const rotY = base.y + (4 + Math.floor(Math.random() * 2)) * 360;
+        const rotZ = base.z + Math.floor(Math.random() * 2) * 180;
+        const delay = i * 100; // 高度紧凑、密集的落盘空隙间隔
+
+        setTimeout(() => {
+          cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+          shadow.style.transform = 'translateX(-50%) scale(1.25)';
+          shadow.style.background = 'rgba(0,0,0,0.15)';
+        }, delay);
+
+        setTimeout(() => {
+          cube.classList.add('impact-effect');
+          shadow.style.transform = 'translateX(-50%) scale(1)';
+          shadow.style.background = 'rgba(0,0,0,0.8)';
+          playClickSound(0.9 + result * 0.1);
+
+          // 正面点数高动态覆盖重组，纠正非正常视觉错位
+          const face1 = cube.querySelector('.face-1');
+          face1.innerHTML = '';
+          const pips = facePipsConfig[result];
+          pips.forEach(pClass => {
+            const pip = document.createElement('div');
+            pip.className = 'pip ' + pClass;
+            if (result === 1 || result === 4) pip.classList.add('red');
+            face1.appendChild(pip);
+          });
+
+          finishedInBatch++;
+          if (finishedInBatch === state.batchSize) {
+            // 当前批次全部触地平息，结算当轮实时数据
+            state.rolledDiceCount += state.batchSize;
+            document.getElementById('rolledCount').textContent = state.rolledDiceCount;
+            document.getElementById('sumValue').textContent = state.sum;
+            document.getElementById('avgValue').textContent = (state.sum / state.rolledDiceCount).toFixed(1);
+            
+            state.isRolling = false;
+
+            if (state.currentRound >= state.totalRounds) {
+              state.isFinished = true;
+              document.getElementById('statusText').textContent = '疯狂摇骰结束！';
+            } else {
+              state.currentRound++;
+              document.getElementById('statusText').textContent = '准备就绪';
+            }
+            
+            document.getElementById('spinBtn').disabled = false;
+            updateButtonText();
+          }
+        }, delay + rollDuration);
+      }
+    }
+
+    window.addEventListener('load', resetGame);
+  </script>
+</body>
+</html>

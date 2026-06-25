@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>🎯 飞镖大转盘</title>
+  <title>🎯 枪击大转盘</title>
   <style>
     /* ===== CSS 变量 ===== */
     :root {
@@ -43,7 +43,7 @@
       cursor: crosshair;
     }
 
-    /* ===== 统一导航栏样式 (同步自 golden-egg.html) ===== */
+    /* ===== 统一导航栏样式 ===== */
     .navbar {
       position: fixed;
       top: 0;
@@ -113,17 +113,11 @@
       border: 1px solid #d946ef;
     }
 
-    /* ===== 手机端导航栏适配 (同步自 golden-egg.html) ===== */
+    /* ===== 手机端导航栏适配 ===== */
     @media (max-width: 480px) {
       body { padding: 70px 10px 15px; }
-      
-      .navbar {
-        padding: 0 10px;
-        justify-content: space-between;
-      }
-      
+      .navbar { padding: 0 10px; justify-content: space-between; }
       .navbar-spacer { display: none; }
-      
       .navbar-nav {
         display: flex; 
         overflow-x: auto; 
@@ -134,15 +128,8 @@
         margin-left: 10px;
         scrollbar-width: none; 
       }
-      
-      .navbar-nav::-webkit-scrollbar {
-        display: none; 
-      }
-      
-      .navbar-nav a {
-        padding: 5px 10px;
-        font-size: 0.85rem;
-      }
+      .navbar-nav::-webkit-scrollbar { display: none; }
+      .navbar-nav a { padding: 5px 10px; font-size: 0.85rem; }
     }
 
     /* ===== 主容器 ===== */
@@ -157,20 +144,8 @@
       backdrop-filter: blur(10px);
     }
 
-    /* ===== 标题区 ===== */
-    .header {
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    .title {
-      font-size: 2.2rem;
-      font-weight: 900;
-      color: var(--accent-gold);
-      margin-bottom: 8px;
-      text-shadow: 0 0 20px rgba(247, 184, 1, 0.4);
-      letter-spacing: 2px;
-    }
+    .header { text-align: center; margin-bottom: 25px; }
+    .title { font-size: 2.2rem; font-weight: 900; color: var(--accent-gold); margin-bottom: 8px; text-shadow: 0 0 20px rgba(247, 184, 1, 0.4); letter-spacing: 2px; }
 
     /* ===== 配置面板 ===== */
     .config-panel {
@@ -188,7 +163,6 @@
 
     .config-input, .config-select {
       width: 100%;
-      max-width: 100%;
       box-sizing: border-box;
       padding: 10px 12px;
       background: rgba(26, 35, 50, 0.9);
@@ -201,26 +175,10 @@
       transition: all 0.3s ease;
     }
 
-    .config-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .config-group { display: flex; flex-direction: column; gap: 6px; }
+    .config-label { font-size: 0.85rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 1px; }
+    .config-input:focus, .config-select:focus { border-color: var(--accent-gold); box-shadow: 0 0 15px rgba(247, 184, 1, 0.3); }
 
-    .config-label {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--accent-gold);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .config-input:focus, .config-select:focus {
-      border-color: var(--accent-gold);
-      box-shadow: 0 0 15px rgba(247, 184, 1, 0.3);
-    }
-
-    /* 分布预览提示 */
     .distribution-preview {
       grid-column: 1 / -1;
       font-size: 0.85rem;
@@ -233,24 +191,8 @@
     }
 
     /* ===== 转盘区域 ===== */
-    .wheel-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 25px;
-      margin-bottom: 25px;
-    }
-
-    .wheel-container {
-      position: relative;
-      width: 100%;
-      max-width: 480px;
-      aspect-ratio: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: crosshair;
-    }
+    .wheel-section { display: flex; flex-direction: column; align-items: center; gap: 25px; margin-bottom: 25px; }
+    .wheel-container { position: relative; width: 100%; max-width: 480px; aspect-ratio: 1; display: flex; justify-content: center; align-items: center; cursor: crosshair; }
 
     .wheel {
       width: 100%;
@@ -266,10 +208,7 @@
       transition: transform 0.05s linear;
     }
 
-    .wheel svg {
-      width: 100%;
-      height: 100%;
-    }
+    .wheel svg { width: 100%; height: 100%; }
 
     .wheel-center {
       position: absolute;
@@ -288,67 +227,66 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
 
-    .darts-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 4;
-      pointer-events: none;
-    }
+    .darts-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; }
 
-    .dart {
+    /* 精准无争议：子弹弹孔样式 */
+    .bullet-hole {
       position: absolute;
-      width: 24px;
-      height: 24px;
-      font-size: 1.8rem;
+      width: 30px;
+      height: 30px;
+      /* 将绝对中心点对齐在判定坐标上 */
+      transform: translate(-50%, -50%);
       display: flex;
       justify-content: center;
       align-items: center;
-      transform: translate(-50%, -50%);
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+      z-index: 10;
     }
 
-    .crosshair {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      pointer-events: none;
-      z-index: 6;
-      display: none;
-    }
-
-    .crosshair.active {
-      display: block;
-    }
-
-    .crosshair::before, .crosshair::after {
+    /* 弹孔视觉中心点 */
+    .bullet-hole::before {
       content: '';
       position: absolute;
-      background: var(--accent-gold);
-      box-shadow: 0 0 10px var(--accent-gold);
+      width: 10px;
+      height: 10px;
+      background: #11141a;
+      border-radius: 50%;
+      border: 1.5px solid #ff3333;
+      box-shadow: 0 0 8px #ff3333;
     }
 
+    /* 弹孔周边的开裂/火花层 */
+    .bullet-hole::after {
+      content: '💥';
+      font-size: 1.6rem;
+      position: absolute;
+      transform: scale(1.1);
+      opacity: 0.9;
+    }
+
+    /* 击中冲击波涟漪 */
+    .hit-ripple {
+      position: absolute;
+      border: 2px solid rgba(255, 60, 60, 0.8);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: rippleEffect 0.4s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes rippleEffect {
+      0% { width: 0; height: 0; opacity: 1; }
+      100% { width: 60px; height: 60px; opacity: 0; }
+    }
+
+    .crosshair { position: absolute; width: 40px; height: 40px; pointer-events: none; z-index: 6; display: none; }
+    .crosshair.active { display: block; }
+    .crosshair::before, .crosshair::after { content: ''; position: absolute; background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); }
     .crosshair::before { width: 2px; height: 100%; left: 50%; top: 0; transform: translateX(-50%); }
     .crosshair::after { width: 100%; height: 2px; top: 50%; left: 0; transform: translateY(-50%); }
 
     /* ===== 控制面板 ===== */
-    .control-panel {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      width: 100%;
-    }
-
-    .status-text {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent-gold);
-      text-align: center;
-      min-height: 30px;
-    }
+    .control-panel { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+    .status-text { font-size: 1.1rem; font-weight: 700; color: var(--accent-gold); text-align: center; min-height: 30px; }
 
     .btn-start {
       width: 100%;
@@ -366,11 +304,9 @@
       letter-spacing: 2px;
       box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
     }
-
     .btn-start:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(255, 107, 53, 0.5); }
     .btn-start:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* 响应式适配 */
     @media (max-width: 768px) {
       .container { padding: 15px; }
       .title { font-size: 1.6rem; }
@@ -380,18 +316,16 @@
 </style>
 </head>
 <body>
-  <!-- 统一导航栏 -->
   <nav class="navbar">
     <a href="index.html" class="navbar-logo">
-      <span>🎮</span>
-      Game Hub
+      <span>🎮</span> Game Hub
     </a>
     <div class="navbar-spacer"></div>
     <div class="navbar-nav">
       <a href="index.html">首页</a>
       <a href="lucky-wheel.html">🎡 大转盘</a>
       <a href="flip-card.html">🎰 幸运牌</a>
-      <a href="dart-wheel.html" class="active">🎯 飞镖轮盘</a>
+      <a href="dart-wheel.html" class="active">🎯 枪击轮盘</a>
       <a href="golden-egg.html">🥚 砸金蛋</a>
       <a href="red-envelope.html">🧧 抢红包</a>
       <a href="dice-arena.html">🎲 摇骰子</a>
@@ -400,10 +334,9 @@
 
   <div class="container">
     <div class="header">
-      <div class="title">🎯 飞镖大转盘</div>
+      <div class="title">🎯 枪击大转盘</div>
     </div>
 
-    <!-- 配置面板 -->
     <div class="config-panel">
       <div class="config-group">
         <label class="config-label">转盘等分</label>
@@ -419,11 +352,11 @@
         <label class="config-label">概率分布</label>
         <select class="config-select" id="distMode" onchange="updateWheel()">
           <option value="jackpot">🏆 大奖模式 (首项稀有，其余平分)</option>
-         <option value="polar">🔥 极化分布 (两头多，中间少)</option>
+          <option value="polar">🔥 极化分布 (两头多，中间少)</option>
           <option value="equal">⚖️ 绝对平分 (所有项概率相同)</option>
           <option value="asc">📈 递增分布 (按顺序概率变大)</option>
           <option value="desc">📉 递减分布 (按顺序概率变小)</option>
-           <option value="manual">⌨️ 专家自定义 (手动输入数量)</option>
+          <option value="manual">⌨️ 专家自定义 (手动输入数量)</option>
         </select>
       </div>
 
@@ -440,7 +373,6 @@
       <div class="distribution-preview" id="distPreview">当前分配：正在计算...</div>
     </div>
 
-    <!-- 转盘区域 -->
     <div class="wheel-section">
       <div class="wheel-container" id="wheelContainer">
         <div class="crosshair" id="crosshair"></div>
@@ -452,7 +384,6 @@
       </div>
     </div>
 
-    <!-- 控制面板 -->
     <div class="control-panel">
       <div class="status-text" id="statusText">准备就绪</div>
       <button class="btn-start" id="startBtn" onclick="startGame()">🚀 开始游戏</button>
@@ -467,10 +398,50 @@
       currentRotation: 0,
       wheelRotationSpeed: 0,
       sectors: [],
-      dartAngle: null
+      dartAngle: null,
+      decelerationRate: 0.992
     };
 
     const colors = ["#ff6b35", "#004e89", "#f7b801", "#2ec4b6", "#e71d36", "#7209b7", "#4cc9f0"];
+
+    /* ===== 智能交叉洗牌算法 ===== */
+    function distributeSectorsEvenly(pool) {
+      const frequencyMap = new Map();
+      pool.forEach(item => {
+        const count = frequencyMap.get(item.text) || { item: item, count: 0 };
+        count.count++;
+        frequencyMap.set(item.text, count);
+      });
+
+      const sortedGroups = Array.from(frequencyMap.values()).sort((a, b) => b.count - a.count);
+      const totalSize = pool.length;
+      const result = new Array(totalSize).fill(null);
+
+      let pointer = 0;
+      sortedGroups.forEach(group => {
+        for (let i = 0; i < group.count; i++) {
+          while (result[pointer] !== null) {
+            pointer = (pointer + 1) % totalSize;
+          }
+          result[pointer] = { ...group.item };
+          pointer = (pointer + 2) % totalSize;
+        }
+      });
+
+      for (let i = 0; i < totalSize; i++) {
+        const next = (i + 1) % totalSize;
+        if (result[i].text === result[next].text) {
+          for (let j = 2; j < totalSize - 1; j++) {
+            const target = (i + j) % totalSize;
+            if (result[target].text !== result[i].text && result[(target + 1) % totalSize].text !== result[i].text) {
+              [result[next], result[target]] = [result[target], result[next]];
+              break;
+            }
+          }
+        }
+      }
+      return result;
+    }
 
     /* ===== 初始化转盘 ===== */
     function updateWheel() {
@@ -517,18 +488,14 @@
         adjustCounts(counts, sectorCount);
       }
 
-      // 生成打乱后的扇区序列
-      gameState.sectors = [];
+      let rawPool = [];
       counts.forEach((count, i) => {
         for(let j=0; j<count; j++) {
-          gameState.sectors.push({ text: texts[i], color: colors[i % colors.length] });
+          rawPool.push({ text: texts[i], color: colors[i % colors.length] });
         }
       });
-      for (let i = gameState.sectors.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [gameState.sectors[i], gameState.sectors[j]] = [gameState.sectors[j], gameState.sectors[i]];
-      }
 
+      gameState.sectors = distributeSectorsEvenly(rawPool);
       const preview = texts.map((t, i) => `${t}: ${counts[i]}格`).join(' | ');
       document.getElementById('distPreview').innerText = `当前分配：${preview} (总计 ${gameState.sectors.length} 格)`;
       drawWheel();
@@ -556,14 +523,17 @@
         const path = createArcPath(200, 200, 190, start, end);
         const pEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
         pEl.setAttribute("d", path); pEl.setAttribute("fill", s.color);
-        pEl.setAttribute("stroke", "rgba(255,255,255,0.1)"); svg.appendChild(pEl);
+        pEl.setAttribute("stroke", "rgba(255,255,255,0.2)"); pEl.setAttribute("stroke-width", "1"); svg.appendChild(pEl);
 
         const tAngle = start + angleStep / 2;
         const tEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        const x = 200 + 140 * Math.cos((tAngle - 90) * Math.PI / 180);
-        const y = 200 + 140 * Math.sin((tAngle - 90) * Math.PI / 180);
+        
+        const textRadius = 165; 
+        const x = 200 + textRadius * Math.cos((tAngle - 90) * Math.PI / 180);
+        const y = 200 + textRadius * Math.sin((tAngle - 90) * Math.PI / 180);
+        
         tEl.setAttribute("x", x); tEl.setAttribute("y", y); tEl.setAttribute("fill", "#fff");
-        tEl.setAttribute("font-size", n > 30 ? "8" : "12"); tEl.setAttribute("font-weight", "bold");
+        tEl.setAttribute("font-size", n > 30 ? "9" : "13"); tEl.setAttribute("font-weight", "bold");
         tEl.setAttribute("text-anchor", "middle"); tEl.setAttribute("transform", `rotate(${tAngle}, ${x}, ${y})`);
         tEl.textContent = s.text; svg.appendChild(tEl);
       });
@@ -582,11 +552,15 @@
     /* ===== 游戏逻辑 ===== */
     function startGame() {
       if (gameState.isSpinning) return;
+      
+      const decelTimeInput = parseFloat(document.getElementById('decelerationTime').value) || 5;
+      gameState.decelerationRate = Math.pow(0.02 / 15, 1 / (decelTimeInput * 60));
+
       gameState.isSpinning = true;
       gameState.isDecelerating = false;
       gameState.wheelRotationSpeed = 15;
       document.getElementById('startBtn').disabled = true;
-      document.getElementById('statusText').innerText = "🎯 飞镖已就绪，请瞄准转盘点击射击！";
+      document.getElementById('statusText').innerText = "💥 武器已充能，请瞄准区域射击开火！";
       document.getElementById('crosshair').classList.add('active');
       document.getElementById('dartsContainer').innerHTML = '';
       
@@ -602,7 +576,7 @@
       document.getElementById('wheel').style.transform = `rotate(${gameState.currentRotation}deg)`;
       
       if (gameState.isDecelerating) {
-        gameState.wheelRotationSpeed *= 0.992;
+        gameState.wheelRotationSpeed *= gameState.decelerationRate;
         if (gameState.wheelRotationSpeed < 0.05) {
           gameState.isSpinning = false;
           finishGame();
@@ -620,46 +594,50 @@
       const cx = rect.width / 2, cy = rect.height / 2;
       const dist = Math.sqrt((x - cx)**2 + (y - cy)**2);
       
-      if (dist > rect.width / 2) return; // 点击在圆外
+      if (dist > rect.width / 2 || dist < 35) return; 
 
-      // 计算射中时的转盘相对角度
-      // 1. 计算点击点相对于中心的角度 (0-360)
       let clickAngle = Math.atan2(y - cy, x - cx) * 180 / Math.PI + 90;
       if (clickAngle < 0) clickAngle += 360;
       
-      // 2. 射中时，该点对应的转盘原始扇区角度 = (点击角度 - 当前旋转角度) % 360
       gameState.dartAngle = (clickAngle - (gameState.currentRotation % 360) + 360) % 360;
 
-      // 视觉反馈：在转盘上添加飞镖
-      const dart = document.createElement('div');
-      dart.className = 'dart';
-      dart.innerText = '📍';
-      dart.style.left = x + 'px';
-      dart.style.top = y + 'px';
-      // 飞镖需要跟随转盘旋转，但由于它被添加到了跟随转盘旋转的容器中，
-      // 我们需要将其位置固定在转盘坐标系内。
-      // 最简单的方法：射中后，转盘开始减速。
-      document.getElementById('dartsContainer').appendChild(dart);
+      const localAngle = (clickAngle - gameState.currentRotation) * Math.PI / 180;
+      const localX = cx + dist * Math.cos(localAngle - Math.PI/2);
+      const localY = cy + dist * Math.sin(localAngle - Math.PI/2);
+
+      const dartsContainer = document.getElementById('dartsContainer');
+
+      // 击中开火波纹动效
+      const ripple = document.createElement('div');
+      ripple.className = 'hit-ripple';
+      ripple.style.left = localX + 'px';
+      ripple.style.top = localY + 'px';
+      dartsContainer.appendChild(ripple);
+
+      // 生成绝无争议的中心对称弹孔
+      const bulletHole = document.createElement('div');
+      bulletHole.className = 'bullet-hole';
+      bulletHole.style.left = localX + 'px';
+      bulletHole.style.top = localY + 'px';
+      
+      dartsContainer.appendChild(bulletHole);
       
       gameState.isDecelerating = true;
       document.getElementById('crosshair').classList.remove('active');
-      document.getElementById('statusText').innerText = "🎯 中了！正在计算结果...";
-      
-      // 根据用户配置调整减速（可选，这里使用固定逻辑以保证体验）
+      document.getElementById('statusText').innerText = "💥 击穿目标！正在核对受损区域...";
     }
 
     function finishGame() {
       const n = gameState.sectors.length;
       const angleStep = 360 / n;
-      const index = Math.floor(gameState.dartAngle / angleStep);
+      const index = Math.floor(gameState.dartAngle / angleStep) % n;
       const result = gameState.sectors[index];
       
       document.getElementById('statusText').innerHTML = `命中目标：<span style="color:${result.color}; font-size:1.5rem;">${result.text}</span>`;
       document.getElementById('startBtn').disabled = false;
-      document.getElementById('startBtn').innerText = "🔄 再玩一次";
+      document.getElementById('startBtn').innerText = "🔄 再次开火";
     }
 
-    // 瞄准镜跟随
     document.getElementById('wheelContainer').onmousemove = (e) => {
       if (!gameState.isSpinning || gameState.isDecelerating) return;
       const rect = e.currentTarget.getBoundingClientRect();

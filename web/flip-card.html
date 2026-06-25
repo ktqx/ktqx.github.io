@@ -79,8 +79,8 @@
     :root {
       --primary-color:   #ff6b35;
       --secondary-color: #004e89;
-      --accent-gold:     #f7b801;
-      --dark-bg:         #0f1419;
+      --accent-gold:      #f7b801;
+      --dark-bg:          #0f1419;
       --light-text:      #ffffff;
       --text-secondary:  #b0b3c1;
       --big-prize:       #ff4d4f;
@@ -300,7 +300,7 @@
     /* 卡牌正面（覆盖状态） - 金色奢华质感 */
     .card-front {
       background: linear-gradient(135deg, var(--accent-gold), #b8860b);
-      color: #0f1419;
+      color: #000000; /* 【修改要求2】未翻牌显示的文字颜色修改为纯黑色 */
       font-size: 2.2rem;
       border: 2px solid rgba(255, 255, 255, 0.3);
       overflow: hidden;
@@ -366,14 +366,15 @@
       border-color: rgba(255, 77, 79, 0.6);
     }
 
+    /* 【修改要求1】优化“好礼”翻牌后的背景色与文字颜色（避免刺眼的白底，契合赛博暗黑风） */
     .card-back.mid-prize {
-      background: linear-gradient(135deg, #ccffff, #ccffcc);
-      border-color: rgba(250, 173, 20, 0.6);
-      color: #000;
+      background: linear-gradient(135deg, #2b1055, #511281);
+      border-color: rgba(250, 173, 20, 0.8);
+      color: #f7b801; /* 闪耀金字 */
     }
     .card-back.mid-prize .card-label {
-      color: #000;
-      background: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      background: rgba(250, 173, 20, 0.3);
     }
 
     .card-back.small-prize {
@@ -381,13 +382,13 @@
       border-color: rgba(82, 196, 26, 0.6);
     }
 
-    /* ===== 【优化】未选中卡牌透视样式：调亮显示 ===== */
+    /* ===== 未选中卡牌透视样式 ===== */
     .card.dimmed .card-back {
-      filter: grayscale(40%) opacity(0.8) !important; /* 降低灰度，提高透明度 */
+      filter: grayscale(40%) opacity(0.8) !important; 
       border-color: rgba(255, 255, 255, 0.3) !important;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
-      background: #BBBBBB !important; /* 调亮背景色 */
-      color: #ff3399 !important; /* 调亮文字颜色 */
+      background: #BBBBBB !important; 
+      color: #ff3399 !important; 
     }
     .card.dimmed .card-label {
       background: rgba(255,255,255,0.1) !important;
@@ -438,7 +439,7 @@
       .card-amount { font-size: 1.1rem; }
     }
 
-    /* ===== 【优化】手机端导航栏适配：支持横向滚动 ===== */
+    /* ===== 手机端导航栏适配 ===== */
     @media (max-width: 480px) {
       body { padding: 70px 10px 15px; }
       
@@ -450,18 +451,18 @@
       .navbar-spacer { display: none; }
       
       .navbar-nav {
-        display: flex; /* 恢复显示 */
-        overflow-x: auto; /* 允许横向滚动 */
+        display: flex; 
+        overflow-x: auto; 
         -webkit-overflow-scrolling: touch;
         gap: 10px;
         padding: 0 5px;
         flex: 1;
         margin-left: 10px;
-        scrollbar-width: none; /* 隐藏滚动条 (Firefox) */
+        scrollbar-width: none; 
       }
       
       .navbar-nav::-webkit-scrollbar {
-        display: none; /* 隐藏滚动条 (Chrome/Safari) */
+        display: none; 
       }
       
       .navbar-nav a {
@@ -568,71 +569,75 @@
   </div>
 
   <script>
-    // 简易原生音频上下文，带来震撼的交互反馈
+    // 简易原生音频上下文
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // ===== 【优化】更真实的翻牌音效：使用噪声和滤波模拟纸牌摩擦声 =====
+    // ===== 【修改要求3】物理特性级真实翻牌音效合成算法 =====
     function playSound(type) {
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
 
+      const now = audioCtx.currentTime;
+
       if (type === 'flip') {
-        // 创建噪声缓冲区模拟摩擦声
-        const bufferSize = audioCtx.sampleRate * 0.1; // 0.1秒
+        // 1. 模拟纸质卡片快速抽动划过的气流与摩擦声（高通滤波白噪声）
+        const bufferSize = audioCtx.sampleRate * 0.12; 
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
           data[i] = Math.random() * 2 - 1;
         }
 
-        const noise = audioCtx.createBufferSource();
-        noise.buffer = buffer;
+        const noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = buffer;
 
-        // 使用带通滤波器
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
-        filter.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.1);
-        filter.Q.value = 2;
+        const noiseFilter = audioCtx.createBiquadFilter();
+        noiseFilter.type = 'highpass'; 
+        noiseFilter.frequency.setValueAtTime(1200, now);
+        noiseFilter.frequency.exponentialRampToValueAtTime(3000, now + 0.1);
 
-        const gainNode = audioCtx.createGain();
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0.25, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
 
-        noise.connect(filter);
-        filter.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+        noiseNode.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
 
-        // 添加一个低频“扑”的声音
-        const osc = audioCtx.createOscillator();
+        // 2. 模拟卡牌瞬间翻转扣击桌面的物理实体低音（三角波形击打音）
+        const oscNode = audioCtx.createOscillator();
         const oscGain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.08);
-        oscGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        oscGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        oscNode.type = 'triangle';
+        oscNode.frequency.setValueAtTime(180, now);
+        oscNode.frequency.exponentialRampToValueAtTime(60, now + 0.08);
         
-        osc.connect(oscGain);
+        oscGain.gain.setValueAtTime(0.35, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        
+        oscNode.connect(oscGain);
         oscGain.connect(audioCtx.destination);
 
-        noise.start();
-        noise.stop(audioCtx.currentTime + 0.1);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
+        noiseNode.start(now);
+        noiseNode.stop(now + 0.12);
+        oscNode.start(now);
+        oscNode.stop(now + 0.08);
 
       } else if (type === 'end') {
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.type = 'triangle';
-        oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
-        oscillator.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
-        oscillator.frequency.setValueAtTime(900, audioCtx.currentTime + 0.2);
-        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-        oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.4);
+        // 游戏结束：合成清脆上升的和弦音效
+        const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5 - E5 - G5 - C6 级进
+        freqs.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.15, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.25);
+        });
       }
     }
 
@@ -695,8 +700,8 @@
     function getPrizeLevelText(level) {
       switch(level) {
         case 'big-prize': return '💎 豪礼';
-        case 'mid-prize': return '✨ 好礼';
-        case 'small-prize': return '🎈 毫礼';
+        case 'mid-prize': return '✨ 大礼';
+        case 'small-prize': return '🎈 好礼';
         default: return '奖励';
       }
     }
@@ -771,7 +776,6 @@
       }, 300);
     }
 
-    // 【核心新增逻辑】翻牌结束后淡灰色显示未翻底牌答案
     function endGameAndRevealOthers() {
       gameState.isProcessing = true;
       document.getElementById('statusText').innerHTML = `🎉 翻牌结束！最终共获得：<span style="color:var(--primary-color); font-size:1.4rem;">￥${gameState.wonAmount.toFixed(2)}</span> 元！`;
@@ -781,8 +785,8 @@
       gameState.prizes.forEach((_, index) => {
         const cardEl = document.getElementById(`card-${index}`);
         if (!cardEl.classList.contains('flipped')) {
-          cardEl.classList.add('flipped', 'dimmed'); // 添加 dimmed 实现淡灰色暗淡样式
-          cardEl.onclick = null; // 移除点击回调
+          cardEl.classList.add('flipped', 'dimmed'); 
+          cardEl.onclick = null; 
         }
       });
     }

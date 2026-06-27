@@ -337,7 +337,7 @@
     /* ===== 紧凑型翻牌卡片矩阵区域 ===== */
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px; 
       perspective: 1000px;
       padding: 4px;
@@ -521,7 +521,7 @@
         </div>
         <div class="config-group">
           <label class="config-label">牌总张数</label>
-          <input type="number" id="cardCount" class="config-input" value="12" min="3" max="30">
+          <input type="number" id="cardCount" class="config-input" value="9" min="3" max="30">
         </div>
         <div class="config-group">
           <label class="config-label">可翻牌数</label>
@@ -716,13 +716,7 @@
       const limitCount = parseInt(document.getElementById('limitCount').value) || 3;
 
       const grid = document.getElementById('cardGrid');
-      if (cardCount <= 4) {
-        grid.style.gridTemplateColumns = `repeat(${cardCount}, 1fr)`;
-      } else if (cardCount <= 8) {
-        grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
-      } else {
-        grid.style.gridTemplateColumns = window.innerWidth <= 480 ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)';
-      }
+      grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
 
       const prizes = distributePrizes(cardCount, totalAmount, minAmount, maxAmount);
       if (!prizes) return;

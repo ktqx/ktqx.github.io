@@ -11,46 +11,46 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 70px;
+      height: 60px;
       background: rgba(10, 14, 39, 0.95);
       border-bottom: 2px solid #d946ef;
       backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
-      padding: 0 30px;
+      padding: 0 20px;
       z-index: 1000;
       box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2);
     }
 
     .navbar-logo {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: 900;
       color: #d946ef;
       text-shadow: 0 0 10px rgba(217, 70, 239, 0.5);
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       text-decoration: none;
       flex-shrink: 0;
     }
 
     .navbar-logo span {
-      width: 40px;
-      height: 40px;
+      width: 35px;
+      height: 35px;
       background: linear-gradient(135deg, #d946ef, #a855f7);
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
+      font-size: 1.1rem;
     }
 
     .navbar-spacer { flex: 1; }
 
     .navbar-nav {
       display: flex;
-      gap: 20px;
+      gap: 12px;
       align-items: center;
     }
 
@@ -59,9 +59,10 @@
       text-decoration: none;
       font-weight: 600;
       transition: all 0.3s ease;
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 6px;
       white-space: nowrap;
+      font-size: 0.9rem;
     }
 
     .navbar-nav a:hover {
@@ -110,8 +111,8 @@
       justify-content: flex-start;
       align-items: center;
       min-height: 100vh;
-      padding: 15px;
-      padding-top: 85px;
+      padding: 10px;
+      padding-top: 70px; /* 紧贴导航栏 */
     }
 
     /* ===== 金币大捷雨 ===== */
@@ -130,8 +131,8 @@
       position: absolute;
       top: -50px;
       font-weight: 900;
-      color: rgba(247, 184, 1, 0.65);
-      text-shadow: 0 0 8px rgba(247, 184, 1, 0.3);
+      color: rgba(247, 184, 1, 0.75);
+      text-shadow: 0 0 8px rgba(247, 184, 1, 0.4);
       user-select: none;
       animation: fall linear forwards;
     }
@@ -143,12 +144,12 @@
     /* ===== 主容器 ===== */
     .container {
       width: 100%;
-      max-width: 850px;
+      max-width: 600px; /* 缩小主容器最大宽度使其在PC/手机都更聚拢 */
       background: rgba(15, 20, 25, 0.95);
-      border: 3px solid var(--accent-gold);
-      border-radius: 25px;
-      padding: 25px;
-      box-shadow: 0 0 50px rgba(247, 184, 1, 0.2), inset 0 0 30px rgba(247, 184, 1, 0.05);
+      border: 2px solid var(--accent-gold);
+      border-radius: 20px;
+      padding: 12px;
+      box-shadow: 0 0 40px rgba(247, 184, 1, 0.15);
       backdrop-filter: blur(10px);
       text-align: center;
       position: relative;
@@ -161,27 +162,27 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 20px;
-      min-height: 50px;
+      margin-bottom: 8px; /* 极窄间距 */
+      min-height: 40px;
     }
 
     .title {
-      font-size: 2.2rem;
+      font-size: 1.6rem;
       font-weight: 900;
       color: var(--accent-gold);
-      text-shadow: 0 0 20px rgba(247, 184, 1, 0.4);
-      letter-spacing: 2px;
+      text-shadow: 0 0 15px rgba(247, 184, 1, 0.4);
+      letter-spacing: 1px;
     }
 
     /* 汉堡齿轮按钮 */
     .settings-toggle {
       position: absolute;
-      left: 0;
+      left: 4px;
       top: 50%;
       transform: translateY(-50%);
       background: none;
       border: none;
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       cursor: pointer;
       color: var(--accent-gold);
       transition: transform 0.3s ease;
@@ -194,14 +195,14 @@
       transform: translateY(-50%) rotate(45deg);
     }
 
-    /* ===== 侧拉/弹窗汉堡配置面板 ===== */
+    /* ===== 明亮的汉堡配置面板 ===== */
     .config-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.4);
       z-index: 99;
       opacity: 0;
       pointer-events: none;
@@ -214,18 +215,19 @@
 
     .config-panel {
       position: absolute;
-      top: 60px;
-      left: 0;
-      background: rgba(20, 27, 38, 0.98);
-      border: 2px solid var(--accent-gold);
-      border-radius: 15px;
-      padding: 20px;
+      top: 45px;
+      left: 4px;
+      /* 保持与牌面一致的奢华明亮金色质感 */
+      background: linear-gradient(135deg, #f7b801, #b8860b);
+      border: 2px solid #ffffff;
+      border-radius: 12px;
+      padding: 15px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
-      width: 280px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      transform: translateY(-20px);
+      gap: 12px;
+      width: 260px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transform: translateY(-10px);
       opacity: 0;
       pointer-events: none;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -248,119 +250,96 @@
 
     .config-label {
       font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--accent-gold);
-      letter-spacing: 1px;
+      font-weight: 800;
+      color: #000000; /* 亮底配黑字 */
+      letter-spacing: 0.5px;
     }
 
     .config-input {
-      width: 100px;
-      padding: 8px;
-      background: rgba(10, 14, 23, 0.9);
-      border: 2px solid rgba(247, 184, 1, 0.2);
-      border-radius: 8px;
-      color: var(--light-text);
-      font-size: 0.95rem;
-      font-weight: 600;
+      width: 90px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 2px solid #000000;
+      border-radius: 6px;
+      color: #000000;
+      font-size: 0.9rem;
+      font-weight: 700;
       outline: none;
       text-align: center;
-      transition: all 0.3s ease;
-    }
-
-    .config-input:focus {
-      border-color: var(--accent-gold);
-      box-shadow: 0 0 10px rgba(247, 184, 1, 0.3);
     }
 
     /* ===== 游戏数据统计 ===== */
     .stats {
-      margin: 0 auto 20px;
-      font-size: 1.2rem;
+      margin: 0 auto 10px; /* 极窄下边距 */
+      font-size: 1rem;
       display: flex;
       justify-content: center;
-      gap: 40px;
+      gap: 25px;
       color: var(--text-secondary);
-      background: rgba(0, 0, 0, 0.3);
-      padding: 12px 20px;
-      border-radius: 12px;
-      max-width: 600px;
-      border: 1px solid rgba(255,255,255,0.05);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 8px 15px;
+      border-radius: 10px;
+      max-width: 100%;
+      border: 1px solid rgba(255,255,255,0.03);
     }
 
     .stat-val {
       color: var(--accent-gold);
       font-weight: bold;
-      font-size: 1.5rem;
-      text-shadow: 0 0 10px rgba(247, 184, 1, 0.3);
+      font-size: 1.2rem;
+      text-shadow: 0 0 8px rgba(247, 184, 1, 0.3);
     }
 
-    /* ===== 🔴 终极战报拉霸LED霓虹闪烁面板 🔴 ===== */
-    .status-wrapper {
+    /* ===== 游戏核心舞台（包含矩阵与悬浮LED战报） ===== */
+    .game-stage {
       position: relative;
       width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
+      margin: 0 auto 15px;
     }
 
+    /* ===== 🔴 终极战报居中浮叠LED霓虹面板 🔴 ===== */
     .marquee-report-panel {
-      width: 100%;
-      background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%);
-      border: 2px dashed #ff4757;
-      box-shadow: 0 0 25px rgba(255, 71, 87, 0.35), inset 0 0 15px rgba(255, 71, 87, 0.15);
-      border-radius: 12px;
-      padding: 15px 20px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      width: 92%;
+      max-width: 450px;
+      /* 半透明极具未来感的霓虹磨砂玻璃质感 */
+      background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(9, 13, 22, 0.9) 100%);
+      border: 3px dashed #ff4757;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 0 35px rgba(255, 71, 87, 0.6), inset 0 0 20px rgba(255, 71, 87, 0.3);
+      border-radius: 16px;
+      padding: 20px 10px;
       display: flex;
       justify-content: space-around;
       align-items: center;
       opacity: 0;
-      transform: scaleY(0);
-      height: 0;
-      overflow: hidden;
-      margin-bottom: 20px;
+      pointer-events: none; /* 允许穿透点击到底层卡牌全景 */
+      z-index: 30;
       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .marquee-report-panel.active {
       opacity: 1;
-      transform: scaleY(1);
-      height: auto;
+      transform: translate(-50%, -50%) scale(1);
     }
 
-    .report-item {
-      text-align: center;
-    }
+    .report-item { text-align: center; }
+    .report-title { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px; letter-spacing: 1px; }
+    .report-val-big { font-size: 1.8rem; font-weight: 900; color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.6); line-height: 1.1; }
+    .report-val-big.gold { color: var(--accent-gold); text-shadow: 0 0 10px rgba(247, 184, 1, 0.6); }
 
-    .report-title {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .report-val-big {
-      font-size: 2.3rem;
-      font-weight: 900;
-      color: #ff4757;
-      text-shadow: 0 0 15px rgba(255, 71, 87, 0.7);
-      line-height: 1.1;
-    }
-
-    .report-val-big.gold {
-      color: var(--accent-gold);
-      text-shadow: 0 0 15px rgba(247, 184, 1, 0.7);
-    }
-
-    /* ===== 翻牌卡片矩阵区域 ===== */
+    /* ===== 紧凑型翻牌卡片矩阵区域 ===== */
     .card-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
+      gap: 8px; /* 紧凑卡牌间距 */
       perspective: 1000px;
-      margin: 0 auto 25px;
-      padding: 10px;
-      justify-content: center;
-      max-width: 600px;
+      padding: 4px;
+      width: 100%;
     }
 
     .card {
@@ -368,19 +347,19 @@
       aspect-ratio: 0.714;
       cursor: pointer;
       position: relative;
-      transition: transform 0.3s;
+      transition: transform 0.2s;
       transform-style: flat;
     }
 
     .card:hover:not(.flipped) {
-      transform: translateY(-8px);
+      transform: translateY(-4px);
     }
 
     .card-inner {
       position: relative;
       width: 100%;
       height: 100%;
-      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       transform-style: preserve-3d;
     }
 
@@ -396,9 +375,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 12px;
+      border-radius: 8px;
       font-weight: bold;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
       top: 0;
       left: 0;
     }
@@ -406,22 +385,10 @@
     .card-front {
       background: linear-gradient(135deg, var(--accent-gold), #b8860b);
       color: #000000;
-      font-size: 2.2rem;
-      border: 2px solid rgba(255, 255, 255, 0.3);
+      font-size: 1.6rem;
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
       overflow: hidden;
       z-index: 1;
-    }
-
-    .card-front::before {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2) 2px, transparent 2px),
-        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.2) 2px, transparent 2px),
-        radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.15) 4px, transparent 4px);
-      background-size: 30px 30px, 40px 40px, 50px 50px;
     }
 
     .card-back {
@@ -429,105 +396,67 @@
       color: #fff;
       transform: rotateY(180deg);
       flex-direction: column;
-      gap: 8px;
-      border: 2px solid rgba(247, 184, 1, 0.3);
+      gap: 4px;
+      border: 1.5px solid rgba(247, 184, 1, 0.3);
       overflow: hidden;
     }
 
-    .card-back::before {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        linear-gradient(45deg, rgba(247, 184, 1, 0.05) 25%, transparent 25%),
-        linear-gradient(-45deg, rgba(247, 184, 1, 0.05) 25%, transparent 25%);
-      background-size: 16px 16px;
-      pointer-events: none;
-    }
+    .card-amount { font-size: 1.1rem; font-weight: bold; position: relative; z-index: 1; }
+    .card-label { font-size: 0.7rem; opacity: 0.9; position: relative; z-index: 1; background: rgba(0, 0, 0, 0.3); padding: 1px 4px; border-radius: 3px; }
 
-    .card-amount {
-      font-size: 1.4rem;
-      font-weight: bold;
-      position: relative;
-      z-index: 1;
-    }
+    .card-back.big-prize { background: linear-gradient(135deg, #ff4d4f, #cf1322); border-color: rgba(255, 77, 79, 0.5); }
+    .card-back.mid-prize { background: linear-gradient(135deg, #2b1055, #511281); border-color: rgba(250, 173, 20, 0.6); color: #f7b801; }
+    .card-back.small-prize { background: linear-gradient(135deg, #52c41a, #389e0d); border-color: rgba(82, 196, 26, 0.5); }
 
-    .card-label {
-      font-size: 0.75rem;
-      opacity: 0.8;
-      position: relative;
-      z-index: 1;
-      letter-spacing: 1px;
-      background: rgba(0, 0, 0, 0.2);
-      padding: 2px 8px;
-      border-radius: 4px;
+    /* 全景清算时：未主动选中的底牌保持适度灰度与半透明，完美突出核心LED战报，又不妨碍玩家看清底牌图案 */
+    .card.dimmed {
+      opacity: 0.45;
+      filter: grayscale(30%);
+      transition: all 0.3s ease;
     }
-
-    .card-back.big-prize { background: linear-gradient(135deg, #ff4d4f, #cf1322); border-color: rgba(255, 77, 79, 0.6); }
-    .card-back.mid-prize { background: linear-gradient(135deg, #2b1055, #511281); border-color: rgba(250, 173, 20, 0.8); color: #f7b801; }
-    .card-back.mid-prize .card-label { color: #ffffff; background: rgba(250, 173, 20, 0.3); }
-    .card-back.small-prize { background: linear-gradient(135deg, #52c41a, #389e0d); border-color: rgba(82, 196, 26, 0.6); }
-
-    .card.dimmed .card-back {
-      filter: grayscale(40%) opacity(0.8) !important; 
-      border-color: rgba(255, 255, 255, 0.3) !important;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
-      background: #BBBBBB !important; 
-      color: #ff3399 !important; 
-    }
-    .card.dimmed .card-label { background: rgba(255,255,255,0.1) !important; color: #ff3399 !important; }
 
     /* ===== 核心操作按钮 ===== */
     .btn-spin {
-      width: 200px;
+      width: 180px;
       margin: 0 auto;
-      padding: 12px 20px;
+      padding: 10px 16px;
       background: linear-gradient(135deg, var(--primary-color), #ff8c42);
       color: #fff;
       border: none;
       border-radius: 50px;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 800;
       cursor: pointer;
       transition: all 0.3s ease;
       text-transform: uppercase;
-      letter-spacing: 2px;
-      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
       display: block;
     }
 
-    .btn-spin:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5); }
-    .btn-spin:active { transform: scale(0.98); }
-
-    /* ===== 响应式适配 ===== */
-    @media (max-width: 768px) {
-      body { padding-top: 75px; }
-      .navbar { padding: 0 15px; height: 60px; }
-      .navbar-logo { font-size: 1.2rem; }
-      .navbar-logo span { width: 35px; height: 35px; font-size: 1rem; }
-      .title { font-size: 1.8rem; }
-      .card-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
-      .card-amount { font-size: 1.1rem; }
-      .report-val-big { font-size: 1.8rem; }
-    }
-
+    /* ===== 移动端专属微调（极其紧凑） ===== */
     @media (max-width: 480px) {
-      body { padding: 70px 10px 15px; }
-      .navbar { padding: 0 10px; justify-content: space-between; }
+      body { padding: 66px 6px 10px; }
+      .navbar { padding: 0 8px; justify-content: space-between; height: 56px; }
       .navbar-spacer { display: none; }
-      .navbar-nav { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 10px; padding: 0 5px; flex: 1; margin-left: 10px; scrollbar-width: none; }
+      .navbar-nav { display: flex; overflow-x: auto; gap: 8px; flex: 1; margin-left: 6px; scrollbar-width: none; }
       .navbar-nav::-webkit-scrollbar { display: none; }
-      .navbar-nav a { padding: 5px 10px; font-size: 0.85rem; }
-      .container { padding: 15px; border-radius: 15px; }
-      .title { font-size: 1.5rem; }
-      .settings-toggle { font-size: 1.5rem; }
-      .btn-spin { width: 160px; font-size: 1rem; padding: 10px 15px; }
-      .card-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .card-amount { font-size: 1rem; }
-      .stats { gap: 15px; font-size: 1rem; padding: 10px; }
-      .stat-val { font-size: 1.2rem; }
-      .marquee-report-panel { padding: 10px 8px; flex-wrap: wrap; gap: 8px; }
+      .navbar-nav a { padding: 4px 8px; font-size: 0.8rem; }
+      
+      .container { padding: 10px 8px; border-radius: 16px; }
+      .title { font-size: 1.4rem; }
+      .settings-toggle { font-size: 1.4rem; left: 2px; }
+      .stats { gap: 15px; font-size: 0.9rem; padding: 6px 10px; margin-bottom: 8px; }
+      .stat-val { font-size: 1.05rem; }
+      
+      /* 手机端卡牌矩阵微调 */
+      .card-grid { gap: 5px; padding: 2px; }
+      .card-front { font-size: 1.3rem; }
+      .card-amount { font-size: 0.95rem; }
+      .card-label { font-size: 0.65rem; padding: 1px 3px; }
+      
+      .btn-spin { width: 150px; font-size: 0.95rem; padding: 8px 12px; }
+      .marquee-report-panel { padding: 15px 6px; width: 96%; }
       .report-val-big { font-size: 1.5rem; }
     }
   </style>
@@ -588,11 +517,11 @@
       <div>已揽总额: ￥<span id="wonAmount" class="stat-val">0.00</span></div>
     </div>
 
-    <div class="status-wrapper">
+    <div class="game-stage">
       <div class="marquee-report-panel" id="marqueeReportPanel">
         <div class="report-item">
           <div class="report-title">🎉 战绩速递</div>
-          <div style="font-size: 1.1rem; font-weight: 800; color: #ff4757;">翻牌大捷！</div>
+          <div style="font-size: 1rem; font-weight: 800; color: #ff4757;">翻牌大捷！</div>
         </div>
         <div class="report-item">
           <div class="report-title">🔥 斩获总奖金</div>
@@ -600,12 +529,12 @@
         </div>
         <div class="report-item">
           <div class="report-title">✨ 欧气评价</div>
-          <div class="report-val-big" id="ledEval" style="font-size: 1.5rem; padding-top: 5px;">一本万利</div>
+          <div class="report-val-big" id="ledEval" style="font-size: 1.3rem; padding-top: 3px;">一本万利</div>
         </div>
       </div>
-    </div>
 
-    <div id="cardGrid" class="card-grid"></div>
+      <div id="cardGrid" class="card-grid"></div>
+    </div>
 
     <button class="btn-spin" onclick="initGame()">重新洗牌</button>
   </div>
@@ -682,7 +611,6 @@
 
     let rainTimer = null;
 
-    // 切换设置面板状态
     function toggleSettings() {
       document.getElementById('configPanel').classList.toggle('active');
       document.getElementById('configOverlay').classList.toggle('active');
@@ -697,12 +625,12 @@
         drop.className = 'rain-drop';
         drop.textContent = pool[Math.floor(Math.random() * pool.length)];
         drop.style.left = Math.random() * 100 + 'vw';
-        drop.style.fontSize = Math.random() * 20 + 16 + 'px';
-        const duration = Math.random() * 2 + 2;
+        drop.style.fontSize = Math.random() * 16 + 14 + 'px';
+        const duration = Math.random() * 2 + 1.5;
         drop.style.animationDuration = duration + 's';
         container.appendChild(drop);
         setTimeout(() => drop.remove(), duration * 1000);
-      }, 120);
+      }, 140);
     }
 
     function stopGoldRain() {
@@ -759,16 +687,26 @@
     function initGame() {
       stopGoldRain();
 
-      // 如果洗牌时配置面板开着，自动收起
       document.getElementById('configPanel').classList.remove('active');
       document.getElementById('configOverlay').classList.remove('active');
       document.getElementById('marqueeReportPanel').classList.remove('active');
 
       const cardCount = parseInt(document.getElementById('cardCount').value) || 9;
-      const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 60;
+      const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 50;
       const minAmount = parseFloat(document.getElementById('minAmount').value) || 2;
-      const maxAmount = parseFloat(document.getElementById('maxAmount').value) || 25;
+      const maxAmount = parseFloat(document.getElementById('maxAmount').value) || 10;
       const limitCount = parseInt(document.getElementById('limitCount').value) || 3;
+
+      // 动态根据卡片总数量调整移动端的网格列数，防止卡片被挤压变形
+      const grid = document.getElementById('cardGrid');
+      if (cardCount <= 4) {
+        grid.style.gridTemplateColumns = `repeat(${cardCount}, 1fr)`;
+      } else if (cardCount <= 8) {
+        grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      } else {
+        // 大于8张牌在移动端自动切换为更密集的3或4列布局
+        grid.style.gridTemplateColumns = window.innerWidth <= 480 ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)';
+      }
 
       const prizes = distributePrizes(cardCount, totalAmount, minAmount, maxAmount);
       if (!prizes) return;
@@ -823,7 +761,7 @@
         if (gameState.remainingFlips === 0) {
           endGameAndRevealOthers();
         }
-      }, 300);
+      }, 250);
     }
 
     function endGameAndRevealOthers() {
@@ -842,9 +780,11 @@
       document.getElementById('ledTotal').textContent = `￥${gameState.wonAmount.toFixed(2)}`;
       document.getElementById('ledEval').textContent = evaluation;
       
+      // 原位浮现 LED 战报拉霸面板
       document.getElementById('marqueeReportPanel').classList.add('active');
       startGoldRain();
 
+      // 翻开所有剩余牌面，对未选中的牌添加 dimmed 类降低亮度以衬托浮空 LED 面板
       gameState.prizes.forEach((_, index) => {
         const cardEl = document.getElementById(`card-${index}`);
         if (!cardEl.classList.contains('flipped')) {

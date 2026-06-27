@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>🎰 幸运大翻牌</title>
+  <title>🎰 幸运大翻牌 - Game Hub</title>
   <style>
     /* ===== 统一导航栏样式 ===== */
     .navbar {
@@ -114,6 +114,32 @@
       padding-top: 85px;
     }
 
+    /* ===== 🔴 金币大捷雨（独立的底层渲染，不遮挡卡片点击） 🔴 ===== */
+    .gold-rain-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .rain-drop {
+      position: absolute;
+      top: -50px;
+      font-weight: 900;
+      color: rgba(247, 184, 1, 0.65);
+      text-shadow: 0 0 8px rgba(247, 184, 1, 0.3);
+      user-select: none;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(115vh) rotate(360deg); }
+    }
+
     /* ===== 主容器 ===== */
     .container {
       width: 100%;
@@ -125,6 +151,8 @@
       box-shadow: 0 0 50px rgba(247, 184, 1, 0.2), inset 0 0 30px rgba(247, 184, 1, 0.05);
       backdrop-filter: blur(10px);
       text-align: center;
+      position: relative;
+      z-index: 20;
     }
 
     /* ===== 标题区 ===== */
@@ -238,6 +266,79 @@
       text-shadow: 0 0 10px rgba(247, 184, 1, 0.3);
     }
 
+    /* ===== 可原位切换的状态/LED大捷控制台 ===== */
+    .status-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 40px;
+      margin: 15px 0;
+    }
+
+    /* 状态一：普通文本提示状态 */
+    .status-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .status-text.hide {
+      opacity: 0;
+      transform: scale(0.9);
+      height: 0;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    /* 状态二：🔴 终极战报拉霸LED霓虹闪烁面板 🔴 */
+    .marquee-report-panel {
+      width: 100%;
+      background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%);
+      border: 2px dashed #ff4757;
+      box-shadow: 0 0 25px rgba(255, 71, 87, 0.35), inset 0 0 15px rgba(255, 71, 87, 0.15);
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      opacity: 0;
+      transform: scaleY(0);
+      height: 0;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .marquee-report-panel.active {
+      opacity: 1;
+      transform: scaleY(1);
+      height: auto;
+    }
+
+    .report-item {
+      text-align: center;
+    }
+
+    .report-title {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .report-val-big {
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: #ff4757;
+      text-shadow: 0 0 15px rgba(255, 71, 87, 0.7);
+      line-height: 1.1;
+    }
+
+    .report-val-big.gold {
+      color: var(--accent-gold);
+      text-shadow: 0 0 15px rgba(247, 184, 1, 0.7);
+    }
+
     /* ===== 翻牌卡片矩阵区域 ===== */
     .card-grid {
       display: grid;
@@ -300,7 +401,7 @@
     /* 卡牌正面（覆盖状态） - 金色奢华质感 */
     .card-front {
       background: linear-gradient(135deg, var(--accent-gold), #b8860b);
-      color: #000000; /* 【修改要求2】未翻牌显示的文字颜色修改为纯黑色 */
+      color: #000000;
       font-size: 2.2rem;
       border: 2px solid rgba(255, 255, 255, 0.3);
       overflow: hidden;
@@ -366,11 +467,10 @@
       border-color: rgba(255, 77, 79, 0.6);
     }
 
-    /* 【修改要求1】优化“好礼”翻牌后的背景色与文字颜色（避免刺眼的白底，契合赛博暗黑风） */
     .card-back.mid-prize {
       background: linear-gradient(135deg, #2b1055, #511281);
       border-color: rgba(250, 173, 20, 0.8);
-      color: #f7b801; /* 闪耀金字 */
+      color: #f7b801;
     }
     .card-back.mid-prize .card-label {
       color: #ffffff;
@@ -395,122 +495,48 @@
       color: #ff3399 !important;
     }
 
-    /* 状态与结果展示 */
-    .status-text {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent-gold);
-      text-align: center;
-      min-height: 35px;
-      margin-top: 15px;
-    }
-
     /* ===== 响应式适配 ===== */
-    @media (max-width: 1024px) {
-      .card-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
-      }
-    }
-
     @media (max-width: 768px) {
       body { padding-top: 75px; }
       .navbar { padding: 0 15px; height: 60px; }
       .navbar-logo { font-size: 1.2rem; }
       .navbar-logo span { width: 35px; height: 35px; font-size: 1rem; }
       .title { font-size: 1.6rem; }
-      
-      .config-panel { 
-        gap: 12px;
-        padding: 12px;
-      }
-      
-      .config-input {
-        width: 70px;
-      }
-      
+      .config-panel { gap: 12px; padding: 12px; }
+      .config-input { width: 70px; }
       .btn-spin { width: 180px; }
-      
-      .card-grid { 
-        grid-template-columns: repeat(3, 1fr); 
-        gap: 12px;
-        max-width: 100%;
-      }
+      .card-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 100%; }
       .card-amount { font-size: 1.1rem; }
+      .report-val-big { font-size: 1.8rem; }
     }
 
-    /* ===== 手机端导航栏适配 ===== */
     @media (max-width: 480px) {
       body { padding: 70px 10px 15px; }
-      
-      .navbar {
-        padding: 0 10px;
-        justify-content: space-between;
-      }
-      
+      .navbar { padding: 0 10px; justify-content: space-between; }
       .navbar-spacer { display: none; }
-      
-      .navbar-nav {
-        display: flex; 
-        overflow-x: auto; 
-        -webkit-overflow-scrolling: touch;
-        gap: 10px;
-        padding: 0 5px;
-        flex: 1;
-        margin-left: 10px;
-        scrollbar-width: none; 
-      }
-      
-      .navbar-nav::-webkit-scrollbar {
-        display: none; 
-      }
-      
-      .navbar-nav a {
-        padding: 5px 10px;
-        font-size: 0.85rem;
-      }
-
+      .navbar-nav { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 10px; padding: 0 5px; flex: 1; margin-left: 10px; scrollbar-width: none; }
+      .navbar-nav::-webkit-scrollbar { display: none; }
+      .navbar-nav a { padding: 5px 10px; font-size: 0.85rem; }
       .container { padding: 15px; border-radius: 15px; }
       .title { font-size: 1.3rem; margin-bottom: 15px; }
-      
-      .config-panel {
-        gap: 10px;
-        padding: 10px;
-      }
-      
-      .config-group {
-        flex: 1 1 40%;
-        align-items: center;
-      }
-
-      .config-input {
-        width: 65px;
-        font-size: 0.85rem;
-      }
-      
-      .config-label {
-        font-size: 0.75rem;
-      }
-      
-      .btn-spin {
-        width: 160px;
-        font-size: 1rem;
-        padding: 10px 15px;
-        letter-spacing: 1px;
-      }
-      
-      .card-grid { 
-        grid-template-columns: repeat(3, 1fr); 
-        gap: 8px;
-        max-width: 100%;
-      }
+      .config-panel { gap: 10px; padding: 10px; }
+      .config-group { flex: 1 1 40%; align-items: center; }
+      .config-input { width: 65px; font-size: 0.85rem; }
+      .config-label { font-size: 0.75rem; }
+      .btn-spin { width: 160px; font-size: 1rem; padding: 10px 15px; letter-spacing: 1px; }
+      .card-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 100%; }
       .card-amount { font-size: 1rem; }
       .stats { gap: 15px; font-size: 0.95rem; }
       .stat-val { font-size: 1.1rem; }
+      .marquee-report-panel { padding: 10px 8px; flex-wrap: wrap; gap: 8px; }
+      .report-val-big { font-size: 1.5rem; }
     }
   </style>
 </head>
 <body>
+
+  <div class="gold-rain-container" id="goldRainContainer"></div>
+
   <nav class="navbar">
     <a href="index.html" class="navbar-logo">
       <span>🎮</span>
@@ -563,58 +589,65 @@
       <div>已揽总额: ￥<span id="wonAmount" class="stat-val">0.00</span></div>
     </div>
 
-    <div id="cardGrid" class="card-grid"></div>
+    <div class="status-wrapper">
+      <div class="status-text" id="statusText">请点击上方按钮初始化或开始翻牌</div>
+      
+      <div class="marquee-report-panel" id="marqueeReportPanel">
+        <div class="report-item">
+          <div class="report-title">🎉 战绩速递</div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: #ff4757;">翻牌大捷！</div>
+        </div>
+        <div class="report-item">
+          <div class="report-title">🔥 斩获总奖金</div>
+          <div class="report-val-big gold" id="ledTotal">￥0.00</div>
+        </div>
+        <div class="report-item">
+          <div class="report-title">✨ 欧气评价</div>
+          <div class="report-val-big" id="ledEval" style="font-size: 1.5rem; padding-top: 5px;">一本万利</div>
+        </div>
+      </div>
+    </div>
 
-    <div class="status-text" id="statusText">请点击上方按钮初始化或开始翻牌</div>
+    <div id="cardGrid" class="card-grid"></div>
   </div>
 
   <script>
     // 简易原生音频上下文
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // ===== 【修改要求3】物理特性级真实翻牌音效合成算法 =====
     function playSound(type) {
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
-
       const now = audioCtx.currentTime;
 
       if (type === 'flip') {
-        // 1. 模拟纸质卡片快速抽动划过的气流与摩擦声（高通滤波白噪声）
         const bufferSize = audioCtx.sampleRate * 0.12; 
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
           data[i] = Math.random() * 2 - 1;
         }
-
         const noiseNode = audioCtx.createBufferSource();
         noiseNode.buffer = buffer;
-
         const noiseFilter = audioCtx.createBiquadFilter();
         noiseFilter.type = 'highpass'; 
         noiseFilter.frequency.setValueAtTime(1200, now);
         noiseFilter.frequency.exponentialRampToValueAtTime(3000, now + 0.1);
-
         const noiseGain = audioCtx.createGain();
         noiseGain.gain.setValueAtTime(0.25, now);
         noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-
         noiseNode.connect(noiseFilter);
         noiseFilter.connect(noiseGain);
         noiseGain.connect(audioCtx.destination);
 
-        // 2. 模拟卡牌瞬间翻转扣击桌面的物理实体低音（三角波形击打音）
         const oscNode = audioCtx.createOscillator();
         const oscGain = audioCtx.createGain();
         oscNode.type = 'triangle';
         oscNode.frequency.setValueAtTime(180, now);
         oscNode.frequency.exponentialRampToValueAtTime(60, now + 0.08);
-        
         oscGain.gain.setValueAtTime(0.35, now);
         oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-        
         oscNode.connect(oscGain);
         oscGain.connect(audioCtx.destination);
 
@@ -624,8 +657,7 @@
         oscNode.stop(now + 0.08);
 
       } else if (type === 'end') {
-        // 游戏结束：合成清脆上升的和弦音效
-        const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5 - E5 - G5 - C6 级进
+        const freqs = [523.25, 659.25, 783.99, 1046.50]; 
         freqs.forEach((freq, idx) => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
@@ -650,7 +682,31 @@
       minAmount: 0
     };
 
-    // 智能随机总额算法分配
+    let rainTimer = null;
+
+    // 氛围金币雨模块
+    function startGoldRain() {
+      const container = document.getElementById('goldRainContainer');
+      container.innerHTML = '';
+      const pool = ['🪙', '💰', '✨', '🃏', '💎', '★'];
+      rainTimer = setInterval(() => {
+        const drop = document.createElement('div');
+        drop.className = 'rain-drop';
+        drop.textContent = pool[Math.floor(Math.random() * pool.length)];
+        drop.style.left = Math.random() * 100 + 'vw';
+        drop.style.fontSize = Math.random() * 20 + 16 + 'px';
+        const duration = Math.random() * 2 + 2;
+        drop.style.animationDuration = duration + 's';
+        container.appendChild(drop);
+        setTimeout(() => drop.remove(), duration * 1000);
+      }, 120);
+    }
+
+    function stopGoldRain() {
+      if (rainTimer) clearInterval(rainTimer);
+      document.getElementById('goldRainContainer').innerHTML = '';
+    }
+
     function distributePrizes(count, total, min, max) {
       if (count * min > total) {
         showToast("❌ 失败：总额不足以支撑当前最小金额设定");
@@ -660,29 +716,21 @@
         showToast("❌ 失败：总额超出了最大金额设定的上限");
         return null;
       }
-
       let result = [];
       let remaining = total;
-      
       for (let i = 0; i < count - 1; i++) {
         let currentMax = Math.min(max, remaining - (count - 1 - i) * min);
         let currentMin = Math.max(min, remaining - (count - 1 - i) * max);
-        
         let amount = Math.random() * (currentMax - currentMin) + currentMin;
         amount = Math.round(amount * 100) / 100;
-        
         result.push(amount);
         remaining -= amount;
       }
-      
       result.push(Math.round(remaining * 100) / 100);
-      
-      // 经典洗牌算法打乱
       for (let i = result.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [result[i], result[j]] = [result[j], result[i]];
       }
-      
       return result;
     }
 
@@ -691,7 +739,6 @@
       if (range <= 0) return 'mid-prize';
       const thresholdBig = minAmount + range * 0.66;
       const thresholdMid = minAmount + range * 0.33;
-      
       if (amount >= thresholdBig) return 'big-prize';
       if (amount >= thresholdMid) return 'mid-prize';
       return 'small-prize';
@@ -707,6 +754,12 @@
     }
 
     function initGame() {
+      stopGoldRain();
+
+      // 复原状态组件
+      document.getElementById('marqueeReportPanel').classList.remove('active');
+      document.getElementById('statusText').classList.remove('hide');
+
       const cardCount = parseInt(document.getElementById('cardCount').value) || 9;
       const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 60;
       const minAmount = parseFloat(document.getElementById('minAmount').value) || 2;
@@ -731,15 +784,12 @@
     function renderCards() {
       const grid = document.getElementById('cardGrid');
       grid.innerHTML = '';
-      
       gameState.prizes.forEach((prize, index) => {
         const card = document.createElement('div');
         card.className = 'card';
         card.id = `card-${index}`;
         card.onclick = () => flipCard(index, card);
-        
         const prizeLevel = getPrizeLevel(prize, gameState.minAmount, gameState.maxAmount);
-        
         card.innerHTML = `
           <div class="card-inner">
             <div class="card-front">?</div>
@@ -765,11 +815,8 @@
       gameState.wonAmount += gameState.prizes[index];
       updateStats();
       
-      // 控制状态延时
       setTimeout(() => {
         gameState.isProcessing = false;
-        
-        // 当翻牌次数耗尽时触发游戏结束与透视效果
         if (gameState.remainingFlips === 0) {
           endGameAndRevealOthers();
         }
@@ -778,10 +825,27 @@
 
     function endGameAndRevealOthers() {
       gameState.isProcessing = true;
-      document.getElementById('statusText').innerHTML = `🎉 翻牌结束！最终共获得：<span style="color:var(--primary-color); font-size:1.4rem;">￥${gameState.wonAmount.toFixed(2)}</span> 元！`;
       playSound('end');
 
-      // 自动翻转所有剩余未揭晓的底牌
+      // 计算平均气运等级
+      const limitCount = parseInt(document.getElementById('limitCount').value) || 3;
+      const avgWin = gameState.wonAmount / limitCount;
+      let evaluation = '运气平平';
+      if (avgWin >= gameState.minAmount + (gameState.maxAmount - gameState.minAmount) * 0.6) {
+        evaluation = '欧皇附体🔥';
+      } else if (avgWin >= gameState.minAmount + (gameState.maxAmount - gameState.minAmount) * 0.3) {
+        evaluation = '手气极佳✨';
+      }
+
+      // 🔴 两者兼得逻辑：隐藏普通文字，原位滑出LED大捷跑马灯，并下起金币雨 🔴
+      document.getElementById('ledTotal').textContent = `￥${gameState.wonAmount.toFixed(2)}`;
+      document.getElementById('ledEval').textContent = evaluation;
+      
+      document.getElementById('statusText').classList.add('hide');
+      document.getElementById('marqueeReportPanel').classList.add('active');
+      startGoldRain();
+
+      // 自动翻转所有剩余未揭晓的底牌提供全景赏析
       gameState.prizes.forEach((_, index) => {
         const cardEl = document.getElementById(`card-${index}`);
         if (!cardEl.classList.contains('flipped')) {

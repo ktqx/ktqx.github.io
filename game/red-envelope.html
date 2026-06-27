@@ -47,7 +47,7 @@
       padding-top: 85px;
     }
 
-    /* ===== 统一滚动式导航栏 ===== */
+    /* ===== 导航栏（置于绝对顶层，杜绝遮挡） ===== */
     .navbar {
       position: fixed;
       top: 0;
@@ -60,7 +60,7 @@
       display: flex;
       align-items: center;
       padding: 0 30px;
-      z-index: 1000;
+      z-index: 10000 !important; /* 确保不被任何边框遮挡 */
       box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2);
     }
 
@@ -117,22 +117,36 @@
       border: 1px solid var(--primary-color);
     }
 
-    /* ===== 主容器 ===== */
+    /* ===== 主容器（还原与其他游戏统一的金边大框样式） ===== */
     .container {
       max-width: 1000px;
       width: 95%;
       margin: 15px auto;
       flex: 1;
       background: rgba(15, 20, 45, 0.85);
-      border: 3px solid transparent;
-      border-image: linear-gradient(135deg, var(--accent-gold), var(--primary-color), var(--secondary-color)) 1;
       border-radius: 16px;
-      box-shadow: 0 0 35px rgba(247, 184, 1, 0.2), inset 0 0 20px rgba(217, 70, 239, 0.15);
-      backdrop-filter: blur(15px);
+      position: relative;
       padding: 25px;
       display: flex;
       flex-direction: column;
-      position: relative;
+      box-shadow: 0 0 35px rgba(247, 184, 1, 0.15);
+      backdrop-filter: blur(15px);
+      z-index: 10;
+    }
+
+    /* 还原统一的金边效果 */
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 16px;
+      padding: 3px; 
+      background: linear-gradient(135deg, var(--accent-gold), var(--primary-color), var(--secondary-color));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      z-index: -1;
     }
 
     .page-title-zone {
@@ -143,7 +157,7 @@
     .page-title-zone h1 {
       font-size: 2.2rem;
       font-weight: 900;
-      background: linear-gradient(135deg, var(--accent-gold));
+      background: linear-gradient(135deg, var(--accent-gold), #f97316);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
@@ -157,7 +171,7 @@
       padding: 15px;
       margin-bottom: 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 12px;
       transition: all 0.3s ease;
     }
@@ -188,7 +202,7 @@
       transition: all 0.3s;
     }
 
-    /* ===== 看板状态区 ===== */
+    /* ===== 看板状态区（数字改红色） ===== */
     .header-stats {
       padding: 15px;
       background: rgba(20, 25, 50, 0.5);
@@ -202,13 +216,13 @@
 
     .stat-box { flex: 1; }
     .stat-label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; }
-    .stat-value { font-size: 1.8rem; font-weight: 900; color: var(--accent-gold); transition: color 0.3s; }
+    .stat-value { font-size: 1.8rem; font-weight: 900; color: #ef4444; transition: color 0.3s; }
     .budget-info { font-size: 0.75rem; color: #718096; margin-top: 2px; }
 
     /* ===== 核心游戏舞台区 ===== */
     .game-area {
       flex: 1;
-      min-height: 380px;
+      min-height: 450px;
       position: relative;
       background: rgba(5, 5, 15, 0.4);
       border-radius: 12px;
@@ -216,40 +230,79 @@
       border: 1px solid rgba(217, 70, 239, 0.1);
     }
 
-    /* ===== 红包雨组件（性能硬件加速版） ===== */
+    /* ===== 大型醒目游戏结算区 ===== */
+    .settlement-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(6, 8, 24, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .settlement-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .settle-card {
+      text-align: center;
+      animation: popScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes popScale {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .settle-title { font-size: 1.6rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 15px; }
+    .settle-main-score { font-size: 4.2rem; font-weight: 900; color: #ef4444; text-shadow: 0 0 25px rgba(239,68,68,0.5); margin-bottom: 8px; }
+    .settle-sub-count { font-size: 1.3rem; color: var(--light-text); font-weight: 600; opacity: 0.9; }
+
+    /* ===== 红包组件（恢复大尺寸 + 纯透明隐形PC热区） ===== */
     .envelope {
       position: absolute;
       top: 0;
       left: 0;
-      width: 46px;
-      height: 62px;
+      /* 恢复原本完美的大号红包物理尺寸 */
+      width: 55px;
+      height: 75px;
       cursor: pointer;
       user-select: none;
       z-index: 10;
       will-change: transform;
-      transform: translate3d(0, -70px, 0);
+      transform: translate3d(0, -90px, 0);
+      
+      /* 【关键点】：完全透明的外垫热区，不设背景和边框，解决黄方块问题 */
+      background: transparent !important;
+      border: none !important;
+      padding: 12px; 
+      margin-top: -12px;
+      margin-left: -12px;
     }
 
+    /* 内部真正的红包视觉区 */
     .envelope-inner {
       width: 100%;
       height: 100%;
       border-radius: 8px;
-      border: 1.5px solid var(--accent-gold);
+      border: 2px solid var(--accent-gold);
       display: flex;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
 
     .envelope-inner::after {
       content: '🧧';
-      font-size: 1.3rem;
+      font-size: 1.7rem; /* 配合大红包，图标调大 */
     }
 
     .pkg-normal .envelope-inner { background: var(--pkg-normal); }
     .pkg-medium .envelope-inner { 
       background: var(--pkg-medium); 
-      box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.7);
     }
     .pkg-epic .envelope-inner { 
       background: var(--pkg-epic);
@@ -257,8 +310,8 @@
       animation: superGlow 0.6s infinite alternate ease-in-out;
     }
     @keyframes superGlow {
-      0% { box-shadow: 0 0 6px #d946ef; filter: brightness(1.1); }
-      100% { box-shadow: 0 0 18px #f7b801; filter: brightness(1.3); }
+      0% { box-shadow: 0 0 8px #d946ef; filter: brightness(1.1); }
+      100% { box-shadow: 0 0 20px #f7b801; filter: brightness(1.3); }
     }
 
     .envelope.hit { animation: hitAnim 0.18s ease-out forwards; pointer-events: none; }
@@ -275,7 +328,7 @@
       z-index: 50;
       animation: floatUp 0.5s ease-out forwards;
       text-shadow: 0 0 6px rgba(247,184,1,0.8), 0 1px 3px #000;
-      font-size: 1.15rem;
+      font-size: 1.2rem;
     }
     @keyframes floatUp {
       0% { transform: translate3d(0, 0, 0) scale(0.8); opacity: 1; }
@@ -319,7 +372,7 @@
     .btn-progress { position: absolute; left: 0; top: 0; height: 100%; background: rgba(255, 255, 255, 0.15); width: 0%; }
     .btn-content { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-    /* ===== 完美响应式适配 ===== */
+    /* ===== 响应式微调 ===== */
     @media (max-width: 768px) {
       body { padding-top: 75px; }
       .navbar { padding: 0 15px; height: 60px; }
@@ -328,7 +381,8 @@
       .page-title-zone h1 { font-size: 1.7rem; }
       .config-panel { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
       .stat-value { font-size: 1.4rem; }
-      .game-area { min-height: 340px; }
+      .game-area { min-height: 380px; }
+      .settle-main-score { font-size: 3.2rem; }
     }
 
     @media (max-width: 480px) {
@@ -338,8 +392,8 @@
       }
       .navbar-nav::-webkit-scrollbar { display: none; }
       .navbar-nav a { padding: 4px 8px; font-size: 0.8rem; }
-      .envelope { width: 40px; height: 54px; }
-      .envelope-inner::after { font-size: 1.1rem; }
+      .envelope { width: 48px; height: 66px; padding: 8px; margin-top: -8px; margin-left: -8px; }
+      .envelope-inner::after { font-size: 1.4rem; }
     }
   </style>
 </head>
@@ -374,10 +428,6 @@
         <input type="number" class="config-input" id="cfgTotalCount" value="50">
       </div>
       <div class="config-group">
-        <label class="config-label">预设下落匀速时长 (秒)</label>
-        <input type="number" class="config-input" id="cfgDuration" value="15">
-      </div>
-      <div class="config-group">
         <label class="config-label">单项最小 (元)</label>
         <input type="number" class="config-input" id="cfgMinAmt" value="0.2" step="0.1">
       </div>
@@ -400,7 +450,15 @@
       </div>
     </div>
 
-    <div class="game-area" id="gameArea"></div>
+    <div class="game-area" id="gameArea">
+      <div class="settlement-overlay" id="settleOverlay">
+        <div class="settle-card">
+          <div class="settle-title">🎉 抢红包结束 🎉</div>
+          <div class="settle-main-score" id="settleScore">¥0.00</div>
+          <div class="settle-sub-count" id="settleCount">共击中 0 个红包</div>
+        </div>
+      </div>
+    </div>
 
     <div class="legend-bar">
       <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div>普通包 (稳速下落)</div>
@@ -440,6 +498,11 @@
     const configPanel = document.getElementById('configPanel');
     const scoreBox = document.getElementById('scoreBox');
     const countBox = document.getElementById('countBox');
+    const settleOverlay = document.getElementById('settleOverlay');
+    const settleScore = document.getElementById('settleScore');
+    const settleCount = document.getElementById('settleCount');
+
+    const GAME_DURATION = 10; 
 
     let state = {
       active: false,
@@ -452,10 +515,12 @@
       cfg: {}
     };
 
-    let lanes = []; // 车道阵列
-    let activeEnvelopes = []; // 活动红包队列
-    let precalculatedAmounts = []; // 游戏开始时预先分配好的金额池
+    let lanes = []; 
+    let lastPickedLaneId = -1; 
+    let activeEnvelopes = []; 
+    let precalculatedAmounts = []; 
     let gameTimer = null;
+    let spawnTimer = null;
 
     function handleBtnClick() {
       if (state.active) return;
@@ -468,46 +533,40 @@
 
     function initLanes() {
       const areaWidth = gameArea.clientWidth;
-      const envelopeWidth = areaWidth <= 480 ? 40 : 46;
-      const laneCount = Math.floor(areaWidth / (envelopeWidth + 14));
+      const envelopeWidth = areaWidth <= 480 ? 48 : 55;
+      const laneCount = Math.floor(areaWidth / (envelopeWidth + 16));
       const spacing = (areaWidth - (laneCount * envelopeWidth)) / (laneCount + 1);
       
       lanes = [];
       for (let i = 0; i < laneCount; i++) {
         lanes.push({
           id: i,
-          leftPos: spacing + i * (envelopeWidth + spacing),
-          nextSpawnTime: 0
+          leftPos: spacing + i * (envelopeWidth + spacing)
         });
       }
     }
 
-    // 红包核心算法：生成绝对公平、不提前溢出的随机金额池
     function generateAmountPool(totalBudget, totalCount, minAmt, maxAmt) {
       let pool = [];
       let remainingBudget = totalBudget;
 
       for (let i = 0; i < totalCount - 1; i++) {
         let remainingCount = totalCount - i;
-        // 保证后续红包都至少有最小金额的安全缓冲线
         let safetyBuffer = (remainingCount - 1) * minAmt;
         let currentMax = Math.min(maxAmt, remainingBudget - safetyBuffer);
         
-        // 采用二倍均值算法变体，保证金额分配线性舒缓，避免后期雪崩
         let avg = remainingBudget / remainingCount;
         let limit = Math.min(currentMax, avg * 2);
         if (limit < minAmt) limit = minAmt;
 
         let amt = Math.random() * (limit - minAmt) + minAmt;
-        amt = Math.round(amt * 100) / 100; // 精确到分
+        amt = Math.round(amt * 100) / 100;
         
         pool.push(amt);
         remainingBudget -= amt;
       }
-      // 最后一个红包兜底
       pool.push(Math.round(remainingBudget * 100) / 100);
 
-      // 洗牌算法：把金额随机打乱，消除前后金额规律
       for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -519,7 +578,7 @@
       state.cfg = {
         totalBudget: parseFloat(document.getElementById('cfgTotalBudget').value) || 50,
         totalCount: parseInt(document.getElementById('cfgTotalCount').value) || 50,
-        duration: parseInt(document.getElementById('cfgDuration').value) || 15,
+        duration: GAME_DURATION,
         minAmt: parseFloat(document.getElementById('cfgMinAmt').value) || 0.2,
         maxAmt: parseFloat(document.getElementById('cfgMaxAmt').value) || 5
       };
@@ -530,8 +589,8 @@
       }
 
       initLanes();
+      settleOverlay.classList.remove('show');
 
-      // 生成本轮独立的随机金额池
       precalculatedAmounts = generateAmountPool(
         state.cfg.totalBudget, 
         state.cfg.totalCount, 
@@ -539,8 +598,6 @@
         state.cfg.maxAmt
       );
 
-      scoreBox.style.color = 'var(--accent-gold)';
-      countBox.style.color = 'var(--accent-gold)';
       state.active = true;
       state.settled = false;
       state.score = 0;
@@ -561,7 +618,7 @@
         btnProgress.style.width = '100%';
       }, 50);
 
-      // 进度倒计时仅作为视觉效果，不再用作死板的强制结束条件
+      btnText.textContent = `⏱️ 倒计时: ${state.timeLeft}s`;
       gameTimer = setInterval(() => {
         state.timeLeft--;
         if (state.timeLeft <= 0) {
@@ -579,22 +636,27 @@
     function spawnController() {
       if (!state.active || state.remCount <= 0) return;
 
-      const now = Date.now();
-      const availableLanes = lanes.filter(l => now >= l.nextSpawnTime);
-
-      if (availableLanes.length > 0) {
-        const pickedLane = availableLanes[Math.floor(Math.random() * availableLanes.length)];
-        createEnvelope(pickedLane);
-        pickedLane.nextSpawnTime = now + (250 + Math.random() * 250);
+      let availableLanes = lanes;
+      if (lanes.length > 2) {
+        availableLanes = lanes.filter(l => Math.abs(l.id - lastPickedLaneId) > 1);
+      } else if (lanes.length > 1) {
+        availableLanes = lanes.filter(l => l.id !== lastPickedLaneId);
       }
+      
+      const pickedLane = availableLanes[Math.floor(Math.random() * availableLanes.length)];
+      lastPickedLaneId = pickedLane.id;
 
-      // 动态计算间隔：确保在规定的时长内匀速地将红包投放完毕
-      const interval = (state.cfg.duration * 1000) / state.cfg.totalCount;
-      setTimeout(spawnController, Math.max(60, interval));
+      createEnvelope(pickedLane);
+
+      if (state.remCount > 0) {
+        const interval = (state.timeLeft * 1000) / (state.remCount + 1);
+        const nextDelay = Math.max(90, Math.min(interval, 400));
+        spawnTimer = setTimeout(spawnController, nextDelay);
+      }
     }
 
     function createEnvelope(lane) {
-      if (state.remCount <= 0 || precalculatedAmounts.length === 0) return;
+      if (precalculatedAmounts.length === 0) return;
 
       const envelope = document.createElement('div');
       envelope.className = 'envelope';
@@ -602,22 +664,19 @@
       inner.className = 'envelope-inner';
       envelope.appendChild(inner);
 
-      // 从金额池中获取当前红包绑定的硬性金额
       const amount = precalculatedAmounts.pop();
-
-      // 速度梯度优化，金额越大下落越快
       const range = (state.cfg.maxAmt - state.cfg.minAmt) / 3;
       let speed = 5.0; 
 
       if (amount < state.cfg.minAmt + range) {
         envelope.classList.add('pkg-normal');
-        speed = 4.5 + Math.random() * 1.5;
+        speed = 3.5 + Math.random() * 0.8; 
       } else if (amount < state.cfg.minAmt + (range * 2)) {
         envelope.classList.add('pkg-medium');
-        speed = 6.5 + Math.random() * 2.0;
+        speed = 4.8 + Math.random() * 1.0;
       } else {
         envelope.classList.add('pkg-epic');
-        speed = 8.5 + Math.random() * 2.5;
+        speed = 6.2 + Math.random() * 1.2;
       }
 
       state.remCount--;
@@ -627,14 +686,13 @@
       activeEnvelopes.push({
         el: envelope,
         x: lane.leftPos,
-        y: -70,
+        y: -90,
         speed: speed,
         amount: amount
       });
 
-      envelope.ontouchstart = envelope.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      // 完美的统一指针交互，兼顾PC灵敏度与移动端多点触控
+      envelope.onpointerdown = (e) => {
         onHit(envelope);
       };
     }
@@ -656,9 +714,7 @@
         p.y += p.speed;
         p.el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0)`;
 
-        // 越界边缘检查：严格只下降1次，漏掉后金额也随之失效
         if (p.y > viewHeight) {
-          // 漏掉的红包，预算直接扣除，不回滚
           state.remBudget -= p.amount; 
           p.el.remove();
           activeEnvelopes.splice(i, 1);
@@ -666,7 +722,6 @@
         }
       }
 
-      // 【核心优化点】智能提早结算：当红包全部生成完，并且屏幕上活动的红包也归零时，立即触发结束
       if (state.remCount === 0 && activeEnvelopes.length === 0 && state.active) {
         endGame();
         return;
@@ -702,7 +757,7 @@
     function showFloatText(x, y, text) {
       const ft = document.createElement('div');
       ft.className = 'float-text';
-      ft.style.transform = `translate3d(${x + 5}px, ${y}px, 0)`;
+      ft.style.transform = `translate3d(${x + 10}px, ${y}px, 0)`;
       ft.textContent = text;
       gameArea.appendChild(ft);
       setTimeout(() => ft.remove(), 500);
@@ -717,31 +772,36 @@
 
     function endGame() {
       if (gameTimer) clearInterval(gameTimer);
+      if (spawnTimer) clearTimeout(spawnTimer);
       state.active = false;
       state.settled = true;
 
       activeEnvelopes.forEach(item => item.el.remove());
       activeEnvelopes = [];
-      gameArea.innerHTML = '';
+      
+      settleScore.textContent = `¥${state.score.toFixed(2)}`;
+      settleCount.textContent = `共击中 ${state.count} 个红包`;
+      settleOverlay.classList.add('show');
 
-      scoreBox.style.color = '#10b981';
-      countBox.style.color = '#10b981';
       configPanel.style.pointerEvents = 'auto';
       configPanel.style.opacity = '1';
 
       mainBtn.className = 'main-btn settled';
       btnProgress.style.width = '0%';
-      btnText.innerHTML = `✨ 结算: ¥${state.score.toFixed(2)} (${state.count}个) | 重新开始`;
+      btnText.innerHTML = `✨ 结算完毕 | 点此重新开始`;
     }
 
     function resetGame() {
+      if (spawnTimer) clearTimeout(spawnTimer);
       state.settled = false;
-      gameArea.innerHTML = '';
+      
+      const floats = gameArea.querySelectorAll('.float-text, .envelope');
+      floats.forEach(f => f.remove());
+      
+      settleOverlay.classList.remove('show');
       mainBtn.className = 'main-btn';
       btnText.textContent = '🚀 开启红包雨';
       btnProgress.style.width = '0%';
-      scoreBox.style.color = 'var(--accent-gold)';
-      countBox.style.color = 'var(--accent-gold)';
       state.score = 0;
       state.count = 0;
       precalculatedAmounts = [];

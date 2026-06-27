@@ -149,12 +149,6 @@
       text-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
     }
 
-    .page-title-zone p {
-      font-size: 0.95rem;
-      color: var(--text-secondary);
-      margin-top: 5px;
-    }
-
     /* ===== 配置面板 ===== */
     .config-panel {
       background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(217, 70, 239, 0.08));
@@ -232,7 +226,6 @@
       cursor: pointer;
       user-select: none;
       z-index: 10;
-      /* 使用 transform 3D 属性强制启用 GPU 渲染 */
       will-change: transform;
       transform: translate3d(0, -70px, 0);
     }
@@ -381,7 +374,7 @@
         <input type="number" class="config-input" id="cfgTotalCount" value="50">
       </div>
       <div class="config-group">
-        <label class="config-label">游戏时长 (秒)</label>
+        <label class="config-label">预设下落匀速时长 (秒)</label>
         <input type="number" class="config-input" id="cfgDuration" value="15">
       </div>
       <div class="config-group">
@@ -403,7 +396,7 @@
       <div class="stat-box">
         <div class="stat-label">击中红包数</div>
         <div class="stat-value" id="countBox"><span id="count">0</span></div>
-        <div class="budget-info">待投放/落空: <span id="remCount">0</span>个</div>
+        <div class="budget-info">未掉落/落空: <span id="remCount">0</span>个</div>
       </div>
     </div>
 
@@ -459,8 +452,10 @@
       cfg: {}
     };
 
-    let lanes = []; // 车道分配管理阵列
-    let activeEnvelopes = []; // 活动红包控制队列
+    let lanes = []; // 车道阵列
+    let activeEnvelopes = []; // 活动红包队列
+    let precalculatedAmounts = []; // 游戏开始时预先分配好的金额池
+    let gameTimer = null;
 
     function handleBtnClick() {
       if (state.active) return;
@@ -474,7 +469,6 @@
     function initLanes() {
       const areaWidth = gameArea.clientWidth;
       const envelopeWidth = areaWidth <= 480 ? 40 : 46;
-      // 动态计算车道数量，确保相互之间留出安全隔离间距，杜绝重叠
       const laneCount = Math.floor(areaWidth / (envelopeWidth + 14));
       const spacing = (areaWidth - (laneCount * envelopeWidth)) / (laneCount + 1);
       
@@ -483,18 +477,51 @@
         lanes.push({
           id: i,
           leftPos: spacing + i * (envelopeWidth + spacing),
-          nextSpawnTime: 0 // 控制同车道红包的上下垂直纵向间距
+          nextSpawnTime: 0
         });
       }
     }
 
+    // 红包核心算法：生成绝对公平、不提前溢出的随机金额池
+    function generateAmountPool(totalBudget, totalCount, minAmt, maxAmt) {
+      let pool = [];
+      let remainingBudget = totalBudget;
+
+      for (let i = 0; i < totalCount - 1; i++) {
+        let remainingCount = totalCount - i;
+        // 保证后续红包都至少有最小金额的安全缓冲线
+        let safetyBuffer = (remainingCount - 1) * minAmt;
+        let currentMax = Math.min(maxAmt, remainingBudget - safetyBuffer);
+        
+        // 采用二倍均值算法变体，保证金额分配线性舒缓，避免后期雪崩
+        let avg = remainingBudget / remainingCount;
+        let limit = Math.min(currentMax, avg * 2);
+        if (limit < minAmt) limit = minAmt;
+
+        let amt = Math.random() * (limit - minAmt) + minAmt;
+        amt = Math.round(amt * 100) / 100; // 精确到分
+        
+        pool.push(amt);
+        remainingBudget -= amt;
+      }
+      // 最后一个红包兜底
+      pool.push(Math.round(remainingBudget * 100) / 100);
+
+      // 洗牌算法：把金额随机打乱，消除前后金额规律
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool;
+    }
+
     function startGame() {
       state.cfg = {
-        totalBudget: parseFloat(document.getElementById('cfgTotalBudget').value) || 100,
-        totalCount: parseInt(document.getElementById('cfgTotalCount').value) || 60,
+        totalBudget: parseFloat(document.getElementById('cfgTotalBudget').value) || 50,
+        totalCount: parseInt(document.getElementById('cfgTotalCount').value) || 50,
         duration: parseInt(document.getElementById('cfgDuration').value) || 15,
         minAmt: parseFloat(document.getElementById('cfgMinAmt').value) || 0.2,
-        maxAmt: parseFloat(document.getElementById('cfgMaxAmt').value) || 6
+        maxAmt: parseFloat(document.getElementById('cfgMaxAmt').value) || 5
       };
 
       if (state.cfg.minAmt * state.cfg.totalCount > state.cfg.totalBudget) {
@@ -503,6 +530,14 @@
       }
 
       initLanes();
+
+      // 生成本轮独立的随机金额池
+      precalculatedAmounts = generateAmountPool(
+        state.cfg.totalBudget, 
+        state.cfg.totalCount, 
+        state.cfg.minAmt, 
+        state.cfg.maxAmt
+      );
 
       scoreBox.style.color = 'var(--accent-gold)';
       countBox.style.color = 'var(--accent-gold)';
@@ -526,44 +561,40 @@
         btnProgress.style.width = '100%';
       }, 50);
 
-      const gameTimer = setInterval(() => {
+      // 进度倒计时仅作为视觉效果，不再用作死板的强制结束条件
+      gameTimer = setInterval(() => {
         state.timeLeft--;
-        btnText.textContent = `⏱️ 倒计时: ${state.timeLeft}s`;
-        
         if (state.timeLeft <= 0) {
+          btnText.textContent = `⏱️ 冲刺收尾中...`;
           clearInterval(gameTimer);
-          endGame();
+        } else {
+          btnText.textContent = `⏱️ 倒计时: ${state.timeLeft}s`;
         }
       }, 1000);
 
-      // 启动统一的数据渲染引擎循环
       requestAnimationFrame(updateGamePhysics);
       spawnController();
     }
 
-    // 智能动态生成频次控制器
     function spawnController() {
       if (!state.active || state.remCount <= 0) return;
 
       const now = Date.now();
-      // 获取当前可用的车道
       const availableLanes = lanes.filter(l => now >= l.nextSpawnTime);
 
       if (availableLanes.length > 0) {
-        // 随机选择一条可用车道
         const pickedLane = availableLanes[Math.floor(Math.random() * availableLanes.length)];
         createEnvelope(pickedLane);
-        // 设定冷冻期，防止同一车道内前后两个红包上下贴死重叠
-        pickedLane.nextSpawnTime = now + (350 + Math.random() * 300);
+        pickedLane.nextSpawnTime = now + (250 + Math.random() * 250);
       }
 
-      // 根据剩余数量与时间动态调整下落批次密度
-      const delay = Math.max(80, 250 - (state.count * 2));
-      setTimeout(spawnController, delay);
+      // 动态计算间隔：确保在规定的时长内匀速地将红包投放完毕
+      const interval = (state.cfg.duration * 1000) / state.cfg.totalCount;
+      setTimeout(spawnController, Math.max(60, interval));
     }
 
     function createEnvelope(lane) {
-      if (state.remCount <= 0) return;
+      if (state.remCount <= 0 || precalculatedAmounts.length === 0) return;
 
       const envelope = document.createElement('div');
       envelope.className = 'envelope';
@@ -571,39 +602,34 @@
       inner.className = 'envelope-inner';
       envelope.appendChild(inner);
 
-      // 动态计算该红包分配的金额
-      const safetyBuffer = (state.remCount - 1) * state.cfg.minAmt;
-      const currentMax = Math.min(state.cfg.maxAmt, state.remBudget - safetyBuffer);
-      const amount = Math.random() * (currentMax - state.cfg.minAmt) + state.cfg.minAmt;
+      // 从金额池中获取当前红包绑定的硬性金额
+      const amount = precalculatedAmounts.pop();
 
-      // 速度梯度优化，全盘提速，手机端感官更爽快
+      // 速度梯度优化，金额越大下落越快
       const range = (state.cfg.maxAmt - state.cfg.minAmt) / 3;
       let speed = 5.0; 
 
       if (amount < state.cfg.minAmt + range) {
         envelope.classList.add('pkg-normal');
-        speed = 5.0 + Math.random() * 1.5; // 普通包下落速度提升
+        speed = 4.5 + Math.random() * 1.5;
       } else if (amount < state.cfg.minAmt + (range * 2)) {
         envelope.classList.add('pkg-medium');
-        speed = 7.0 + Math.random() * 2.0; // 好运包中速
+        speed = 6.5 + Math.random() * 2.0;
       } else {
         envelope.classList.add('pkg-epic');
-        speed = 9.5 + Math.random() * 3.0; // 至尊包高速，极具挑战
+        speed = 8.5 + Math.random() * 2.5;
       }
 
       state.remCount--;
       updateDisplay();
       gameArea.appendChild(envelope);
 
-      // 加入到中央物理引擎阵列中管理
       activeEnvelopes.push({
         el: envelope,
         x: lane.leftPos,
         y: -70,
         speed: speed,
-        amount: amount,
-        dropCount: 1, // 记录下落次数
-        laneId: lane.id
+        amount: amount
       });
 
       envelope.ontouchstart = envelope.onclick = (e) => {
@@ -613,7 +639,6 @@
       };
     }
 
-    // 集中式单循环引擎：利用 translate3d 激发硬件加速，不卡顿
     function updateGamePhysics() {
       if (!state.active && activeEnvelopes.length === 0) return;
 
@@ -631,25 +656,20 @@
         p.y += p.speed;
         p.el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0)`;
 
-        // 越界边缘检查
+        // 越界边缘检查：严格只下降1次，漏掉后金额也随之失效
         if (p.y > viewHeight) {
-          // 优化需求：每个红包最多下降2次
-          if (p.dropCount < 2 && state.active) {
-            // 重置到顶部，循环再生下落第2次
-            p.y = -70;
-            p.dropCount++;
-            // 重新随机洗牌一个可用车道位置
-            const newLane = lanes[Math.floor(Math.random() * lanes.length)];
-            p.x = newLane.leftPos;
-            p.speed += 1.0; // 第二次速度微微加快增加难度
-          } else {
-            // 超过2次或游戏结束，彻底移除并回滚配额
-            state.remCount++;
-            p.el.remove();
-            activeEnvelopes.splice(i, 1);
-            updateDisplay();
-          }
+          // 漏掉的红包，预算直接扣除，不回滚
+          state.remBudget -= p.amount; 
+          p.el.remove();
+          activeEnvelopes.splice(i, 1);
+          updateDisplay();
         }
+      }
+
+      // 【核心优化点】智能提早结算：当红包全部生成完，并且屏幕上活动的红包也归零时，立即触发结束
+      if (state.remCount === 0 && activeEnvelopes.length === 0 && state.active) {
+        endGame();
+        return;
       }
 
       if (state.active || activeEnvelopes.length > 0) {
@@ -662,7 +682,6 @@
       if (idx === -1) return;
       const data = activeEnvelopes[idx];
 
-      // 设置自定义变量用于爆裂缩放动画的原心定位保持
       el.style.setProperty('--tx', `${data.x}px`);
       el.style.setProperty('--ty', `${data.y}px`);
       el.classList.add('hit');
@@ -697,10 +716,10 @@
     }
 
     function endGame() {
+      if (gameTimer) clearInterval(gameTimer);
       state.active = false;
       state.settled = true;
 
-      // 清空所有红包及追踪器
       activeEnvelopes.forEach(item => item.el.remove());
       activeEnvelopes = [];
       gameArea.innerHTML = '';
@@ -725,6 +744,7 @@
       countBox.style.color = 'var(--accent-gold)';
       state.score = 0;
       state.count = 0;
+      precalculatedAmounts = [];
       updateDisplay();
     }
   </script>

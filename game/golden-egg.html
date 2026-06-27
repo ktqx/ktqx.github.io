@@ -112,6 +112,18 @@
       min-height: 100vh;
       padding: 15px;
       padding-top: 85px;
+      position: relative;
+    }
+
+    /* 黄金雨画布 */
+    #goldRainCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
     }
 
     /* ===== 主容器 ===== */
@@ -125,6 +137,8 @@
       box-shadow: 0 0 50px rgba(247, 184, 1, 0.2), inset 0 0 30px rgba(247, 184, 1, 0.05);
       backdrop-filter: blur(10px);
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     /* ===== 标题区 ===== */
@@ -142,18 +156,25 @@
       letter-spacing: 2px;
     }
 
-    /* ===== 配置面板 ===== */
+    /* ===== 配置面板与终极战报LED屏通用容器 ===== */
+    .board-wrapper {
+      width: 100%;
+      margin-bottom: 20px;
+      perspective: 1000px;
+    }
+
     .config-panel {
       background: linear-gradient(135deg, rgba(0, 78, 137, 0.15), rgba(255, 107, 53, 0.15));
       border: 2px solid rgba(247, 184, 1, 0.3);
       border-radius: 15px;
       padding: 15px;
-      margin-bottom: 20px;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 15px;
       width: 100%;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-style: preserve-3d;
     }
 
     .config-group {
@@ -188,6 +209,58 @@
     .config-input:focus {
       border-color: var(--accent-gold);
       box-shadow: 0 0 15px rgba(247, 184, 1, 0.3);
+    }
+
+    /* 终极战报LED屏激活样式 */
+    .config-panel.led-active {
+      background: radial-gradient(circle at center, #110022 0%, #000000 100%);
+      border: 4px solid #ff0055;
+      box-shadow: 0 0 30px #ff0055, inset 0 0 20px #ff0055, 0 0 50px #ffcc00;
+      animation: ledStretch 0.6s ease forwards, ledBlink 1.5s infinite alternate 0.6s;
+      padding: 20px;
+    }
+
+    @keyframes ledStretch {
+      0% { transform: scale(1); filter: brightness(1); }
+      30% { transform: scaleX(1.1) scaleY(0.4) skewX(-15deg); filter: brightness(3); border-color: #ffcc00; }
+      60% { transform: scaleX(0.9) scaleY(1.2) skewX(10deg); filter: brightness(0.5); }
+      100% { transform: scale(1) skewX(0); filter: brightness(1); }
+    }
+
+    @keyframes ledBlink {
+      0% { border-color: #ff0055; box-shadow: 0 0 25px #ff0055, inset 0 0 15px #ff0055, 0 0 40px #ffcc00; }
+      100% { border-color: #ffcc00; box-shadow: 0 0 35px #ffcc00, inset 0 0 25px #ffcc00, 0 0 60px #ff0055; }
+    }
+
+    /* LED内部战报排版 */
+    .led-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Impact', 'Arial Black', sans-serif;
+      letter-spacing: 2px;
+    }
+
+    .led-title {
+      font-size: 1.8rem;
+      color: #fff;
+      text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055;
+      margin-bottom: 10px;
+      animation: textPulse 0.8s infinite alternate;
+    }
+
+    .led-result {
+      font-size: 2.5rem;
+      color: #ffcc00;
+      text-shadow: 0 0 15px #ffcc00, 0 0 30px #ff8800;
+      font-weight: 900;
+    }
+
+    @keyframes textPulse {
+      0% { opacity: 0.8; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1.02); }
     }
 
     /* ===== 核心操作按钮 ===== */
@@ -276,7 +349,6 @@
     .egg {
       width: 85%;
       height: 100%;
-      /* 优化多层高光与暗部渐变，模拟真实生动的金属蛋壳曲面 */
       background: radial-gradient(circle at 35% 25%, #ffffff 0%, #fff4b3 15%, #fcd34d 35%, #d97706 70%, #78350f 100%);
       border-radius: 50% 50% 50% 50% / 68% 68% 32% 32%;
       box-shadow: 
@@ -294,7 +366,6 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* 增强表面反光条 */
     .egg::after {
       content: '';
       position: absolute;
@@ -316,7 +387,6 @@
         0 25px 35px rgba(247, 184, 1, 0.35);
     }
 
-    /* 金蛋阴影 */
     .egg-shadow {
       position: absolute;
       bottom: 5px;
@@ -334,7 +404,6 @@
       background: rgba(0, 0, 0, 0.4);
     }
 
-    /* 破裂后的金蛋 */
     .egg.broken {
       background: none;
       box-shadow: none;
@@ -349,7 +418,6 @@
       100% { transform: translateY(20px) scaleY(0.6); opacity: 0; pointer-events: none; }
     }
 
-    /* 破裂后的蛋壳残余 */
     .egg.broken::before {
       content: '';
       position: absolute;
@@ -361,7 +429,6 @@
       clip-path: polygon(0% 100%, 100% 100%, 95% 40%, 80% 60%, 65% 20%, 50% 50%, 35% 15%, 20% 55%, 5% 30%);
     }
 
-    /* 碎片 */
     .egg-fragment {
       position: absolute;
       pointer-events: none;
@@ -374,7 +441,6 @@
       100% { transform: translate(var(--tx), var(--ty)) rotate(var(--tr)) scale(0.3); opacity: 0; }
     }
 
-    /* 奖金显示标签：优化为金蛋的正中间定位 */
     .prize-label {
       position: absolute;
       font-size: 1.3rem;
@@ -388,10 +454,9 @@
       z-index: 3;
       pointer-events: none;
       transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.4);
-      /* 确保上下左右完美居中 */
       top: 70%;
       left: 50%;
-      margin-top: -20px; /* 元素高度的一半左右，保持完全对齐 */
+      margin-top: -20px;
       transform: translate(-50%, -50%) scale(0);
     }
 
@@ -399,16 +464,14 @@
       transform: translate(-50%, -50%) scale(1);
     }
 
-    /* ===== 未砸金蛋透视样式：保留外观，但文字（金额）显示为黑灰色 ===== */
     .egg-container.dimmed .egg {
       background: radial-gradient(circle at 35% 25%, #ffffff 0%, #fff4b3 15%, #fcd34d 35%, #d97706 70%, #78350f 100%);
-      opacity: 0.4; /* 降低整蛋透明度实现灰暗透视感 */
+      opacity: 0.4;
     }
 
-    /* 未砸中的金蛋，显示的透视金额标签：背景变淡，文字使用黑灰色 */
     .egg-container.dimmed .prize-label {
-      background: rgba(220, 220, 220, 0.85); /* 浅灰白背景 */
-      color: #2d3748; /* 深黑灰色文本 */
+      background: rgba(220, 220, 220, 0.85);
+      color: #2d3748;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       text-shadow: none;
     }
@@ -421,7 +484,6 @@
         0 15px 25px rgba(0, 0, 0, 0.4);
     }
 
-    /* 状态与结果展示 */
     .status-text {
       font-size: 1.1rem;
       font-weight: 700;
@@ -451,10 +513,7 @@
         padding: 12px;
       }
       
-      .config-input {
-        width: 70px;
-      }
-      
+      .config-input { width: 70px; }
       .btn-spin { width: 180px; }
       
       .egg-grid { 
@@ -465,15 +524,9 @@
       .egg { font-size: 2rem; }
     }
 
-    /* ===== 手机端导航栏适配：支持横向滚动 ===== */
     @media (max-width: 480px) {
       body { padding: 70px 10px 15px; }
-      
-      .navbar {
-        padding: 0 10px;
-        justify-content: space-between;
-      }
-      
+      .navbar { padding: 0 10px; justify-content: space-between; }
       .navbar-spacer { display: none; }
       
       .navbar-nav {
@@ -487,36 +540,15 @@
         scrollbar-width: none; 
       }
       
-      .navbar-nav::-webkit-scrollbar {
-        display: none; 
-      }
-      
-      .navbar-nav a {
-        padding: 5px 10px;
-        font-size: 0.85rem;
-      }
-
+      .navbar-nav::-webkit-scrollbar { display: none; }
+      .navbar-nav a { padding: 5px 10px; font-size: 0.85rem; }
       .container { padding: 15px; border-radius: 15px; }
       .title { font-size: 1.3rem; margin-bottom: 15px; }
       
-      .config-panel {
-        gap: 10px;
-        padding: 10px;
-      }
-      
-      .config-group {
-        flex: 1 1 40%;
-        align-items: center;
-      }
-
-      .config-input {
-        width: 65px;
-        font-size: 0.85rem;
-      }
-      
-      .config-label {
-        font-size: 0.75rem;
-      }
+      .config-panel { gap: 10px; padding: 10px; }
+      .config-group { flex: 1 1 40%; align-items: center; }
+      .config-input { width: 65px; font-size: 0.85rem; }
+      .config-label { font-size: 0.75rem; }
       
       .btn-spin {
         width: 160px;
@@ -533,10 +565,14 @@
       .egg { font-size: 1.5rem; }
       .stats { gap: 15px; font-size: 0.95rem; }
       .stat-val { font-size: 1.1rem; }
+      .led-title { font-size: 1.4rem; }
+      .led-result { font-size: 1.8rem; }
     }
   </style>
 </head>
 <body>
+  <canvas id="goldRainCanvas"></canvas>
+
   <nav class="navbar">
     <a href="index.html" class="navbar-logo">
       <span>🎮</span>
@@ -559,26 +595,28 @@
       <div class="title">🥚 幸运砸金蛋</div>
     </div>
 
-    <div class="config-panel">
-      <div class="config-group">
-        <label class="config-label">促销总额 (元)</label>
-        <input type="number" id="totalAmount" class="config-input" value="50" min="1">
-      </div>
-      <div class="config-group">
-        <label class="config-label">最小金额</label>
-        <input type="number" id="minAmount" class="config-input" value="2" step="0.1">
-      </div>
-      <div class="config-group">
-        <label class="config-label">最大金额</label>
-        <input type="number" id="maxAmount" class="config-input" value="10" step="0.1">
-      </div>
-      <div class="config-group">
-        <label class="config-label">金蛋总数</label>
-        <input type="number" id="eggCount" class="config-input" value="9" min="3" max="30">
-      </div>
-      <div class="config-group">
-        <label class="config-label">可砸蛋数</label>
-        <input type="number" id="limitCount" class="config-input" value="3" min="1">
+    <div class="board-wrapper">
+      <div class="config-panel" id="mainBoard">
+        <div class="config-group">
+          <label class="config-label">促销总额 (元)</label>
+          <input type="number" id="totalAmount" class="config-input" value="50" min="1">
+        </div>
+        <div class="config-group">
+          <label class="config-label">最小金额</label>
+          <input type="number" id="minAmount" class="config-input" value="2" step="0.1">
+        </div>
+        <div class="config-group">
+          <label class="config-label">最大金额</label>
+          <input type="number" id="maxAmount" class="config-input" value="10" step="0.1">
+        </div>
+        <div class="config-group">
+          <label class="config-label">金蛋总数</label>
+          <input type="number" id="eggCount" class="config-input" value="9" min="3" max="30">
+        </div>
+        <div class="config-group">
+          <label class="config-label">可砸蛋数</label>
+          <input type="number" id="limitCount" class="config-input" value="3" min="1">
+        </div>
       </div>
     </div>
 
@@ -595,17 +633,14 @@
   </div>
 
   <script>
-    // 音频上下文
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // ===== 更真实的砸蛋音效 =====
     function playSound(type) {
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
 
       if (type === 'smash') {
-        // 1. 敲击瞬间的低频撞击声
         const osc1 = audioCtx.createOscillator();
         const gain1 = audioCtx.createGain();
         osc1.type = 'sine';
@@ -618,7 +653,6 @@
         osc1.start();
         osc1.stop(audioCtx.currentTime + 0.1);
 
-        // 2. 陶瓷破碎的高频脆响
         const bufferSize = audioCtx.sampleRate * 0.2;
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
@@ -666,7 +700,9 @@
       minAmount: 0
     };
 
-    // 智能随机总额算法分配
+    // 保存面板初始配置的HTML，便于重开游戏时还原
+    let originalConfigHTML = "";
+
     function distributePrizes(count, total, min, max) {
       if (count * min > total) {
         showToast("❌ 失败：总额不足以支撑当前最小金额设定");
@@ -693,7 +729,6 @@
       
       result.push(Math.round(remaining * 100) / 100);
       
-      // 经典洗牌算法打乱
       for (let i = result.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [result[i], result[j]] = [result[j], result[i]];
@@ -703,6 +738,18 @@
     }
 
     function initGame() {
+      // 停止黄金雨特效
+      stopGoldRain();
+
+      const board = document.getElementById('mainBoard');
+      // 还原正常配置面板状态与HTML
+      board.classList.remove('led-active');
+      if (originalConfigHTML) {
+        board.innerHTML = originalConfigHTML;
+      } else {
+        originalConfigHTML = board.innerHTML;
+      }
+
       const eggCount = parseInt(document.getElementById('eggCount').value) || 8;
       const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 50;
       const minAmount = parseFloat(document.getElementById('minAmount').value) || 2;
@@ -754,25 +801,20 @@
       eggEl.classList.add('broken');
       container.classList.add('smashed');
       
-      // 创建碎片飞溅效果
       createFragments(eggEl, container);
       
       gameState.remainingSmashes--;
       gameState.wonAmount += gameState.prizes[index];
       updateStats();
       
-      // 控制状态延时
       setTimeout(() => {
         gameState.isProcessing = false;
-        
-        // 当砸蛋次数耗尽时触发游戏结束与透视效果
         if (gameState.remainingSmashes === 0) {
           endGameAndRevealOthers();
         }
       }, 300);
     }
 
-    // 创建碎片飞溅效果
     function createFragments(eggEl, container) {
       const rect = eggEl.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
@@ -803,11 +845,24 @@
       }
     }
 
-    // 游戏结束后灰色显示未砸金蛋
+    // 游戏结束：展示 LED 战报大屏与黄金雨
     function endGameAndRevealOthers() {
       gameState.isProcessing = true;
       document.getElementById('statusText').innerHTML = `🎉 砸蛋结束！最终共获得：<span style="color:var(--primary-color); font-size:1.4rem;">￥${gameState.wonAmount.toFixed(2)}</span> 元！`;
       playSound('end');
+
+      // 1. 触发零遮挡配置面板瞬间变形拉伸为 LED 终极战报屏
+      const board = document.getElementById('mainBoard');
+      board.classList.add('led-active');
+      board.innerHTML = `
+        <div class="led-content">
+          <div class="led-title">🎰 🔴 FINAL REPORT 🔴 🎰</div>
+          <div class="led-result">终极战报：￥${gameState.wonAmount.toFixed(2)}</div>
+        </div>
+      `;
+
+      // 2. 启动黄金雨满屏特效
+      startGoldRain();
 
       // 自动翻转所有剩余未砸的金蛋
       gameState.prizes.forEach((_, index) => {
@@ -828,7 +883,97 @@
       alert(msg);
     }
 
-    window.onload = initGame;
+    // ===== 黄金雨满屏 Canvas 特效引擎 =====
+    const canvas = document.getElementById('goldRainCanvas');
+    const ctx = canvas.getContext('2d');
+    let animationFrameId = null;
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class GoldParticle {
+      constructor() {
+        this.reset();
+        this.y = Math.random() * canvas.height; // 初始随机散落
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = -50;
+        this.size = Math.random() * 12 + 8;
+        this.speedY = Math.random() * 3 + 2;
+        this.speedX = (Math.random() - 0.5) * 1;
+        this.type = Math.random() > 0.4 ? 'number' : 'dice'; 
+        this.text = this.type === 'number' ? Math.floor(Math.random() * 10).toString() : '🎲';
+        this.opacity = Math.random() * 0.4 + 0.3; // 透明度适中，确保不晃眼
+        this.angle = Math.random() * Math.PI * 2;
+        this.spinSpeed = (Math.random() - 0.5) * 0.05;
+      }
+      update() {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        this.angle += this.spinSpeed;
+        if (this.y > canvas.height + 20) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.globalAlpha = this.opacity;
+        
+        // 金色微粒发光质感
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#fcd34d';
+        ctx.fillStyle = '#f7b801';
+        
+        if (this.type === 'number') {
+          ctx.font = `bold ${this.size}px Arial`;
+          ctx.fillText(this.text, 0, 0);
+        } else {
+          ctx.font = `${this.size + 4}px Arial`;
+          ctx.fillText(this.text, -this.size/2, this.size/2);
+        }
+        ctx.restore();
+      }
+    }
+
+    function startGoldRain() {
+      stopGoldRain();
+      particles = [];
+      const particleCount = Math.min(120, Math.floor(canvas.width / 10)); // 根据屏幕宽度计算粒子密度
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new GoldParticle());
+      }
+      function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.update();
+          p.draw();
+        });
+        animationFrameId = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    function stopGoldRain() {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    window.onload = () => {
+      // 捕获面板初始HTML
+      originalConfigHTML = document.getElementById('mainBoard').innerHTML;
+      initGame();
+    };
   </script>
 </body>
 </html>

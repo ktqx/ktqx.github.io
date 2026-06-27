@@ -45,6 +45,7 @@
       display: flex;
       flex-direction: column;
       padding-top: 85px;
+      position: relative;
     }
 
     /* ===== 导航栏（置于绝对顶层，杜绝遮挡） ===== */
@@ -230,11 +231,11 @@
       border: 1px solid rgba(217, 70, 239, 0.1);
     }
 
-    /* ===== 大型醒目游戏结算区 ===== */
+    /* ===== 大型醒目游戏结算区（重构：零遮挡嵌入式公告牌） ===== */
     .settlement-overlay {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(6, 8, 24, 0.95);
+      background: rgba(6, 8, 24, 0.4); /* 降低底色纯度，保证周围清晰可见 */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -243,22 +244,79 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 20px;
     }
     .settlement-overlay.show {
       opacity: 1;
       pointer-events: auto;
     }
+    
+    /* 充满拉霸机质感的 LED 大屏公告牌 */
     .settle-card {
+      width: 100%;
+      max-width: 500px;
+      background: linear-gradient(180deg, #1f1202 0%, #0c0601 100%);
+      border: 5px solid #2b1803;
+      box-shadow: 
+        0 0 0 3px #f7b801, 
+        0 0 25px rgba(247, 184, 1, 0.6),
+        inset 0 0 20px rgba(255, 140, 0, 0.4);
+      border-radius: 8px;
+      padding: 30px 20px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
       animation: popScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
+    
+    /* LED 跑马灯复古霓虹闪烁点缀 */
+    .settle-card::before {
+      content: '';
+      position: absolute;
+      top: 4px; left: 4px; right: 4px; bottom: 4px;
+      border: 2px dashed #f7b801;
+      opacity: 0.8;
+      border-radius: 4px;
+      pointer-events: none;
+      animation: ledBlink 0.6s infinite alternate steps(2);
+    }
+
+    @keyframes ledBlink {
+      0% { border-color: #f7b801; opacity: 0.9; filter: drop-shadow(0 0 4px #f7b801); }
+      100% { border-color: #ef4444; opacity: 0.4; filter: drop-shadow(0 0 1px #ef4444); }
+    }
+
     @keyframes popScale {
       0% { transform: scale(0.6); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
-    .settle-title { font-size: 1.6rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 15px; }
-    .settle-main-score { font-size: 4.2rem; font-weight: 900; color: #ef4444; text-shadow: 0 0 25px rgba(239,68,68,0.5); margin-bottom: 8px; }
-    .settle-sub-count { font-size: 1.3rem; color: var(--light-text); font-weight: 600; opacity: 0.9; }
+    
+    .settle-title { 
+      font-size: 1.8rem; 
+      font-weight: 900; 
+      color: #fff380; 
+      text-shadow: 0 0 10px #f7b801, 0 0 20px #f59e0b;
+      margin-bottom: 15px; 
+      letter-spacing: 2px;
+    }
+    .settle-main-score { 
+      font-size: 4.8rem; 
+      font-weight: 900; 
+      color: #ff3b30; 
+      font-family: 'Impact', 'Arial Black', sans-serif;
+      text-shadow: 0 0 15px rgba(255,59,48,0.8), 0 0 30px rgba(255,59,48,0.4); 
+      margin-bottom: 12px; 
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 6px;
+      padding: 5px 0;
+      border: 1px solid #3a1a02;
+    }
+    .settle-sub-count { 
+      font-size: 1.4rem; 
+      color: #06b6d4; 
+      text-shadow: 0 0 8px rgba(6,182,212,0.8);
+      font-weight: 800; 
+    }
 
     /* ===== 红包组件（恢复大尺寸 + 纯透明隐形PC热区） ===== */
     .envelope {
@@ -335,6 +393,22 @@
       100% { transform: translate3d(0, -50px, 0) scale(1.2); opacity: 0; }
     }
 
+    /* ===== 全局黄金雨特效层 ===== */
+    .gold-particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1; /* 至于背景之上，UI控件之下 */
+      user-select: none;
+      will-change: transform;
+      animation: goldFall linear forwards;
+    }
+    @keyframes goldFall {
+      0% { transform: translate3d(0, -50px, 0) rotate(0deg); opacity: 0; }
+      10% { opacity: var(--target-op, 0.6); }
+      90% { opacity: var(--target-op, 0.6); }
+      100% { transform: translate3d(var(--drift-x, 50px), 105vh, 0) rotate(var(--target-rot, 360deg)); opacity: 0; }
+    }
+
     /* ===== 说明条与控制按钮 ===== */
     .legend-bar {
       display: flex;
@@ -364,6 +438,7 @@
       overflow: hidden;
       transition: all 0.3s;
       box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4);
+      z-index: 20;
     }
     .main-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(217, 70, 239, 0.6); }
     .main-btn.running { cursor: not-allowed; transform: none; box-shadow: none; background: #1a1e36; border: 1px solid var(--glass-border); }
@@ -382,7 +457,8 @@
       .config-panel { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
       .stat-value { font-size: 1.4rem; }
       .game-area { min-height: 380px; }
-      .settle-main-score { font-size: 3.2rem; }
+      .settle-card { max-width: 90%; padding: 20px 15px; }
+      .settle-main-score { font-size: 3.5rem; }
     }
 
     @media (max-width: 480px) {
@@ -453,7 +529,7 @@
     <div class="game-area" id="gameArea">
       <div class="settlement-overlay" id="settleOverlay">
         <div class="settle-card">
-          <div class="settle-title">🎉 抢红包结束 🎉</div>
+          <div class="settle-title">🎰 终极战报 🎰</div>
           <div class="settle-main-score" id="settleScore">¥0.00</div>
           <div class="settle-sub-count" id="settleCount">共击中 0 个红包</div>
         </div>
@@ -521,6 +597,7 @@
     let precalculatedAmounts = []; 
     let gameTimer = null;
     let spawnTimer = null;
+    let goldRainTimer = null; // 黄金雨生发器计时器
 
     function handleBtnClick() {
       if (state.active) return;
@@ -590,6 +667,7 @@
 
       initLanes();
       settleOverlay.classList.remove('show');
+      stopGoldRain(); // 确保开局没有残留的黄金雨
 
       precalculatedAmounts = generateAmountPool(
         state.cfg.totalBudget, 
@@ -691,7 +769,6 @@
         amount: amount
       });
 
-      // 完美的统一指针交互，兼顾PC灵敏度与移动端多点触控
       envelope.onpointerdown = (e) => {
         onHit(envelope);
       };
@@ -770,6 +847,65 @@
       document.getElementById('remCount').textContent = Math.max(0, state.remCount);
     }
 
+    /* ===== 动态黄金雨生成函数 ===== */
+    function startGoldRain() {
+      if (goldRainTimer) clearInterval(goldRainTimer);
+      
+      const elements = ["0", "1", "8", "6", "8", "9", "🍬", "✨", "🎉"];
+      
+      goldRainTimer = setInterval(() => {
+        const particle = document.createElement('div');
+        particle.className = 'gold-particle';
+        
+        // 随机取得数字微粒或小彩带
+        const isText = Math.random() > 0.4;
+        if (isText) {
+          particle.textContent = elements[Math.floor(Math.random() * elements.length)];
+          particle.style.fontSize = `${Math.random() * 16 + 14}px`;
+          particle.style.fontWeight = "bold";
+          particle.style.color = Math.random() > 0.5 ? "var(--accent-gold)" : "var(--gold-light)";
+          particle.style.textShadow = "0 0 5px rgba(247,184,1,0.5)";
+        } else {
+          // 小碎彩带样式
+          particle.style.width = `${Math.random() * 12 + 6}px`;
+          particle.style.height = `${Math.random() * 6 + 4}px`;
+          particle.style.background = Math.random() > 0.5 ? "linear-gradient(90deg, #f7b801, #fff380)" : "linear-gradient(90deg, #ff3b30, #ff9500)";
+          particle.style.borderRadius = "2px";
+        }
+        
+        // 全屏随机横向出发点
+        particle.style.left = `${Math.random() * 100}vw`;
+        
+        // 设置随机动画参数变量传递给 CSS
+        const duration = Math.random() * 2 + 2; // 2s 到 4s
+        const opacity = Math.random() * 0.4 + 0.4; // 透明度适中 0.4 ~ 0.8
+        const driftX = Math.random() * 160 - 80; // 左右飘移量
+        const rotation = Math.random() * 360 + 360; // 旋转度数
+        
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.setProperty('--target-op', opacity);
+        particle.style.setProperty('--drift-x', `${driftX}px`);
+        particle.style.setProperty('--target-rot', `${rotation}deg`);
+        
+        document.body.appendChild(particle);
+        
+        // 动画播放完自动清理单体，防止内存泄漏
+        setTimeout(() => {
+          particle.remove();
+        }, duration * 1000);
+      }, 60); // 较高频的粒子喷涌感
+    }
+
+    function stopGoldRain() {
+      if (goldRainTimer) {
+        clearInterval(goldRainTimer);
+        goldRainTimer = null;
+      }
+      // 干净移除全屏残余粒子
+      const leftovers = document.querySelectorAll('.gold-particle');
+      leftovers.forEach(p => p.remove());
+    }
+
     function endGame() {
       if (gameTimer) clearInterval(gameTimer);
       if (spawnTimer) clearTimeout(spawnTimer);
@@ -789,11 +925,17 @@
       mainBtn.className = 'main-btn settled';
       btnProgress.style.width = '0%';
       btnText.innerHTML = `✨ 结算完毕 | 点此重新开始`;
+
+      // 触发满屏黄金雨特效
+      startGoldRain();
     }
 
     function resetGame() {
       if (spawnTimer) clearTimeout(spawnTimer);
       state.settled = false;
+      
+      // 清空全屏黄金雨
+      stopGoldRain();
       
       const floats = gameArea.querySelectorAll('.float-text, .envelope');
       floats.forEach(f => f.remove());

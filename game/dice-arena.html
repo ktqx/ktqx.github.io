@@ -95,7 +95,6 @@
     html, body {
       width: 100%;
       height: 100%;
-      overflow-x: hidden;
     }
 
     body {
@@ -109,9 +108,36 @@
       min-height: 100vh;
       padding: 12px;
       padding-top: 85px;
+      overflow-x: hidden;
     }
 
-    /* ===== 极限收紧的主容器 (黄金框极限包围，绝不空旷空隙) ===== */
+    /* ===== 🔴 红包雨特效层 (在最底层飘落，绝不遮挡卡片点击) 🔴 ===== */
+    .gold-rain-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .rain-drop {
+      position: absolute;
+      top: -50px;
+      font-weight: 900;
+      color: rgba(247, 184, 1, 0.65);
+      text-shadow: 0 0 8px rgba(247, 184, 1, 0.3);
+      user-select: none;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(115vh) rotate(360deg); }
+    }
+
+    /* ===== 主容器 ===== */
     .container {
       width: 100%;
       max-width: 900px;
@@ -121,6 +147,8 @@
       padding: 14px;
       box-shadow: 0 0 35px rgba(247, 184, 1, 0.15), inset 0 0 15px rgba(247, 184, 1, 0.05);
       backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 20; /* 确保在雨水上方，利于看清 */
     }
 
     .header {
@@ -136,17 +164,33 @@
       letter-spacing: 2px;
     }
 
-    /* ===== 配置面板 (紧凑化) ===== */
+    /* ===== 可变形多功能控制面板 ===== */
+    .panel-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 14px;
+    }
+
+    /* 1. 默认常规配置状态 */
     .config-panel {
       background: linear-gradient(135deg, rgba(0, 78, 137, 0.12), rgba(255, 107, 53, 0.12));
       border: 1px solid rgba(247, 184, 1, 0.25);
       border-radius: 10px;
       padding: 10px 14px;
-      margin-bottom: 14px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 10px;
-      width: 100%;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .config-panel.hide {
+      opacity: 0;
+      transform: scaleY(0);
+      height: 0;
+      padding: 0;
+      margin: 0;
+      pointer-events: none;
+      overflow: hidden;
     }
 
     .config-group {
@@ -173,53 +217,110 @@
       font-size: 0.9rem;
       font-weight: 600;
       outline: none;
-      transition: all 0.3s ease;
     }
 
-    .config-input:focus, .config-select:focus {
-      border-color: var(--accent-gold);
-      box-shadow: 0 0 10px rgba(247, 184, 1, 0.25);
+    /* 2. 🔴 游戏结束时动态无缝滑出的“战报LED霓虹面板” 🔴 */
+    .marquee-report-panel {
+      width: 100%;
+      background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%);
+      border: 2px dashed #ff4757;
+      box-shadow: 0 0 25px rgba(255, 71, 87, 0.35), inset 0 0 15px rgba(255, 71, 87, 0.15);
+      border-radius: 10px;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(-20px) scale(0.95);
+      height: 0;
+      margin: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* ===== 骰子竞技舞台 (高度缩减，多颗时紧贴排列) ===== */
+    .marquee-report-panel.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      height: auto;
+    }
+
+    .report-item {
+      text-align: center;
+    }
+
+    .report-title {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 2px;
+      text-transform: uppercase;
+    }
+
+    .report-val-big {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+      text-shadow: 0 0 15px rgba(247, 184, 1, 0.7);
+      line-height: 1.1;
+    }
+    
+    .report-val-big.green {
+      color: #2ed573;
+      text-shadow: 0 0 15px rgba(46, 213, 115, 0.7);
+    }
+
+    /* ===== 骰子竞技舞台 ===== */
     .dice-stage {
       width: 100%;
-      min-height: 180px;
+      min-height: 160px; 
+      height: auto;      
       background: radial-gradient(circle at center, #111827 0%, #090d12 100%);
       border-radius: 14px;
       border: 2px solid rgba(247, 184, 1, 0.2);
       box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.65);
       position: relative;
-      overflow: hidden;
       padding: 12px;
       margin-bottom: 14px;
       display: flex;
       flex-direction: column;
+      transition: height 0.3s ease; 
     }
 
     .stage-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 4px;
       color: var(--text-secondary);
       font-size: 0.85rem;
+      flex-shrink: 0;
     }
 
     .stage-head b {
       color: var(--accent-gold);
     }
 
-    .dice-grid {
-      flex: 1;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
-      gap: 8px 6px; /* 进一步压低横纵间隙 */
+    .dice-display-area {
       width: 100%;
-      justify-content: center;
-      justify-items: center;
-      align-content: center;
+    }
+
+    .dice-row {
+      display: flex;
+      justify-content: center; 
       align-items: center;
+      gap: 15px; 
+      width: 100%;
+      padding: 14px 0;
+      border-bottom: 1px dashed rgba(247, 184, 1, 0.1);
+      animation: row-appear 0.4s ease forwards;
+    }
+    .dice-row:last-child {
+      border-bottom: none; 
+    }
+
+    @keyframes row-appear {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .dice-card {
@@ -230,7 +331,7 @@
       padding: 2px;
     }
 
-    /* ===== 3D 骰子物理图层与暗中阴影还原 ===== */
+    /* ===== 3D 骰子物理图层 ===== */
     .cube-container {
       width: 68px;
       height: 68px;
@@ -243,7 +344,7 @@
       position: absolute;
       bottom: -10px;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translateX(-50%) scale(1);
       width: 48px;
       height: 6px;
       background: rgba(0, 0, 0, 0.8);
@@ -260,26 +361,25 @@
       transform-style: preserve-3d;
       z-index: 2;
       transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-      transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.25, 1);
+      transition: transform 1.4s cubic-bezier(0.2, 0.8, 0.25, 1);
     }
 
-    /* 落地物理震颤动效 */
     @keyframes dice-impact {
-      0%   { transform: translateY(0) scaleY(1); }
-      20%  { transform: translateY(-10px) scaleY(1.04); }
-      50%  { transform: translateY(1.5px) scaleY(0.94); }
-      80%  { transform: translateY(-2px) scaleY(1.01); }
+      0%   { transform: translateY(-40px) scaleY(1) scaleX(1); }
+      60%  { transform: translateY(0) scaleY(0.9) scaleX(1.05); }
+      75%  { transform: translateY(-8px) scaleY(1.02); }
+      90%  { transform: translateY(1px) scaleY(0.97); }
       100% { transform: translateY(0) scaleY(1); }
     }
 
     .cube.impact-effect {
-      animation: dice-impact 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      animation: dice-impact 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
     }
 
     .cube-face {
       position: absolute;
-      width: 68px;
-      height: 68px;
+      width: 100%;
+      height: 100%;
       background: radial-gradient(circle at 30% 30%, #ffffff 0%, #f0f0f0 60%, #bebebe 100%);
       border: 1.5px solid #9f9f9f;
       border-radius: 10px;
@@ -293,8 +393,7 @@
       justify-items: center;
     }
 
-    /* 3D 转换矩阵轴向 */
-    .face-1 { transform: rotateY(0deg)    translateZ(34px); }
+    .face-1 { transform: rotateY(0deg)   translateZ(34px); }
     .face-6 { transform: rotateY(180deg)  translateZ(34px); }
     .face-2 { transform: rotateY(90deg)   translateZ(34px); }
     .face-5 { transform: rotateY(-90deg)  translateZ(34px); }
@@ -324,7 +423,7 @@
     .pip.mid-left    { grid-area: 2 / 1; }
     .pip.mid-right   { grid-area: 2 / 3; }
     .pip.center      { grid-area: 2 / 2; }
-    .pip.bottom-left  { grid-area: 3 / 1; }
+    .pip.bottom-left { grid-area: 3 / 1; }
     .pip.bottom-right { grid-area: 3 / 3; }
 
     /* ===== 操作区域 ===== */
@@ -358,7 +457,7 @@
       cursor: not-allowed;
     }
 
-    /* ===== 统计层 ===== */
+    /* ===== 底部统计层 ===== */
     .result-panel {
       width: 100%;
       background: rgba(0,0,0,0.3);
@@ -388,7 +487,7 @@
       color: var(--accent-gold);
     }
 
-    /* ===== 移动端流式缩进断点 ===== */
+    /* ===== 移动端适配层 ===== */
     @media (max-width: 768px) {
       body { padding-top: 80px; }
       .navbar { padding: 0 15px; height: 60px; }
@@ -405,19 +504,22 @@
       .navbar { height: auto; padding: 8px; flex-direction: column; gap: 4px; }
       body { padding-top: 105px; padding: 8px; }
       .container { padding: 10px; border-radius: 12px; }
-      .cube-container, .cube-face { width: 56px; height: 56px; }
-      .face-1 { transform: rotateY(0deg) translateZ(28px); }
-      .face-6 { transform: rotateY(180deg) translateZ(28px); }
-      .face-2 { transform: rotateY(90deg) translateZ(28px); }
-      .face-5 { transform: rotateY(-90deg) translateZ(28px); }
-      .face-3 { transform: rotateX(90deg) translateZ(28px); }
-      .face-4 { transform: rotateX(-90deg) translateZ(28px); }
+      .cube-container { width: 52px; height: 52px; }
+      .dice-row { gap: 8px; padding: 10px 0; }
+      .face-1 { transform: rotateY(0deg) translateZ(26px); }
+      .face-6 { transform: rotateY(180deg) translateZ(26px); }
+      .face-2 { transform: rotateY(90deg) translateZ(26px); }
+      .face-5 { transform: rotateY(-90deg) translateZ(26px); }
+      .face-3 { transform: rotateX(90deg) translateZ(26px); }
+      .face-4 { transform: rotateX(-90deg) translateZ(26px); }
+      .report-val-big { font-size: 1.6rem; }
     }
   </style>
 </head>
 <body>
 
-  <!-- 补全统一的顶级导航栏 -->
+  <div class="gold-rain-container" id="goldRainContainer"></div>
+
   <nav class="navbar">
     <a href="index.html" class="navbar-logo">
       <span>🎮</span> Game Hub
@@ -434,55 +536,69 @@
     </div>
   </nav>
 
-  <!-- 紧凑包裹的黄金外框容器 -->
   <div class="container">
     <div class="header">
       <div class="title">🎲 疯狂摇骰子</div>
     </div>
 
-    <!-- 精调微型配置栏 -->
-    <div class="config-panel">
-      <div class="config-group">
-        <label class="config-label">摇骰次数</label>
-        <select id="diceCount" class="config-select" onchange="resetGame()">
-          <option value="1">1次</option>
-          <option value="2">2次</option>
-          <option value="3" selected>3次</option>
-          <option value="5">5次</option>
-          <option value="10">10次</option>
-        </select>
+    <div class="panel-wrapper">
+      
+      <div class="config-panel" id="configPanel">
+        <div class="config-group">
+          <label class="config-label">摇骰次数</label>
+          <select id="diceCount" class="config-select" onchange="resetGame()">
+            <option value="1">1次</option>
+            <option value="2">2次</option>
+            <option value="3" selected>3次</option>
+            <option value="5">5次</option>
+            <option value="10">10次</option>
+          </select>
+        </div>
+
+        <div class="config-group">
+          <label class="config-label">单次摇骰数</label>
+          <select id="rollBatch" class="config-select" onchange="resetGame()">
+            <option value="1">1颗</option>
+            <option value="2">2颗</option>
+            <option value="3">3颗</option>
+            <option value="5" selected>5颗</option>
+          </select>
+        </div>
       </div>
 
-      <div class="config-group">
-        <label class="config-label">单次摇骰数</label>
-        <select id="rollBatch" class="config-select" onchange="resetGame()">
-          <option value="1">1颗</option>
-          <option value="2">2颗</option>
-          <option value="3">3颗</option>
-          <option value="5" selected>5颗</option>
-        </select>
+      <div class="marquee-report-panel" id="marqueeReportPanel">
+        <div class="report-item">
+          <div class="report-title">🎉 战绩速递</div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: #ff4757;">疯狂大捷！</div>
+        </div>
+        <div class="report-item">
+          <div class="report-title">🔥 终极总点数</div>
+          <div class="report-val-big" id="ledSum">0</div>
+        </div>
+        <div class="report-item">
+          <div class="report-title">✨ 平均每颗点数</div>
+          <div class="report-val-big green" id="ledAvg">0.0</div>
+        </div>
       </div>
+
     </div>
 
-    <!-- 紧凑高密度舞台 -->
     <div class="dice-stage">
       <div class="stage-head">
         <div>状态: <span id="statusText">准备就绪</span></div>
         <div>总骰子数: <b id="rolledCount">0</b> / <span id="targetTotal">15</span> 颗</div>
       </div>
-      <div class="dice-grid" id="diceGrid">
-        <!-- 骰子载入区 -->
-      </div>
+      
+      <div class="dice-display-area" id="diceDisplayArea">
+        </div>
     </div>
 
-    <!-- 动态文案按钮控制面板 -->
     <div class="control-panel">
       <button class="btn-spin" id="spinBtn" onclick="handleSpinClick()">
         第 1 次摇一摇
       </button>
     </div>
 
-    <!-- 紧凑小巧数据面板 -->
     <div class="result-panel">
       <div class="result-title">实时数据统计</div>
       <div class="result-summary">
@@ -493,7 +609,7 @@
   </div>
 
   <script>
-    /* 音频合成驱动层 */
+    /* 音频驱动层 */
     let audioCtx = null;
     function initAudio() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -540,7 +656,7 @@
       osc.stop(now + 0.06);
     }
 
-    /* 3D 几何常数映射表 */
+    /* 3D 转换配置 */
     const facePipsConfig = {
       1: ['center'],
       2: ['top-left', 'bottom-right'],
@@ -559,18 +675,19 @@
       6: { x: 180,  y: 0,   z: 0 }
     };
 
-    /* 核心逻辑状态器 */
+    /* 游戏核心状态器 */
     let state = {
       isRolling: false,
-      currentRound: 1,  // 当前是第几次点击摇骰
-      totalRounds: 3,   // 目标总次数
-      batchSize: 5,     // 每次摇几颗
-      rolledDiceCount: 0, // 当前屏幕上已经落定的骰子总数
+      currentRound: 1,  
+      totalRounds: 3,   
+      batchSize: 5,     
+      rolledDiceCount: 0, 
       sum: 0,
       isFinished: false
     };
 
-    // 构建去除了数字标签的纯立体骰子外壳
+    let rainTimer = null; // 红包雨定时器句柄
+
     function createDie() {
       const card = document.createElement('div');
       card.className = 'dice-card';
@@ -597,7 +714,6 @@
       container.appendChild(shadow);
       container.appendChild(cube);
       card.appendChild(container);
-      // 深度优化：完全移除原始的 label 节点，保持底层干净紧凑
       return { card, cube, shadow };
     }
 
@@ -614,7 +730,45 @@
       }
     }
 
+    // 🔴 触发全屏背景金雨 (红包雨逻辑，不干扰骰子赏析) 🔴
+    function startGoldRain() {
+      const container = document.getElementById('goldRainContainer');
+      container.innerHTML = '';
+      
+      const pool = ['💰', '👑', '🎲', '✨', '7', '8', '6', '★'];
+      
+      rainTimer = setInterval(() => {
+        const drop = document.createElement('div');
+        drop.className = 'rain-drop';
+        drop.textContent = pool[Math.floor(Math.random() * pool.length)];
+        
+        // 随机属性分布
+        drop.style.left = Math.random() * 100 + 'vw';
+        drop.style.fontSize = Math.random() * 20 + 16 + 'px';
+        
+        const duration = Math.random() * 2 + 2; // 2s~4s飘完
+        drop.style.animationDuration = duration + 's';
+        
+        container.appendChild(drop);
+        
+        // 自动出界销毁
+        setTimeout(() => drop.remove(), duration * 1000);
+      }, 120);
+    }
+
+    function stopGoldRain() {
+      if (rainTimer) clearInterval(rainTimer);
+      document.getElementById('goldRainContainer').innerHTML = '';
+    }
+
+    // 重置并清空
     function resetGame() {
+      stopGoldRain();
+
+      // 复原顶部面板状态
+      document.getElementById('marqueeReportPanel').classList.remove('active');
+      document.getElementById('configPanel').classList.remove('hide');
+
       state.isRolling = false;
       state.currentRound = 1;
       state.isFinished = false;
@@ -635,17 +789,7 @@
       spinBtn.disabled = false;
       updateButtonText();
 
-      const grid = document.getElementById('diceGrid');
-      grid.innerHTML = '';
-      
-      // 一步到位预先生成好全量的透视槽位，保持网格高度饱满且紧凑不变形
-      for (let i = 0; i < totalTargetDice; i++) {
-        const die = createDie();
-        // 初始状态让内部骨架半透明隐藏，显得更高级
-        die.cube.style.opacity = '0.15';
-        die.shadow.style.opacity = '0.1';
-        grid.appendChild(die.card);
-      }
+      document.getElementById('diceDisplayArea').innerHTML = '';
     }
 
     function handleSpinClick() {
@@ -663,26 +807,26 @@
       document.getElementById('statusText').textContent = `第 ${state.currentRound} 轮摇动中...`;
       document.getElementById('spinBtn').disabled = true;
       
-      const grid = document.getElementById('diceGrid');
-      const diceCards = grid.querySelectorAll('.dice-card');
-      playRollSound(1.1);
+      const displayArea = document.getElementById('diceDisplayArea');
+      const newRow = document.createElement('div');
+      newRow.className = 'dice-row';
+      const currentBatchDice = [];
+      
+      for (let i = 0; i < state.batchSize; i++) {
+        const dieObj = createDie();
+        newRow.appendChild(dieObj.card);
+        currentBatchDice.push(dieObj);
+      }
+      
+      displayArea.appendChild(newRow);
+      playRollSound(1.2);
 
       let finishedInBatch = 0;
       const rollDuration = 1400;
 
-      for (let i = 0; i < state.batchSize; i++) {
-        // 精准索引当前点击轮次对应的骰子位置
-        const currentIdx = (state.currentRound - 1) * state.batchSize + i;
-        const dieCard = diceCards[currentIdx];
-        if (!dieCard) continue;
-
-        const cube = dieCard.querySelector('.cube');
-        const shadow = dieCard.querySelector('.cube-shadow');
-        
-        // 唤醒当前被投掷的骰子视觉亮显
-        cube.style.opacity = '1';
-        shadow.style.opacity = '1';
-
+      currentBatchDice.forEach((die, i) => {
+        const cube = die.cube;
+        const shadow = die.shadow;
         const result = Math.floor(Math.random() * 6) + 1;
         state.sum += result;
 
@@ -690,12 +834,12 @@
         const rotX = base.x + (4 + Math.floor(Math.random() * 2)) * 360;
         const rotY = base.y + (4 + Math.floor(Math.random() * 2)) * 360;
         const rotZ = base.z + Math.floor(Math.random() * 2) * 180;
-        const delay = i * 100; // 高度紧凑、密集的落盘空隙间隔
+        const delay = i * 90;
 
         setTimeout(() => {
           cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
-          shadow.style.transform = 'translateX(-50%) scale(1.25)';
-          shadow.style.background = 'rgba(0,0,0,0.15)';
+          shadow.style.transform = 'translateX(-50%) scale(1.3)';
+          shadow.style.background = 'rgba(0,0,0,0.1)';
         }, delay);
 
         setTimeout(() => {
@@ -704,7 +848,6 @@
           shadow.style.background = 'rgba(0,0,0,0.8)';
           playClickSound(0.9 + result * 0.1);
 
-          // 正面点数高动态覆盖重组，纠正非正常视觉错位
           const face1 = cube.querySelector('.face-1');
           face1.innerHTML = '';
           const pips = facePipsConfig[result];
@@ -717,17 +860,31 @@
 
           finishedInBatch++;
           if (finishedInBatch === state.batchSize) {
-            // 当前批次全部触地平息，结算当轮实时数据
             state.rolledDiceCount += state.batchSize;
+            
+            const avg = (state.sum / state.rolledDiceCount).toFixed(1);
             document.getElementById('rolledCount').textContent = state.rolledDiceCount;
             document.getElementById('sumValue').textContent = state.sum;
-            document.getElementById('avgValue').textContent = (state.sum / state.rolledDiceCount).toFixed(1);
+            document.getElementById('avgValue').textContent = avg;
             
             state.isRolling = false;
 
             if (state.currentRound >= state.totalRounds) {
               state.isFinished = true;
               document.getElementById('statusText').textContent = '疯狂摇骰结束！';
+              
+              // 🔴 两者兼得核心控制逻辑：切换顶部无遮挡高亮战报，同时降下雨水 🔴
+              setTimeout(() => {
+                document.getElementById('ledSum').textContent = state.sum;
+                document.getElementById('ledAvg').textContent = avg;
+                
+                document.getElementById('configPanel').classList.add('hide');
+                document.getElementById('marqueeReportPanel').classList.add('active');
+                
+                startGoldRain(); // 开启红包雨氛围
+                playClickSound(1.5);
+              }, 400);
+
             } else {
               state.currentRound++;
               document.getElementById('statusText').textContent = '准备就绪';
@@ -737,7 +894,7 @@
             updateButtonText();
           }
         }, delay + rollDuration);
-      }
+      });
     }
 
     window.addEventListener('load', resetGame);

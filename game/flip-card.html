@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎰 幸运大翻牌 - Game Hub</title>
+  <style>
+    /* ===== 统一导航栏样式 ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: rgba(10, 14, 39, 0.95);
+      border-bottom: 2px solid #d946ef;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2);
+    }
+
+    .navbar-logo {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: #d946ef;
+      text-shadow: 0 0 10px rgba(217, 70, 239, 0.5);
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .navbar-logo span {
+      width: 35px;
+      height: 35px;
+      background: linear-gradient(135deg, #d946ef, #a855f7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .navbar-spacer { flex: 1; }
+
+    .navbar-nav {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .navbar-nav a {
+      color: #a0aec0;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 6px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      font-size: 0.9rem;
+    }
+
+    .navbar-nav a:hover {
+      color: #d946ef;
+      background: rgba(217, 70, 239, 0.1);
+    }
+
+    .navbar-nav a.active {
+      color: #d946ef;
+      background: rgba(217, 70, 239, 0.2);
+      border: 1px solid #d946ef;
+    }
+
+    /* ===== 全局变量与重置 ===== */
+    :root {
+      --primary-color:   #ff6b35;
+      --secondary-color: #004e89;
+      --accent-gold:      #f7b801;
+      --dark-bg:          #0f1419;
+      --light-text:      #ffffff;
+      --text-secondary:  #b0b3c1;
+      --big-prize:       #ff4d4f;
+      --mid-prize:       #faad14;
+      --small-prize:     #52c41a;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%);
+      color: var(--light-text);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+      padding-top: 70px; 
+    }
+
+    /* ===== 金币大捷雨 ===== */
+    .gold-rain-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .rain-drop {
+      position: absolute;
+      top: -50px;
+      font-weight: 900;
+      color: rgba(247, 184, 1, 0.75);
+      text-shadow: 0 0 8px rgba(247, 184, 1, 0.4);
+      user-select: none;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(115vh) rotate(360deg); }
+    }
+
+    /* ===== 主容器 ===== */
+    .container {
+      width: 100%;
+      max-width: 600px; 
+      background: rgba(15, 20, 25, 0.95);
+      border: 2px solid var(--accent-gold);
+      border-radius: 20px;
+      padding: 12px;
+      box-shadow: 0 0 40px rgba(247, 184, 1, 0.15);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      position: relative;
+      z-index: 20;
+    }
+
+    /* ===== 标题区与汉堡设置 ===== */
+    .header {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 8px; 
+      min-height: 40px;
+    }
+
+    .title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+      text-shadow: 0 0 15px rgba(247, 184, 1, 0.4);
+      letter-spacing: 1px;
+    }
+
+    /* 汉堡齿轮按钮 */
+    .settings-toggle {
+      position: absolute;
+      left: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--accent-gold);
+      transition: transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 110;
+    }
+    .settings-toggle:hover {
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    /* ===== 优化后的汉堡配置面板 ===== */
+    .config-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .config-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .config-panel {
+      position: absolute;
+      top: 45px;
+      left: 4px;
+      /* 调整为深色高对比背景，与牌面区分 */
+      background: rgba(26, 32, 44, 0.98);
+      border: 2px solid var(--accent-gold);
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 200px; /* 缩小宽度 */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      transform: translateY(-10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+      text-align: left;
+    }
+
+    .config-panel.active {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .config-group {
+      display: flex;
+      flex-direction: column; /* 改为垂直布局以适应更窄的宽度 */
+      gap: 4px;
+    }
+
+    .config-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-gold); /* 亮色文字 */
+      letter-spacing: 0.5px;
+    }
+
+    .config-input {
+      width: 100%; /* 占满面板宽度 */
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(247, 184, 1, 0.4);
+      border-radius: 6px;
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      outline: none;
+      text-align: center;
+    }
+    .config-input:focus {
+      border-color: var(--accent-gold);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* ===== 游戏数据统计 ===== */
+    .stats {
+      margin: 0 auto 10px; 
+      font-size: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      color: var(--text-secondary);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 8px 15px;
+      border-radius: 10px;
+      max-width: 100%;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .stat-val {
+      color: var(--accent-gold);
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-shadow: 0 0 8px rgba(247, 184, 1, 0.3);
+    }
+
+    /* ===== 游戏核心舞台 ===== */
+    .game-stage {
+      position: relative;
+      width: 100%;
+      margin: 0 auto 15px;
+    }
+
+    /* ===== 🔴 优化位置后的 LED 战报面板 🔴 ===== */
+    .marquee-report-panel {
+      position: absolute;
+      top: 25%; /* 调整至第一行与第二行之间（约 1/4 处） */
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      width: 94%;
+      max-width: 480px;
+      background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(9, 13, 22, 0.98) 100%);
+      border: 3px solid #ff4757;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 0 40px rgba(255, 71, 87, 0.8), inset 0 0 20px rgba(255, 71, 87, 0.3);
+      border-radius: 16px;
+      padding: 15px 10px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none; 
+      z-index: 50; /* 确保在最上层 */
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .marquee-report-panel.active {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .report-item { text-align: center; }
+    .report-title { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 2px; letter-spacing: 1px; }
+    .report-val-big { font-size: 1.6rem; font-weight: 900; color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.6); line-height: 1.1; }
+    .report-val-big.gold { color: var(--accent-gold); text-shadow: 0 0 10px rgba(247, 184, 1, 0.6); }
+
+    /* ===== 紧凑型翻牌卡片矩阵区域 ===== */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px; 
+      perspective: 1000px;
+      padding: 4px;
+      width: 100%;
+    }
+
+    .card {
+      width: 100%;
+      aspect-ratio: 0.714;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s;
+      transform-style: flat;
+    }
+
+    .card:hover:not(.flipped) {
+      transform: translateY(-4px);
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      top: 0;
+      left: 0;
+    }
+
+    /* ===== 牌背面添加精美图案装饰 ===== */
+    .card-front {
+      background-color: #b8860b;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 70%),
+        linear-gradient(45deg, #f7b801 25%, transparent 25%, transparent 75%, #f7b801 75%, #f7b801), 
+        linear-gradient(45deg, #f7b801 25%, transparent 25%, transparent 75%, #f7b801 75%, #f7b801);
+      background-size: 100% 100%, 20px 20px, 20px 20px;
+      background-position: 0 0, 0 0, 10px 10px;
+      color: #000;
+      font-size: 2rem;
+      border: 2px solid #ffffff;
+      text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+      z-index: 1;
+      overflow: hidden;
+    }
+    /* 在卡牌中心加一个装饰框 */
+    .card-front::after {
+      content: '';
+      position: absolute;
+      width: 70%;
+      height: 70%;
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    .card-back {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      color: #fff;
+      transform: rotateY(180deg);
+      flex-direction: column;
+      gap: 4px;
+      border: 1.5px solid rgba(247, 184, 1, 0.3);
+      overflow: hidden;
+    }
+
+    .card-amount { font-size: 1.1rem; font-weight: bold; position: relative; z-index: 1; }
+    .card-label { font-size: 0.7rem; opacity: 0.9; position: relative; z-index: 1; background: rgba(0, 0, 0, 0.3); padding: 1px 4px; border-radius: 3px; }
+
+    .card-back.big-prize { background: linear-gradient(135deg, #ff4d4f, #cf1322); border-color: rgba(255, 77, 79, 0.5); }
+    .card-back.mid-prize { background: linear-gradient(135deg, #2b1055, #511281); border-color: rgba(250, 173, 20, 0.6); color: #f7b801; }
+    .card-back.small-prize { background: linear-gradient(135deg, #52c41a, #389e0d); border-color: rgba(82, 196, 26, 0.5); }
+
+    .card.dimmed {
+      opacity: 0.35;
+      filter: grayscale(50%);
+      transition: all 0.3s ease;
+    }
+
+    /* ===== 核心操作按钮 ===== */
+    .btn-spin {
+      width: 180px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--primary-color), #ff8c42);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+      display: block;
+    }
+
+    /* ===== 移动端专属微调 ===== */
+    @media (max-width: 480px) {
+      body { padding: 66px 6px 10px; }
+      .navbar { padding: 0 8px; justify-content: space-between; height: 56px; }
+      .navbar-spacer { display: none; }
+      .navbar-nav { display: flex; overflow-x: auto; gap: 8px; flex: 1; margin-left: 6px; scrollbar-width: none; }
+      .navbar-nav::-webkit-scrollbar { display: none; }
+      .navbar-nav a { padding: 4px 8px; font-size: 0.8rem; }
+      
+      .container { padding: 10px 8px; border-radius: 16px; }
+      .title { font-size: 1.4rem; }
+      .settings-toggle { font-size: 1.4rem; left: 2px; }
+      .stats { gap: 15px; font-size: 0.9rem; padding: 6px 10px; margin-bottom: 8px; }
+      .stat-val { font-size: 1.05rem; }
+      
+      .card-grid { gap: 5px; padding: 2px; }
+      .card-front { font-size: 1.5rem; }
+      .card-amount { font-size: 0.95rem; }
+      .card-label { font-size: 0.65rem; padding: 1px 3px; }
+      
+      .btn-spin { width: 150px; font-size: 0.95rem; padding: 8px 12px; }
+      .marquee-report-panel { padding: 12px 6px; width: 96%; top: 20%; }
+      .report-val-big { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gold-rain-container" id="goldRainContainer"></div>
+
+  <nav class="navbar">
+    <a href="#" class="navbar-logo">
+      <span>🎮</span> Game Hub
+    </a>
+    <div class="navbar-spacer"></div>
+    <div class="navbar-nav">
+      <a href="#">首页</a>
+      <a href="#">🎡 大转盘</a>
+      <a href="#" class="active">🎰 幸运牌</a>
+      <a href="#">🎯 射击轮盘</a>
+      <a href="#">🥚 砸金蛋</a>
+      <a href="#">🧧 抢红包</a>
+      <a href="#">🎲 摇骰子</a>
+    </div>
+  </nav>
+
+  <div class="config-overlay" id="configOverlay" onclick="toggleSettings()"></div>
+
+  <div class="container">
+    <div class="header">
+      <button class="settings-toggle" onclick="toggleSettings()" title="游戏设置">⚙️</button>
+      <div class="title">🎰 幸运大翻牌</div>
+
+      <div class="config-panel" id="configPanel">
+        <div class="config-group">
+          <label class="config-label">总奖池金额</label>
+          <input type="number" id="totalAmount" class="config-input" value="50" step="0.1">
+        </div>
+        <div class="config-group">
+          <label class="config-label">单张最小金额</label>
+          <input type="number" id="minAmount" class="config-input" value="2" step="0.1">
+        </div>
+        <div class="config-group">
+          <label class="config-label">单张最大金额</label>
+          <input type="number" id="maxAmount" class="config-input" value="10" step="0.1">
+        </div>
+        <div class="config-group">
+          <label class="config-label">牌总张数</label>
+          <input type="number" id="cardCount" class="config-input" value="12" min="3" max="30">
+        </div>
+        <div class="config-group">
+          <label class="config-label">可翻牌数</label>
+          <input type="number" id="limitCount" class="config-input" value="3" min="1">
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div>剩余机会: <span id="remainingFlips" class="stat-val">0</span> 次</div>
+      <div>已揽总额: ￥<span id="wonAmount" class="stat-val">0.00</span></div>
+    </div>
+
+    <div class="game-stage">
+      <div class="marquee-report-panel" id="marqueeReportPanel">
+        <div class="report-item">
+          <div class="report-title">🎉 战绩速递</div>
+          <div style="font-size: 0.9rem; font-weight: 800; color: #ff4757;">翻牌大捷！</div>
+        </div>
+        <div class="report-item">
+          <div class="report-title">🔥 斩获总奖金</div>
+          <div class="report-val-big gold" id="ledTotal">￥0.00</div>
+        </div>
+        <div class="report-item">
+          <div class="report-title">✨ 欧气评价</div>
+          <div class="report-val-big" id="ledEval" style="font-size: 1.1rem; padding-top: 3px;">一本万利</div>
+        </div>
+      </div>
+
+      <div id="cardGrid" class="card-grid"></div>
+    </div>
+
+    <button class="btn-spin" onclick="initGame()">重新洗牌</button>
+  </div>
+
+  <script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const now = audioCtx.currentTime;
+
+      if (type === 'flip') {
+        const bufferSize = audioCtx.sampleRate * 0.12; 
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = buffer;
+        const noiseFilter = audioCtx.createBiquadFilter();
+        noiseFilter.type = 'highpass'; 
+        noiseFilter.frequency.setValueAtTime(1200, now);
+        noiseFilter.frequency.exponentialRampToValueAtTime(3000, now + 0.1);
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0.25, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        noiseNode.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+
+        const oscNode = audioCtx.createOscillator();
+        const oscGain = audioCtx.createGain();
+        oscNode.type = 'triangle';
+        oscNode.frequency.setValueAtTime(180, now);
+        oscNode.frequency.exponentialRampToValueAtTime(60, now + 0.08);
+        oscGain.gain.setValueAtTime(0.35, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        oscNode.connect(oscGain);
+        oscGain.connect(audioCtx.destination);
+
+        noiseNode.start(now);
+        noiseNode.stop(now + 0.12);
+        oscNode.start(now);
+        oscNode.stop(now + 0.08);
+
+      } else if (type === 'end') {
+        const freqs = [523.25, 659.25, 783.99, 1046.50]; 
+        freqs.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.15, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.25);
+        });
+      }
+    }
+
+    let gameState = {
+      prizes: [],
+      remainingFlips: 0,
+      wonAmount: 0,
+      isProcessing: false,
+      maxAmount: 0,
+      minAmount: 0
+    };
+
+    let rainTimer = null;
+
+    function toggleSettings() {
+      document.getElementById('configPanel').classList.toggle('active');
+      document.getElementById('configOverlay').classList.toggle('active');
+    }
+
+    function startGoldRain() {
+      const container = document.getElementById('goldRainContainer');
+      container.innerHTML = '';
+      const pool = ['🪙', '💰', '✨', '🃏', '💎', '★'];
+      rainTimer = setInterval(() => {
+        const drop = document.createElement('div');
+        drop.className = 'rain-drop';
+        drop.textContent = pool[Math.floor(Math.random() * pool.length)];
+        drop.style.left = Math.random() * 100 + 'vw';
+        drop.style.fontSize = Math.random() * 16 + 14 + 'px';
+        const duration = Math.random() * 2 + 1.5;
+        drop.style.animationDuration = duration + 's';
+        container.appendChild(drop);
+        setTimeout(() => drop.remove(), duration * 1000);
+      }, 140);
+    }
+
+    function stopGoldRain() {
+      if (rainTimer) clearInterval(rainTimer);
+      document.getElementById('goldRainContainer').innerHTML = '';
+    }
+
+    function distributePrizes(count, total, min, max) {
+      if (count * min > total) {
+        showToast("❌ 失败：总额不足以支撑当前最小金额设定");
+        return null;
+      }
+      if (count * max < total) {
+        showToast("❌ 失败：总额超出了最大金额设定的上限");
+        return null;
+      }
+      let result = [];
+      let remaining = total;
+      for (let i = 0; i < count - 1; i++) {
+        let currentMax = Math.min(max, remaining - (count - 1 - i) * min);
+        let currentMin = Math.max(min, remaining - (count - 1 - i) * max);
+        let amount = Math.random() * (currentMax - currentMin) + currentMin;
+        amount = Math.round(amount * 100) / 100;
+        result.push(amount);
+        remaining -= amount;
+      }
+      result.push(Math.round(remaining * 100) / 100);
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function getPrizeLevel(amount, minAmount, maxAmount) {
+      const range = maxAmount - minAmount;
+      if (range <= 0) return 'mid-prize';
+      const thresholdBig = minAmount + range * 0.66;
+      const thresholdMid = minAmount + range * 0.33;
+      if (amount >= thresholdBig) return 'big-prize';
+      if (amount >= thresholdMid) return 'mid-prize';
+      return 'small-prize';
+    }
+
+    function getPrizeLevelText(level) {
+      switch(level) {
+        case 'big-prize': return '💎 豪礼';
+        case 'mid-prize': return '✨ 大礼';
+        case 'small-prize': return '🎈 好礼';
+        default: return '奖励';
+      }
+    }
+
+    function initGame() {
+      stopGoldRain();
+
+      document.getElementById('configPanel').classList.remove('active');
+      document.getElementById('configOverlay').classList.remove('active');
+      document.getElementById('marqueeReportPanel').classList.remove('active');
+
+      const cardCount = parseInt(document.getElementById('cardCount').value) || 12;
+      const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 50;
+      const minAmount = parseFloat(document.getElementById('minAmount').value) || 2;
+      const maxAmount = parseFloat(document.getElementById('maxAmount').value) || 10;
+      const limitCount = parseInt(document.getElementById('limitCount').value) || 3;
+
+      const grid = document.getElementById('cardGrid');
+      if (cardCount <= 4) {
+        grid.style.gridTemplateColumns = `repeat(${cardCount}, 1fr)`;
+      } else if (cardCount <= 8) {
+        grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      } else {
+        grid.style.gridTemplateColumns = window.innerWidth <= 480 ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)';
+      }
+
+      const prizes = distributePrizes(cardCount, totalAmount, minAmount, maxAmount);
+      if (!prizes) return;
+
+      gameState.prizes = prizes;
+      gameState.remainingFlips = Math.min(limitCount, cardCount);
+      gameState.wonAmount = 0;
+      gameState.isProcessing = false;
+      gameState.maxAmount = maxAmount;
+      gameState.minAmount = minAmount;
+
+      updateStats();
+      renderCards();
+    }
+
+    function renderCards() {
+      const grid = document.getElementById('cardGrid');
+      grid.innerHTML = '';
+      gameState.prizes.forEach((prize, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.id = `card-${index}`;
+        card.onclick = () => flipCard(index, card);
+        const prizeLevel = getPrizeLevel(prize, gameState.minAmount, gameState.maxAmount);
+        card.innerHTML = `
+          <div class="card-inner">
+            <div class="card-front">?</div>
+            <div class="card-back ${prizeLevel}">
+              <div class="card-amount">￥${prize.toFixed(2)}</div>
+              <div class="card-label">${getPrizeLevelText(prizeLevel)}</div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function flipCard(index, cardElement) {
+      if (gameState.remainingFlips <= 0 || gameState.isProcessing) return;
+      if (cardElement.classList.contains('flipped')) return;
+
+      gameState.isProcessing = true;
+      playSound('flip');
+      cardElement.classList.add('flipped');
+      
+      gameState.remainingFlips--;
+      gameState.wonAmount += gameState.prizes[index];
+      updateStats();
+      
+      setTimeout(() => {
+        gameState.isProcessing = false;
+        if (gameState.remainingFlips === 0) {
+          endGameAndRevealOthers();
+        }
+      }, 250);
+    }
+
+    function endGameAndRevealOthers() {
+      gameState.isProcessing = true;
+      playSound('end');
+
+      const limitCount = parseInt(document.getElementById('limitCount').value) || 3;
+      const avgWin = gameState.wonAmount / limitCount;
+      let evaluation = '运气平平';
+      if (avgWin >= gameState.minAmount + (gameState.maxAmount - gameState.minAmount) * 0.6) {
+        evaluation = '欧皇附体🔥';
+      } else if (avgWin >= gameState.minAmount + (gameState.maxAmount - gameState.minAmount) * 0.3) {
+        evaluation = '手气极佳✨';
+      }
+
+      document.getElementById('ledTotal').textContent = `￥${gameState.wonAmount.toFixed(2)}`;
+      document.getElementById('ledEval').textContent = evaluation;
+      
+      document.getElementById('marqueeReportPanel').classList.add('active');
+      startGoldRain();
+
+      gameState.prizes.forEach((_, index) => {
+        const cardEl = document.getElementById(`card-${index}`);
+        if (!cardEl.classList.contains('flipped')) {
+          cardEl.classList.add('flipped', 'dimmed'); 
+          cardEl.onclick = null; 
+        }
+      });
+    }
+
+    function updateStats() {
+      document.getElementById('remainingFlips').innerText = gameState.remainingFlips;
+      document.getElementById('wonAmount').innerText = gameState.wonAmount.toFixed(2);
+    }
+
+    function showToast(msg) {
+      alert(msg);
+    }
+
+    window.onload = initGame;
+  </script>
+</body>
+</html>

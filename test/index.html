@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎮 数字化现场互动平台</title>
+  <style>
+    /* ===== 页面公共核心样式 ===== */
+    :root {
+      --primary-color: #ff6b35; --dark-bg: #0f1419; --light-text: #ffffff; --accent-gold: #f7b801; --text-secondary: #b0b3c1;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%);
+      color: var(--light-text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 75px 10px 20px;
+    }
+    /* 统一导航栏 */
+    .navbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(10, 14, 39, 0.95); border-bottom: 2px solid #d946ef; display: flex; align-items: center; padding: 0 20px; z-index: 1000; }
+    .navbar-logo { font-size: 1.3rem; font-weight: 900; color: #d946ef; text-decoration: none; }
+    /* 主容器 */
+    .container { width: 100%; max-width: 600px; background: rgba(15, 20, 25, 0.95); border: 2px solid var(--accent-gold); border-radius: 20px; padding: 15px; text-align: center; position: relative; z-index: 20; }
+    /* 黄金雨与LED战报面板 */
+    .gold-rain-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden; }
+    .rain-drop { position: absolute; top: -50px; font-weight: 900; color: rgba(247, 184, 1, 0.75); animation: fall linear forwards; }
+    @keyframes fall { to { transform: translateY(115vh) rotate(360deg); } }
+    .marquee-report-panel { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) scale(0.7); width: 96%; background: #1e050a; border: 3px solid #ff4757; border-radius: 16px; padding: 14px; display: flex; justify-content: space-around; opacity: 0; pointer-events: none; z-index: 90; transition: all 0.4s ease; }
+    .marquee-report-panel.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    /* 商家额外展示区 */
+    .merchant-info-footer { margin-top: 15px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 0.85rem; color: var(--text-secondary); text-align: left; }
+    .merchant-qr { width: 80px; height: 80px; float: right; margin-left: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+  <div class="gold-rain-container" id="goldRainContainer"></div>
+
+  <nav class="navbar">
+    <a href="#" class="navbar-logo">🎰 Game Hub SaaS 平台</a>
+  </nav>
+
+  <div class="container">
+    <h1 id="eventTitle" style="color: var(--accent-gold); font-size: 1.6rem; margin-bottom: 15px;">正在加载活动...</h1>
+
+    <div class="game-stage" style="position: relative; width:100%;">
+      <div class="marquee-report-panel" id="marqueeReportPanel">
+        <div style="text-align:center"><div style="color:#f3a6b0; font-size:0.75rem">🎉 战绩速递</div><div style="color:#ff4757; font-weight:800">游戏大捷！</div></div>
+        <div style="text-align:center"><div style="color:#f3a6b0; font-size:0.75rem">🔥 斩获总奖金</div><div id="ledTotal" style="color:var(--accent-gold); font-size:1.5rem; font-weight:900">￥0.00</div></div>
+      </div>
+
+      <div id="game-runtime-view"></div>
+    </div>
+
+    <div class="merchant-info-footer" id="merchantFooter" style="display: none;">
+      <img id="mQR" class="merchant-qr" src="" alt="核销二维码">
+      <p><b>📍 互动现场：</b><span id="mAddress"></span></p>
+      <p><b>📞 联系方式：</b><span id="mContact"></span></p>
+    </div>
+  </div>
+
+  <script>
+    // 📢 配置你第一步生成的 Cloudflare Worker 域名
+    const API_BASE = "https://promo-game-api.你的名字.workers.dev";
+    let currentActivity = null;
+
+    // 全局公共功能：金币雨与音频上下文
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let rainTimer = null;
+
+    function startGoldRain() {
+      const container = document.getElementById('goldRainContainer');
+      container.innerHTML = '';
+      rainTimer = setInterval(() => {
+        const drop = document.createElement('div');
+        drop.className = 'rain-drop'; drop.textContent = '🪙';
+        drop.style.left = Math.random() * 100 + 'vw';
+        const duration = Math.random() * 2 + 1.5;
+        drop.style.animationDuration = duration + 's';
+        container.appendChild(drop);
+        setTimeout(() => drop.remove(), duration * 1000);
+      }, 140);
+    }
+
+    // 核心生命周期：页面加载时初始化
+    window.onload = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id') || 'shop_alpha'; // 默认读取测试ID
+
+      try {
+        const res = await fetch(`${API_BASE}/api/get-activity?id=${id}`);
+        if(!res.ok) throw new Error("活动不存在");
+        currentActivity = await res.json();
+        
+        // 1. 渲染公共外壳的商家自定义部分
+        document.getElementById('eventTitle').innerText = currentActivity.merchant_name;
+        document.getElementById('mAddress').innerText = currentActivity.address || '现场互动';
+        document.getElementById('mContact').innerText = currentActivity.contact_info || '暂无';
+        if(currentActivity.qrcode_url) {
+          document.getElementById('mQR').src = currentActivity.qrcode_url;
+          document.getElementById('merchantFooter').style.display = 'block';
+        }
+
+        // 2. ⚡【解耦动态加载】根据数据库配置的游戏类型，动态载入对应的游戏引擎JS
+        const script = document.createElement('script');
+        script.src = `games/${currentActivity.game_type}.js`; // 动态定位子脚本
+        script.onload = () => {
+          // 调用各个具体游戏暴露出的初始化入口，传入商家特有参数
+          initSpecificGame(JSON.parse(currentActivity.game_config));
+        };
+        document.body.appendChild(script);
+
+      } catch(e) {
+        document.getElementById('eventTitle').innerText = "❌ 加载失败：" + e.message;
+      }
+    };
+
+    // 提供给各子游戏调用的结算公共方法
+    function publicGameEnd(totalWon) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      document.getElementById('ledTotal').textContent = `￥${totalWon.toFixed(2)}`;
+      document.getElementById('marqueeReportPanel').classList.add('active');
+      startGoldRain();
+    }
+  </script>
+</body>
+</html>

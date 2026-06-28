@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Game Hub - 账户中心</title>
+  <style>
+    :root {
+      --primary-color: #ff6b35;
+      --accent-gold: #f7b801;
+      --dark-bg: #0f1419;
+      --light-text: #ffffff;
+      --text-secondary: #b0b3c1;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%);
+      color: var(--light-text);
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; padding: 20px;
+    }
+    
+    /* 金色外壳 */
+    .login-container {
+      width: 100%; max-width: 400px;
+      background: rgba(15, 20, 25, 0.95);
+      border: 2px solid var(--accent-gold);
+      border-radius: 20px; padding: 30px 25px;
+      box-shadow: 0 0 40px rgba(247, 184, 1, 0.15);
+      position: relative;
+    }
+    
+    .logo-area { text-align: center; margin-bottom: 25px; }
+    .logo-area h2 { color: var(--accent-gold); font-size: 1.8rem; font-weight: 900; text-shadow: 0 0 10px rgba(247,184,1,0.3); }
+    
+    .tab-header { display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+    .tab-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.1rem; font-weight: bold; cursor: pointer; padding: 5px 10px; transition: all 0.3s; }
+    .tab-btn.active { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); }
+    
+    .form-group { margin-bottom: 18px; text-align: left; }
+    .form-group label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; }
+    .form-group input { 
+      width: 100%; padding: 12px; background: rgba(0,0,0,0.3); 
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; 
+      color: #fff; font-size: 1rem; transition: border 0.3s;
+    }
+    .form-group input:focus { outline: none; border-color: var(--accent-gold); }
+    
+    .submit-btn { 
+      width: 100%; padding: 12px; background: linear-gradient(135deg, var(--primary-color), #ff8c42);
+      border: none; border-radius: 8px; color: #fff; font-size: 1rem; font-weight: bold;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25); margin-top: 10px;
+    }
+    .submit-btn:hover { transform: translateY(-1px); }
+    
+    .msg-tip { font-size: 0.85rem; text-align: center; margin-top: 15px; min-height: 20px; font-weight: bold; }
+    .back-home { text-align: center; margin-top: 20px; }
+    .back-home a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; }
+    .back-home a:hover { color: var(--accent-gold); }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="logo-area">
+      <h2>🛠️ 定制中心</h2>
+    </div>
+    
+    <div class="tab-header">
+      <button id="tabLogin" class="tab-btn active" onclick="switchTab('login')">已有账号登录</button>
+      <button id="tabRegister" class="tab-btn" onclick="switchTab('register')">新用户注册</button>
+    </div>
+
+    <form id="accountForm" onsubmit="handleFormSubmit(event)">
+      <div class="form-group">
+        <label for="username">用户名</label>
+        <input type="text" id="username" placeholder="请输入用户名" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label for="password">密码</label>
+        <input type="password" id="password" placeholder="请输入密码" required autocomplete="current-password">
+      </div>
+      
+      <button type="submit" id="submitBtn" class="submit-btn">立即登录</button>
+    </form>
+
+    <div id="msgTip" class="msg-tip"></div>
+
+    <div class="back-home">
+      <a href="index.html">⬅️ 返回游戏大厅</a>
+    </div>
+  </div>
+
+  <script>
+    // 🧠 后端指挥部：这里填写你之后部署好的 Cloudflare Worker 的 API 网址！
+    const CLOUDFLARE_WORKER_URL = "https://你的worker名字.你的子域名.workers.dev/api/auth";
+
+    let currentMode = 'login'; // 默认为登录模式
+
+    function switchTab(mode) {
+      currentMode = mode;
+      const tLogin = document.getElementById('tabLogin');
+      const tRegister = document.getElementById('tabRegister');
+      const sBtn = document.getElementById('submitBtn');
+      document.getElementById('msgTip').innerText = '';
+
+      if (mode === 'login') {
+        tLogin.classList.add('active');
+        tRegister.classList.remove('active');
+        sBtn.innerText = '立即登录';
+      } else {
+        tRegister.classList.add('active');
+        tLogin.classList.remove('active');
+        sBtn.innerText = '完成注册并登录';
+      }
+    }
+
+    // 处理表单提交（对接 Cloudflare D1）
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value;
+      const msg = document.getElementById('msgTip');
+
+      msg.style.color = '#faad14';
+      msg.innerText = '正在请求云端数据库...';
+
+      // 🛑 核心请求：利用 Fetch 无刷新发送给 Cloudflare Worker
+      try {
+        const response = await fetch(CLOUDFLARE_WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: currentMode, // 'login' 或 'register'
+            username: user,
+            password: pass
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          msg.style.color = '#52c41a';
+          msg.innerText = currentMode === 'login' ? '🎉 登录成功！正在进入大厅...' : '🚀 注册成功！已为您自动登录...';
+          
+          // 把登录状态存入浏览器本地缓存
+          localStorage.setItem("game_username", user);
+          
+          // 1.5秒后自动跳转回游戏大厅首页
+          setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+        } else {
+          msg.style.color = '#ff4d4f';
+          msg.innerText = `❌ 失败: ${result.message || '未知错误'}`;
+        }
+      } catch (error) {
+        msg.style.color = '#ff4d4f';
+        // 💡 本地离线开发测试福利：如果 Worker 还没搭好，允许直接用默认密码虚拟登录
+        if (user && pass) {
+          msg.style.color = '#faad14';
+          msg.innerText = '⚠️ 连接云端失败，已启用离线模拟登录...';
+          localStorage.setItem("game_username", user);
+          setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+        } else {
+          msg.innerText = '❌ 网络极其不稳定，请检查 Worker 配置。';
+        }
+      }
+    }
+  </script>
+</body>
+</html>

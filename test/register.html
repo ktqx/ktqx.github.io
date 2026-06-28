@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>商户加入 - Game Hub</title>
+  <style>
+    body { background: #0f1419; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .box { background: #1a2332; padding: 30px; border-radius: 12px; border: 1px solid #d946ef; text-align: center; width: 300px; }
+    input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #a0aec0; background: #0f1419; color: #fff; box-sizing: border-box;}
+    button { background: linear-gradient(135deg, #ec4899, #d946ef); color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>✨ 商户注册与登入</h2>
+    <p style="color: #a0aec0; font-size: 0.85rem;">快捷登入即可开始定制专属活动</p>
+    <input type="text" id="username" placeholder="请输入商户号 / 用户名" value="Merchant_888">
+    <input type="password" placeholder="密码（任意密码即可）" value="123456">
+    <button onclick="doLogin()">立即进入后台</button>
+  </div>
+
+  <script>
+    function doLogin() {
+      const mId = document.getElementById('username').value.trim();
+      if(!mId) return alert('请输入商户名');
+      
+      // 记住登录状态
+      localStorage.setItem('current_merchant_id', mId);
+      
+      // 获取是从哪个游戏跳过来的
+      const urlParams = new URLSearchParams(window.location.search);
+      const gameId = urlParams.get('game_id') || 'flip-card';
+      
+      // 带上游戏参数跳转到总后台管理
+      window.location.href = `admin.html?active_game=${gameId}`;
+    }
+  </script>
+</body>
+</html>

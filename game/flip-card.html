@@ -156,7 +156,7 @@
       z-index: 20;
     }
 
-    /* ===== 标题区与汉堡设置 ===== */
+    /* ===== 标题区 ===== */
     .header {
       position: relative;
       display: flex;
@@ -174,7 +174,7 @@
       letter-spacing: 1px;
     }
 
-    /* 汉堡齿轮按钮 */
+    /* 齿轮配置按钮 */
     .settings-toggle {
       position: absolute;
       left: 4px;
@@ -189,86 +189,95 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 110;
+      z-index: 1100; /* 确保高于一切面板 */
     }
     .settings-toggle:hover {
       transform: translateY(-50%) rotate(45deg);
     }
 
-    /* ===== 优化后的汉堡配置面板 ===== */
+    /* ===== 【彻底修复】独立防击穿轻量遮罩层 ===== */
     .config-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 99;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999; /* 夹在主页面和设置面板中间 */
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
     }
     .config-overlay.active {
       opacity: 1;
-      pointer-events: auto;
+      pointer-events: auto; /* 激活时拦截背景点击以关闭面板 */
     }
 
+    /* ===== 【彻底修复】高对比度、绝对可编辑的全新精简设置面板 ===== */
     .config-panel {
       position: absolute;
       top: 45px;
       left: 4px;
-      /* 调整为深色高对比背景，与牌面区分 */
-      background: rgba(26, 32, 44, 0.98);
-      border: 2px solid var(--accent-gold);
-      border-radius: 12px;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
+      background: linear-gradient(135deg, #1b1625 0%, #2a1b3d 100%); /* 深邃高级紫金配色，高反差 */
+      border: 2px solid #ffd700;
+      border-radius: 14px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); 
       gap: 12px;
-      width: 200px; /* 缩小宽度 */
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      width: 280px; 
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 15px rgba(255, 215, 0, 0.1);
       transform: translateY(-10px);
       opacity: 0;
       pointer-events: none;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 100;
+      z-index: 1005; /* 核心：确保层级在遮罩层之上 */
       text-align: left;
     }
 
     .config-panel.active {
       transform: translateY(0);
       opacity: 1;
-      pointer-events: auto;
+      pointer-events: auto; /* 激活时内部完全允许输入 */
     }
 
     .config-group {
       display: flex;
-      flex-direction: column; /* 改为垂直布局以适应更窄的宽度 */
+      flex-direction: column;
       gap: 4px;
+    }
+    .config-group.full-width {
+      grid-column: span 2;
     }
 
     .config-label {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--accent-gold); /* 亮色文字 */
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #ffd700; /* 明亮金黄色标签 */
       letter-spacing: 0.5px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
     }
 
+    /* 输入框绝对独立聚焦层级 */
     .config-input {
-      width: 100%; /* 占满面板宽度 */
-      padding: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(247, 184, 1, 0.4);
+      width: 100%; 
+      padding: 8px;
+      background: #000000; /* 纯黑底色，确保输入的白色数字极其醒目 */
+      border: 1px solid #ffd700;
       border-radius: 6px;
-      color: #ffffff;
-      font-size: 0.9rem;
-      font-weight: 600;
+      color: #ffffff; /* 纯白高亮文字 */
+      font-size: 1rem;
+      font-weight: 900;
       outline: none;
       text-align: center;
+      position: relative;
+      z-index: 1010; /* 绝对最高交互层级，100%可点击修改 */
+      transition: all 0.2s;
     }
     .config-input:focus {
-      border-color: var(--accent-gold);
-      background: rgba(255, 255, 255, 0.15);
+      border-color: #ffffff;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+      background: #111111;
     }
 
     /* ===== 游戏数据统计 ===== */
@@ -300,28 +309,28 @@
       margin: 0 auto 15px;
     }
 
-    /* ===== 🔴 优化位置后的 LED 战报面板 🔴 ===== */
+    /* ===== LED 自适应中置战报面板 ===== */
     .marquee-report-panel {
       position: absolute;
-      top: 33%; /* 调整至第一行与第二行之间（约 1/4 处） */
+      top: 33%; 
       left: 50%;
       transform: translate(-50%, -50%) scale(0.7);
-      width: 94%;
+      width: 96%;
       max-width: 480px;
-      background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(9, 13, 22, 0.98) 100%);
+      background: linear-gradient(135deg, rgba(30, 5, 10, 0.98) 0%, rgba(10, 2, 5, 0.99) 100%);
       border: 3px solid #ff4757;
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 0 40px rgba(255, 71, 87, 0.8), inset 0 0 20px rgba(255, 71, 87, 0.3);
+      box-shadow: 0 0 40px rgba(255, 71, 87, 0.9), inset 0 0 20px rgba(255, 71, 87, 0.4);
       border-radius: 16px;
-      padding: 15px 10px;
+      padding: 14px 8px;
       display: flex;
       justify-content: space-around;
       align-items: center;
       opacity: 0;
       pointer-events: none; 
-      z-index: 50; /* 确保在最上层 */
-      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 90; 
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .marquee-report-panel.active {
@@ -330,11 +339,11 @@
     }
 
     .report-item { text-align: center; }
-    .report-title { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 2px; letter-spacing: 1px; }
-    .report-val-big { font-size: 1.6rem; font-weight: 900; color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.6); line-height: 1.1; }
+    .report-title { font-size: 0.75rem; color: #f3a6b0; margin-bottom: 2px; letter-spacing: 1px; }
+    .report-val-big { font-size: 1.5rem; font-weight: 900; color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.6); line-height: 1.1; }
     .report-val-big.gold { color: var(--accent-gold); text-shadow: 0 0 10px rgba(247, 184, 1, 0.6); }
 
-    /* ===== 紧凑型翻牌卡片矩阵区域 ===== */
+    /* ===== 翻牌卡片矩阵区域 ===== */
     .card-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -377,38 +386,53 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 8px;
+      border-radius: 10px;
       font-weight: bold;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
       top: 0;
       left: 0;
     }
 
-    /* ===== 牌背面添加精美图案装饰 ===== */
+    /* ===== 【全新重绘】唯美小圆点与梦幻星光牌面背面图案 ===== */
     .card-front {
-      background-color: #b8860b;
+      /* 深邃星空蓝背景底色 */
+      background-color: #0b112c; 
       background-image: 
-        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 70%),
-        linear-gradient(45deg, #f7b801 25%, transparent 25%, transparent 75%, #f7b801 75%, #f7b801), 
-        linear-gradient(45deg, #f7b801 25%, transparent 25%, transparent 75%, #f7b801 75%, #f7b801);
-      background-size: 100% 100%, 20px 20px, 20px 20px;
-      background-position: 0 0, 0 0, 10px 10px;
-      color: #000;
-      font-size: 2rem;
-      border: 2px solid #ffffff;
-      text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+        /* 1. 中心散射朦胧微光 */
+        radial-gradient(circle at 50% 50%, rgba(255, 220, 100, 0.2) 0%, transparent 65%),
+        /* 2. 手工精绘规律排布的半透明小圆点阵列 */
+        radial-gradient(rgba(255, 255, 255, 0.15) 15%, transparent 16%),
+        radial-gradient(rgba(255, 215, 0, 0.12) 15%, transparent 16%);
+      background-size: 100% 100%, 16px 16px, 16px 16px;
+      background-position: 0 0, 0 0, 8px 8px;
+      
+      color: #ffd700;
+      font-size: 2.2rem;
+      border: 2px solid rgba(255, 215, 0, 0.6);
+      /* 纯洁轻盈的星光字影 */
+      text-shadow: 0 0 10px rgba(255, 235, 120, 0.6);
       z-index: 1;
       overflow: hidden;
     }
-    /* 在卡牌中心加一个装饰框 */
-    .card-front::after {
-      content: '';
+    
+    /* 3. 正中心利用伪元素绘制一颗优雅挺拔的十字小星光（✨效果） */
+    .card-front::before {
+      content: '✦';
       position: absolute;
-      width: 70%;
-      height: 70%;
-      border: 1px solid rgba(255,255,255,0.4);
-      border-radius: 4px;
-      pointer-events: none;
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.85);
+      top: 12%;
+      left: 15%;
+      text-shadow: 0 0 6px #fff;
+    }
+    .card-front::after {
+      content: '✦';
+      position: absolute;
+      font-size: 0.8rem;
+      color: rgba(255, 215, 0, 0.7);
+      bottom: 12%;
+      right: 15%;
+      text-shadow: 0 0 4px #ffd700;
     }
 
     .card-back {
@@ -434,7 +458,7 @@
       transition: all 0.3s ease;
     }
 
-    /* ===== 核心操作按钮 ===== */
+    /* ===== 操作按钮 ===== */
     .btn-spin {
       width: 180px;
       margin: 0 auto;
@@ -453,7 +477,7 @@
       display: block;
     }
 
-    /* ===== 移动端专属微调 ===== */
+    /* ===== 移动端专属响应式微调 ===== */
     @media (max-width: 480px) {
       body { padding: 66px 6px 10px; }
       .navbar { padding: 0 8px; justify-content: space-between; height: 56px; }
@@ -469,13 +493,25 @@
       .stat-val { font-size: 1.05rem; }
       
       .card-grid { gap: 5px; padding: 2px; }
-      .card-front { font-size: 1.5rem; }
+      .card-front { font-size: 1.7rem; border-width: 2px; }
       .card-amount { font-size: 0.95rem; }
       .card-label { font-size: 0.65rem; padding: 1px 3px; }
       
       .btn-spin { width: 150px; font-size: 0.95rem; padding: 8px 12px; }
-      .marquee-report-panel { padding: 12px 6px; width: 96%; top: 20%; }
-      .report-val-big { font-size: 1.3rem; }
+      
+      .marquee-report-panel { 
+        padding: 10px 4px; 
+        width: 98%; 
+        top: 33.5%; 
+      }
+      .report-val-big { font-size: 1.25rem; }
+      .report-title { font-size: 0.7rem; }
+      
+      .config-panel {
+        width: 250px;
+        gap: 8px;
+        padding: 12px;
+      }
     }
   </style>
 </head>
@@ -507,24 +543,24 @@
       <div class="title">🎰 幸运大翻牌</div>
 
       <div class="config-panel" id="configPanel">
-        <div class="config-group">
-          <label class="config-label">总奖池金额</label>
+        <div class="config-group full-width">
+          <label class="config-label">总奖池金额 (￥)</label>
           <input type="number" id="totalAmount" class="config-input" value="50" step="0.1">
         </div>
         <div class="config-group">
-          <label class="config-label">单张最小金额</label>
+          <label class="config-label">单张最小</label>
           <input type="number" id="minAmount" class="config-input" value="2" step="0.1">
         </div>
         <div class="config-group">
-          <label class="config-label">单张最大金额</label>
+          <label class="config-label">单张最大</label>
           <input type="number" id="maxAmount" class="config-input" value="10" step="0.1">
         </div>
         <div class="config-group">
-          <label class="config-label">牌总张数</label>
+          <label class="config-label">卡牌总张数</label>
           <input type="number" id="cardCount" class="config-input" value="9" min="3" max="30">
         </div>
         <div class="config-group">
-          <label class="config-label">可翻牌数</label>
+          <label class="config-label">可翻牌次数</label>
           <input type="number" id="limitCount" class="config-input" value="3" min="1">
         </div>
       </div>
@@ -539,7 +575,7 @@
       <div class="marquee-report-panel" id="marqueeReportPanel">
         <div class="report-item">
           <div class="report-title">🎉 战绩速递</div>
-          <div style="font-size: 0.9rem; font-weight: 800; color: #ff4757;">翻牌大捷！</div>
+          <div style="font-size: 0.85rem; font-weight: 800; color: #ff4757;">翻牌大捷！</div>
         </div>
         <div class="report-item">
           <div class="report-title">🔥 斩获总奖金</div>
@@ -547,7 +583,7 @@
         </div>
         <div class="report-item">
           <div class="report-title">✨ 欧气评价</div>
-          <div class="report-val-big" id="ledEval" style="font-size: 1.1rem; padding-top: 3px;">一本万利</div>
+          <div class="report-val-big" id="ledEval" style="font-size: 1.05rem; padding-top: 3px;">一本万利</div>
         </div>
       </div>
 

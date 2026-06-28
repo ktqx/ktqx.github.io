@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎰 幸运大翻牌 - Game Hub</title>
+  
+  <style>
+    :root {
+      --primary-color:   #ff6b35;
+      --secondary-color: #004e89;
+      --accent-gold:      #f7b801;
+      --dark-bg:          #0f1419;
+      --light-text:      #ffffff;
+      --text-secondary:  #b0b3c1;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; height: 100%; overflow-x: hidden; }
+    body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%); color: var(--light-text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 70px 10px 10px; }
+
+    .navbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(10, 14, 39, 0.95); border-bottom: 2px solid #d946ef; backdrop-filter: blur(10px); display: flex; align-items: center; padding: 0 20px; z-index: 1000; box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2); }
+    .navbar-logo { font-size: 1.3rem; font-weight: 900; color: #d946ef; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .navbar-logo span { width: 35px; height: 35px; background: linear-gradient(135deg, #d946ef, #a855f7); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .navbar-spacer { flex: 1; }
+    .btn-customize { background: linear-gradient(135deg, #ec4899, #d946ef); color: white !important; font-weight: bold; border: 1px solid #f472b6; box-shadow: 0 0 10px rgba(217, 70, 239, 0.4); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; }
+
+    .gold-rain-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden; }
+    .rain-drop { position: absolute; top: -50px; font-weight: 900; color: rgba(247, 184, 1, 0.75); text-shadow: 0 0 8px rgba(247, 184, 1, 0.4); animation: fall linear forwards; }
+    @keyframes fall { to { transform: translateY(115vh) rotate(360deg); } }
+    
+    .container { width: 100%; max-width: 600px; background: rgba(15, 20, 25, 0.95); border: 2px solid var(--accent-gold); border-radius: 20px; padding: 12px; box-shadow: 0 0 40px rgba(247, 184, 1, 0.15); text-align: center; position: relative; z-index: 20; }
+    .header { margin-bottom: 8px; min-height: 40px; }
+    .title { font-size: 1.6rem; font-weight: 900; color: var(--accent-gold); text-shadow: 0 0 15px rgba(247, 184, 1, 0.4); }
+    
+    .stats { margin: 0 auto 10px; font-size: 1rem; display: flex; justify-content: center; gap: 25px; color: var(--text-secondary); background: rgba(0, 0, 0, 0.4); padding: 8px 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); }
+    .stat-val { color: var(--accent-gold); font-weight: bold; font-size: 1.2rem; }
+    
+    .btn-spin { width: 180px; margin: 12px auto 0; padding: 10px 16px; background: linear-gradient(135deg, var(--primary-color), #ff8c42); color: #fff; border: none; border-radius: 50px; font-size: 1rem; font-weight: 800; cursor: pointer; display: block; box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+    @media (max-width: 480px) { body { padding-top: 66px; } .navbar { padding: 0 10px; } .container { padding: 10px 8px; } .title { font-size: 1.4rem; } }
+  </style>
+
+  <style>
+    :root {
+      --big-prize:       #ff4d4f;
+      --mid-prize:       #faad14;
+      --small-prize:     #52c41a;
+    }
+    .marquee-report-panel { position: absolute; top: 33%; left: 50%; transform: translate(-50%, -50%) scale(0.7); width: 96%; max-width: 480px; background: linear-gradient(135deg, rgba(30, 5, 10, 0.98) 0%, rgba(10, 2, 5, 0.99) 100%); border: 3px solid #ff4757; backdrop-filter: blur(12px); box-shadow: 0 0 40px rgba(255, 71, 87, 0.9), inset 0 0 20px rgba(255, 71, 87, 0.4); border-radius: 16px; padding: 14px 8px; display: flex; justify-content: space-around; align-items: center; opacity: 0; pointer-events: none; z-index: 90; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .marquee-report-panel.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .report-item { text-align: center; }
+    .report-title { font-size: 0.75rem; color: #f3a6b0; margin-bottom: 2px; }
+    .report-val-big { font-size: 1.5rem; font-weight: 900; color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.6); }
+    .report-val-big.gold { color: var(--accent-gold); }
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; perspective: 1000px; padding: 4px; width: 100%; }
+    .card { width: 100%; aspect-ratio: 0.714; cursor: pointer; position: relative; transition: transform 0.2s; transform-style: flat; }
+    .card:hover:not(.flipped) { transform: translateY(-4px); }
+    .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+    .card.flipped .card-inner { transform: rotateY(180deg); }
+    .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); top: 0; left: 0; }
+    .card-front { background-color: #0b112c; background-image: radial-gradient(circle at 50% 50%, rgba(255, 220, 100, 0.2) 0%, transparent 65%), radial-gradient(rgba(255, 255, 255, 0.15) 15%, transparent 16%), radial-gradient(rgba(255, 215, 0, 0.12) 15%, transparent 16%); background-size: 100% 100%, 16px 16px, 16px 16px; background-position: 0 0, 0 0, 8px 8px; color: #ffd700; font-size: 2.2rem; border: 2px solid rgba(255, 215, 0, 0.6); text-shadow: 0 0 10px rgba(255, 235, 120, 0.6); z-index: 1; overflow: hidden; }
+    .card-front::before { content: '✦'; position: absolute; font-size: 1.1rem; color: rgba(255, 255, 255, 0.85); top: 12%; left: 15%; text-shadow: 0 0 6px #fff; }
+    .card-front::after { content: '✦'; position: absolute; font-size: 0.8rem; color: rgba(255, 215, 0, 0.7); bottom: 12%; right: 15%; text-shadow: 0 0 4px #ffd700; }
+    .card-back { background: linear-gradient(135deg, #ffd700, #ffb300, #ff8f00); color: #4a2600; transform: rotateY(180deg); flex-direction: column; gap: 4px; border: 1.5px solid rgba(247, 184, 1, 0.3); overflow: hidden; }
+    .card-amount { font-size: 1.1rem; font-weight: bold; }
+    .card-label { font-size: 0.7rem; opacity: 0.9; background: rgba(0, 0, 0, 0.3); padding: 1px 4px; border-radius: 3px; }
+    .card-back.big-prize { background: linear-gradient(135deg, #ff4d4f, #cf1322); }
+    .card-back.mid-prize { background: linear-gradient(135deg, #2b1055, #511281); color: #f7b801; }
+    .card-back.small-prize { background: linear-gradient(135deg, #52c41a, #389e0d); }
+    .card.dimmed { opacity: 0.35; filter: grayscale(50%); }
+  </style>
+</head>
+<body>
+
+  <div class="gold-rain-container" id="goldRainContainer"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="navbar-logo" style="color: #d946ef; text-decoration: none;"><span>🎮</span> Game Hub</a>
+    <div class="navbar-spacer"></div>
+    <a href="#" class="btn-customize" onclick="shellCustomizeLink()">✨ 定制本游戏</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <div class="title" id="shellGameTitle">正在载入...</div>
+    </div>
+
+    <div class="stats">
+      <div>剩余机会: <span id="shellRemainingFlips" class="stat-val">0</span> 次</div>
+      <div>已揽总额: ￥<span id="shellWonAmount" class="stat-val">0.00</span></div>
+    </div>
+
+    <div id="gamePlayground" style="position: relative; width: 100%;">
+      <div class="marquee-report-panel" id="marqueeReportPanel">
+        <div class="report-item">
+          <div class="report-title">🎉 战绩速递</div>
+          <div style="font-size: 0.85rem; font-weight: 800; color: #ff4757;">翻牌大捷！</div>
+        </div>
+        <div class="report-item">
+          <div class="report-title">🔥 斩获总奖金</div>
+          <div class="report-val-big gold" id="ledTotal">￥0.00</div>
+        </div>
+        <div class="report-item">
+          <div class="report-title">✨ 欧气评价</div>
+          <div class="report-val-big" id="ledEval" style="font-size: 1.05rem; padding-top: 3px;">欧皇附体</div>
+        </div>
+      </div>
+
+      <div id="cardGrid" class="card-grid"></div>
+    </div>
+
+    <button id="shellRestartBtn" class="btn-spin" onclick="shellRestartGame()" style="display:none">再玩一次</button>
+  </div>
+
+  <script>
+    // 💡 积木搭建声明：每个不同的新游戏，只需修改下面这两个核心值！
+    const CURRENT_GAME_ID = "flip-card"; 
+    const DEFAULT_GAME_TITLE = "🎰 幸运大翻牌";
+
+    let SERVER_CONFIG = {
+      title: DEFAULT_GAME_TITLE, totalAmount: 50.0, minAmount: 2.0, maxAmount: 10.0, cardCount: 9, limitCount: 3
+    };
+    let shellState = { remaining: 0, won: 0 };
+    let shellRainTimer = null;
+
+    function shellLoadConfig() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const merchantId = urlParams.get('merchant');
+      
+      // 【关键改动】：先尝试从后台（此处用 localStorage 模拟）读取商家的定制配置
+      const localCustomConfig = localStorage.getItem(`config_${merchantId}_${CURRENT_GAME_ID}`);
+      
+      if (localCustomConfig) {
+        SERVER_CONFIG = JSON.parse(localCustomConfig);
+        console.log("成功读取并注入商家的专属后台配置！", SERVER_CONFIG);
+      } else if (merchantId) {
+        // 如果有专属ID但没读到，说明可能换了浏览器，给一组模拟数据支撑演示
+        SERVER_CONFIG.title = "🏪 商家专属·大翻牌活动";
+        SERVER_CONFIG.totalAmount = 100.0;
+        SERVER_CONFIG.cardCount = 12;
+        SERVER_CONFIG.limitCount = 4;
+      }
+      document.getElementById('shellGameTitle').innerText = SERVER_CONFIG.title;
+      document.title = SERVER_CONFIG.title + " - Game Hub";
+    }
+
+    function shellUpdateStats(remaining, won) {
+      shellState.remaining = remaining; shellState.won = won;
+      document.getElementById('shellRemainingFlips').innerText = remaining;
+      document.getElementById('shellWonAmount').innerText = parseFloat(won).toFixed(2);
+    }
+
+    function shellStartRain() {
+      const container = document.getElementById('goldRainContainer'); container.innerHTML = '';
+      const pool = ['🪙', '💰', '✨', '💎'];
+      shellRainTimer = setInterval(() => {
+        const drop = document.createElement('div'); drop.className = 'rain-drop'; drop.textContent = pool[Math.floor(Math.random() * pool.length)]; drop.style.left = Math.random() * 100 + 'vw'; drop.style.fontSize = Math.random() * 16 + 14 + 'px'; const duration = Math.random() * 2 + 1.5; drop.style.animationDuration = duration + 's'; container.appendChild(drop);
+        setTimeout(() => drop.remove(), duration * 1000);
+      }, 140);
+    }
+    function shellStopRain() { if (shellRainTimer) clearInterval(shellRainTimer); document.getElementById('goldRainContainer').innerHTML = ''; }
+
+    function shellCustomizeLink() {
+      // 点击定制，把当前游戏 ID 带过去
+      window.location.href = `register.html?game_id=${CURRENT_GAME_ID}`;
+    }
+
+    window.onload = function() {
+      shellLoadConfig();
+      if (typeof initCustomGame === "function") initCustomGame(SERVER_CONFIG);
+    };
+
+    function shellGameFinished() {
+      document.getElementById('shellRestartBtn').style.display = 'block';
+      shellStartRain();
+    }
+
+    function shellRestartGame() {
+      shellStopRain();
+      document.getElementById('shellRestartBtn').style.display = 'none';
+      if (typeof initCustomGame === "function") initCustomGame(SERVER_CONFIG);
+    }
+  </script>
+
+  <script>
+    let flipGame = { prizes: [], remaining: 0, won: 0, config: {}, lock: false };
+    const gameAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playCustomSound(type) {
+      if (gameAudioCtx.state === 'suspended') gameAudioCtx.resume();
+      const now = gameAudioCtx.currentTime;
+      if (type === 'flip') {
+        const bSize = gameAudioCtx.sampleRate * 0.12; const buf = gameAudioCtx.createBuffer(1, bSize, gameAudioCtx.sampleRate); const d = buf.getChannelData(0); for (let i = 0; i < bSize; i++) d[i] = Math.random() * 2 - 1;
+        const nNode = gameAudioCtx.createBufferSource(); nNode.buffer = buf; const nFilter = gameAudioCtx.createBiquadFilter(); nFilter.type = 'highpass'; nFilter.frequency.setValueAtTime(1200, now); const nGain = gameAudioCtx.createGain(); nGain.gain.setValueAtTime(0.25, now); nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12); nNode.connect(nFilter); nFilter.connect(nGain); nGain.connect(gameAudioCtx.destination); nNode.start(now);
+      }
+    }
+
+    // 核心钩子：外壳装载完毕后会自动调用这里
+    function initCustomGame(serverConfig) {
+      flipGame.config = serverConfig;
+      flipGame.remaining = Math.min(serverConfig.limitCount, serverConfig.cardCount);
+      flipGame.won = 0;
+      flipGame.lock = false;
+      
+      shellUpdateStats(flipGame.remaining, flipGame.won);
+      document.getElementById('marqueeReportPanel').classList.remove('active');
+
+      let count = serverConfig.cardCount, total = serverConfig.totalAmount, min = serverConfig.minAmount, max = serverConfig.maxAmount;
+      let result = []; let remaining = total;
+      for (let i = 0; i < count - 1; i++) {
+        let cMax = Math.min(max, remaining - (count - 1 - i) * min); let cMin = Math.max(min, remaining - (count - 1 - i) * max);
+        let amt = Math.random() * (cMax - cMin) + cMin; amt = Math.round(amt * 100) / 100; result.push(amt); remaining -= amt;
+      }
+      result.push(Math.round(remaining * 100) / 100);
+      for (let i = result.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [result[i], result[j]] = [result[j], result[i]]; }
+      flipGame.prizes = result;
+
+      const grid = document.getElementById('cardGrid');
+      grid.innerHTML = '';
+      flipGame.prizes.forEach((prize, index) => {
+        const card = document.createElement('div'); card.className = 'card'; card.id = `card-${index}`;
+        card.onclick = () => runFlipCardLogic(index, card);
+        const range = max - min; let pLevel = 'mid-prize';
+        if (range > 0 && prize >= min + range * 0.66) pLevel = 'big-prize';
+        else if (range > 0 && prize < min + range * 0.33) pLevel = 'small-prize';
+
+        card.innerHTML = `
+          <div class="card-inner">
+            <div class="card-front">?</div>
+            <div class="card-back ${pLevel}">
+              <div class="card-amount">￥${prize.toFixed(2)}</div>
+              <div class="card-label">福利</div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function runFlipCardLogic(index, cardElement) {
+      if (flipGame.remaining <= 0 || flipGame.lock || cardElement.classList.contains('flipped')) return;
+      flipGame.lock = true; playCustomSound('flip'); cardElement.classList.add('flipped');
+      flipGame.remaining--; flipGame.won += flipGame.prizes[index];
+      
+      shellUpdateStats(flipGame.remaining, flipGame.won);
+
+      setTimeout(() => {
+        flipGame.lock = false;
+        if (flipGame.remaining === 0) {
+          document.getElementById('ledTotal').textContent = `￥${flipGame.won.toFixed(2)}`;
+          document.getElementById('marqueeReportPanel').classList.add('active');
+          flipGame.prizes.forEach((_, idx) => {
+            const el = document.getElementById(`card-${idx}`);
+            if (!el.classList.contains('flipped')) { el.classList.add('flipped', 'dimmed'); el.onclick = null; }
+          });
+          shellGameFinished(); // 汇报给外壳
+        }
+      }, 250);
+    }
+  </script>
+</body>
+</html>

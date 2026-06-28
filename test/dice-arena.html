@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎲 疯狂摇骰子 - Game Hub</title>
+  
+  <style>
+    :root {
+      --primary-color:   #ff6b35;
+      --secondary-color: #004e89;
+      --accent-gold:      #f7b801;
+      --dark-bg:          #0f1419;
+      --light-text:      #ffffff;
+      --text-secondary:  #b0b3c1;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; height: 100%; overflow-x: hidden; }
+    body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%); color: var(--light-text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 70px 10px 10px; }
+
+    .navbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(10, 14, 39, 0.95); border-bottom: 2px solid #d946ef; backdrop-filter: blur(10px); display: flex; align-items: center; padding: 0 20px; z-index: 1000; box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2); }
+    .navbar-logo { font-size: 1.3rem; font-weight: 900; color: #d946ef; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .navbar-logo span { width: 35px; height: 35px; background: linear-gradient(135deg, #d946ef, #a855f7); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .navbar-spacer { flex: 1; }
+    .btn-customize { background: linear-gradient(135deg, #ec4899, #d946ef); color: white !important; font-weight: bold; border: 1px solid #f472b6; box-shadow: 0 0 10px rgba(217, 70, 239, 0.4); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; }
+
+    .gold-rain-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden; }
+    .rain-drop { position: absolute; top: -50px; font-weight: 900; color: rgba(247, 184, 1, 0.75); text-shadow: 0 0 8px rgba(247, 184, 1, 0.4); animation: fall linear forwards; }
+    @keyframes fall { to { transform: translateY(115vh) rotate(360deg); } }
+    
+    .container { width: 100%; max-width: 600px; background: rgba(15, 20, 25, 0.95); border: 2px solid var(--accent-gold); border-radius: 20px; padding: 12px; box-shadow: 0 0 40px rgba(247, 184, 1, 0.15); text-align: center; position: relative; z-index: 20; }
+    .header { margin-bottom: 8px; min-height: 40px; }
+    .title { font-size: 1.6rem; font-weight: 900; color: var(--accent-gold); text-shadow: 0 0 15px rgba(247, 184, 1, 0.4); }
+    
+    .stats { margin: 0 auto 10px; font-size: 1rem; display: flex; justify-content: center; gap: 25px; color: var(--text-secondary); background: rgba(0, 0, 0, 0.4); padding: 8px 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); }
+    .stat-val { color: var(--accent-gold); font-weight: bold; font-size: 1.2rem; }
+    
+    .btn-spin { width: 180px; margin: 12px auto 0; padding: 10px 16px; background: linear-gradient(135deg, var(--primary-color), #ff8c42); color: #fff; border: none; border-radius: 50px; font-size: 1rem; font-weight: 800; cursor: pointer; display: block; box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25); }
+    @media (max-width: 480px) { body { padding-top: 66px; } .navbar { padding: 0 10px; } .container { padding: 10px 8px; } .title { font-size: 1.4rem; } }
+  </style>
+
+  <style>
+    .marquee-report-panel { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) scale(0.7); width: 96%; max-width: 480px; background: linear-gradient(135deg, rgba(30, 5, 10, 0.98) 0%, rgba(10, 2, 5, 0.99) 100%); border: 3px solid #ff4757; backdrop-filter: blur(12px); box-shadow: 0 0 40px rgba(255, 71, 87, 0.9), inset 0 0 20px rgba(255, 71, 87, 0.4); border-radius: 16px; padding: 14px 8px; display: flex; justify-content: space-around; align-items: center; opacity: 0; pointer-events: none; z-index: 90; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .marquee-report-panel.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .report-item { text-align: center; }
+    .report-title { font-size: 0.75rem; color: #f3a6b0; margin-bottom: 2px; }
+    .report-val-big { font-size: 1.5rem; font-weight: 900; color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.6); }
+    .report-val-big.gold { color: var(--accent-gold); }
+    .report-val-big.green { color: #2ed573; text-shadow: 0 0 15px rgba(46, 213, 115, 0.7); }
+
+    .dice-stage { width: 100%; min-height: 160px; height: auto; background: radial-gradient(circle at center, #111827 0%, #090d12 100%); border-radius: 14px; border: 2px solid rgba(247, 184, 1, 0.2); box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.65); position: relative; padding: 12px; margin-bottom: 14px; display: flex; flex-direction: column; }
+    .stage-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; color: var(--text-secondary); font-size: 0.85rem; }
+    .stage-head b { color: var(--accent-gold); }
+    .dice-display-area { width: 100%; }
+    .dice-row { display: flex; justify-content: center; align-items: center; gap: 15px; width: 100%; padding: 14px 0; border-bottom: 1px dashed rgba(247, 184, 1, 0.1); animation: row-appear 0.4s ease forwards; }
+    .dice-row:last-child { border-bottom: none; }
+    @keyframes row-appear { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .dice-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px; }
+
+    .cube-container { width: 68px; height: 68px; position: relative; perspective: 800px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+    .cube-shadow { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%) scale(1); width: 48px; height: 6px; background: rgba(0, 0, 0, 0.8); border-radius: 50%; filter: blur(3px); z-index: 1; transition: transform 0.2s ease, background 0.2s ease; }
+    .cube { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; z-index: 2; transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); transition: transform 1.4s cubic-bezier(0.2, 0.8, 0.25, 1); }
+    @keyframes dice-impact { 0% { transform: translateY(-40px) scaleY(1) scaleX(1); } 60% { transform: translateY(0) scaleY(0.9) scaleX(1.05); } 75% { transform: translateY(-8px) scaleY(1.02); } 90% { transform: translateY(1px) scaleY(0.97); } 100% { transform: translateY(0) scaleY(1); } }
+    .cube.impact-effect { animation: dice-impact 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+    .cube-face { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at 30% 30%, #ffffff 0%, #f0f0f0 60%, #bebebe 100%); border: 1.5px solid #9f9f9f; border-radius: 10px; box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.35), 0 1px 1px rgba(0, 0, 0, 0.3); display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 5px; box-sizing: border-box; align-items: center; justify-items: center; }
+    .face-1 { transform: rotateY(0deg) translateZ(34px); }
+    .face-6 { transform: rotateY(180deg) translateZ(34px); }
+    .face-2 { transform: rotateY(90deg) translateZ(34px); }
+    .face-5 { transform: rotateY(-90deg) translateZ(34px); }
+    .face-3 { transform: rotateX(90deg) translateZ(34px); }
+    .face-4 { transform: rotateX(-90deg) translateZ(34px); }
+    .pip { width: 13px; height: 13px; background-color: #151515; border-radius: 50%; box-shadow: inset 0 1px 1.5px rgba(0, 0, 0, 0.85); }
+    .pip.red { background-color: #d90429 !important; box-shadow: inset 0 1.5px 1.5px rgba(0, 0, 0, 0.6) !important; }
+    .face-1 .pip { width: 18px; height: 18px; }
+    .pip.top-left { grid-area: 1 / 1; }
+    .pip.top-right { grid-area: 1 / 3; }
+    .pip.mid-left { grid-area: 2 / 1; }
+    .pip.mid-right { grid-area: 2 / 3; }
+    .pip.center { grid-area: 2 / 2; }
+    .pip.bottom-left { grid-area: 3 / 1; }
+    .pip.bottom-right { grid-area: 3 / 3; }
+
+    @media (max-width: 580px) {
+      .cube-container { width: 52px; height: 52px; }
+      .dice-row { gap: 8px; padding: 10px 0; }
+      .face-1 { transform: rotateY(0deg) translateZ(26px); }
+      .face-6 { transform: rotateY(180deg) translateZ(26px); }
+      .face-2 { transform: rotateY(90deg) translateZ(26px); }
+      .face-5 { transform: rotateY(-90deg) translateZ(26px); }
+      .face-3 { transform: rotateX(90deg) translateZ(26px); }
+      .face-4 { transform: rotateX(-90deg) translateZ(26px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gold-rain-container" id="goldRainContainer"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="navbar-logo" style="color: #d946ef; text-decoration: none;"><span>🎮</span> Game Hub</a>
+    <div class="navbar-spacer"></div>
+    <a href="#" class="btn-customize" onclick="shellCustomizeLink()">✨ 定制本游戏</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <div class="title" id="shellGameTitle">正在载入...</div>
+    </div>
+
+    <div class="stats">
+      <div>剩余轮数: <span id="shellRemainingFlips" class="stat-val">0</span> 轮</div>
+      <div>当前总点数: <span id="shellWonAmount" class="stat-val">0</span> 点</div>
+    </div>
+
+    <div id="gamePlayground" style="position: relative; width: 100%;">
+      <div class="marquee-report-panel" id="marqueeReportPanel">
+        <div class="report-item">
+          <div class="report-title">🎉 战绩速递</div>
+          <div style="font-size: 0.85rem; font-weight: 800; color: #ff4757;">疯狂大捷！</div>
+        </div>
+        <div class="report-item">
+          <div class="report-title">🔥 终极总点数</div>
+          <div class="report-val-big gold" id="ledSum">0</div>
+        </div>
+        <div class="report-item">
+          <div class="report-title">✨ 平均每颗点数</div>
+          <div class="report-val-big green" id="ledAvg" style="font-size: 1.2rem;">0.0</div>
+        </div>
+      </div>
+
+      <div class="dice-stage">
+        <div class="stage-head">
+          <div>状态: <span id="statusText">准备就绪</span></div>
+          <div>已摇总数: <b id="rolledCount">0</b> / <span id="targetTotal">0</span> 颗</div>
+        </div>
+        <div class="dice-display-area" id="diceDisplayArea"></div>
+      </div>
+    </div>
+
+    <button id="shellRestartBtn" class="btn-spin" onclick="runDiceThrowLogic()">载入中...</button>
+  </div>
+
+  <script>
+    const CURRENT_GAME_ID = "dice-arena"; 
+    const DEFAULT_GAME_TITLE = "🎲 疯狂摇骰子";
+
+    let SERVER_CONFIG = {
+      title: DEFAULT_GAME_TITLE, totalAmount: 0, minAmount: 0, maxAmount: 0, cardCount: 3, limitCount: 5
+    };
+    let shellState = { remaining: 0, won: 0 };
+    let shellRainTimer = null;
+
+    function shellLoadConfig() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const merchantId = urlParams.get('merchant');
+      const localCustomConfig = localStorage.getItem(`config_${merchantId}_${CURRENT_GAME_ID}`);
+      
+      if (localCustomConfig) {
+        SERVER_CONFIG = JSON.parse(localCustomConfig);
+      } else if (merchantId) {
+        SERVER_CONFIG.title = "🏪 商家专属·疯狂摇骰子";
+        SERVER_CONFIG.cardCount = 4;
+        SERVER_CONFIG.limitCount = 5;
+      }
+      document.getElementById('shellGameTitle').innerText = SERVER_CONFIG.title;
+      document.title = SERVER_CONFIG.title + " - Game Hub";
+    }
+
+    function shellUpdateStats(remaining, won) {
+      shellState.remaining = remaining; shellState.won = won;
+      document.getElementById('shellRemainingFlips').innerText = remaining;
+      document.getElementById('shellWonAmount').innerText = won;
+    }
+
+    function shellStartRain() {
+      const container = document.getElementById('goldRainContainer'); container.innerHTML = '';
+      const pool = ['🪙', '💰', '✨', '🎲', '🎲'];
+      shellRainTimer = setInterval(() => {
+        const drop = document.createElement('div'); drop.className = 'rain-drop'; drop.textContent = pool[Math.floor(Math.random() * pool.length)]; drop.style.left = Math.random() * 100 + 'vw'; drop.style.fontSize = Math.random() * 16 + 14 + 'px'; const duration = Math.random() * 2 + 1.5; drop.style.animationDuration = duration + 's'; container.appendChild(drop);
+        setTimeout(() => drop.remove(), duration * 1000);
+      }, 140);
+    }
+    function shellStopRain() { if (shellRainTimer) clearInterval(shellRainTimer); document.getElementById('goldRainContainer').innerHTML = ''; }
+
+    function shellCustomizeLink() {
+      window.location.href = `register.html?game_id=${CURRENT_GAME_ID}`;
+    }
+
+    window.onload = function() {
+      shellLoadConfig();
+      if (typeof initCustomGame === "function") initCustomGame(SERVER_CONFIG);
+    };
+
+    function shellGameFinished() {
+      shellStartRain();
+    }
+
+    function shellRestartGame() {
+      shellStopRain();
+      if (typeof initCustomGame === "function") initCustomGame(SERVER_CONFIG);
+    }
+  </script>
+
+  <script>
+    let diceGame = { isRolling: false, currentRound: 1, totalRounds: 3, batchSize: 5, rolledDiceCount: 0, sum: 0, isFinished: false };
+
+    const facePipsConfig = {
+      1: ['center'], 2: ['top-left', 'bottom-right'], 3: ['top-left', 'center', 'bottom-right'],
+      4: ['top-left', 'top-right', 'bottom-left', 'bottom-right'], 5: ['top-left', 'top-right', 'center', 'bottom-left', 'bottom-right'],
+      6: ['top-left', 'top-right', 'mid-left', 'mid-right', 'bottom-left', 'bottom-right']
+    };
+    const faceTransforms = { 1: { x: 0, y: 0, z: 0 }, 2: { x: 0, y: -90, z: 0 }, 3: { x: -90, y: 0, z: 0 }, 4: { x: 90, y: 0, z: 0 }, 5: { x: 0, y: 90, z: 0 }, 6: { x: 180, y: 0, z: 0 } };
+
+    let gameAudioCtx = null;
+    function playCustomSound(type, param = 1.0) {
+      if (!gameAudioCtx) gameAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (gameAudioCtx.state === 'suspended') gameAudioCtx.resume();
+      const now = gameAudioCtx.currentTime;
+      if (type === 'roll') {
+        const bSize = gameAudioCtx.sampleRate * param; const buf = gameAudioCtx.createBuffer(1, bSize, gameAudioCtx.sampleRate); const d = buf.getChannelData(0); for (let i = 0; i < bSize; i++) d[i] = Math.random() * 2 - 1;
+        const nNode = gameAudioCtx.createBufferSource(); nNode.buffer = buf; const nFilter = gameAudioCtx.createBiquadFilter(); nFilter.type = 'bandpass'; nFilter.frequency.setValueAtTime(500, now); nFilter.Q.setValueAtTime(3.5, now); const nGain = gameAudioCtx.createGain(); nGain.gain.setValueAtTime(0.3, now); nGain.gain.exponentialRampToValueAtTime(0.001, now + param); nNode.connect(nFilter); nFilter.connect(nGain); nGain.connect(gameAudioCtx.destination); nNode.start(); nNode.stop(now + param);
+      } else if (type === 'click') {
+        const osc = gameAudioCtx.createOscillator(); const gain = gameAudioCtx.createGain(); const freq = (160 + Math.random() * 140) * param; osc.type = 'square'; osc.frequency.setValueAtTime(freq, now); osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.04); gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06); osc.connect(gain); gain.connect(gameAudioCtx.destination); osc.start(now); osc.stop(now + 0.06);
+      }
+    }
+
+    function createDieDOM() {
+      const card = document.createElement('div'); card.className = 'dice-card';
+      const container = document.createElement('div'); container.className = 'cube-container';
+      const shadow = document.createElement('div'); shadow.className = 'cube-shadow';
+      const cube = document.createElement('div'); cube.className = 'cube';
+      for (let f = 1; f <= 6; f++) {
+        const faceDom = document.createElement('div'); faceDom.className = 'cube-face face-' + f;
+        facePipsConfig[f].forEach(pClass => {
+          const pip = document.createElement('div'); pip.className = 'pip ' + pClass;
+          if (f === 1 || f === 4) pip.classList.add('red');
+          faceDom.appendChild(pip);
+        });
+        cube.appendChild(faceDom);
+      }
+      container.appendChild(shadow); container.appendChild(cube); card.appendChild(container);
+      return { card, cube, shadow };
+    }
+
+    function initCustomGame(serverConfig) {
+      document.getElementById('marqueeReportPanel').classList.remove('active');
+      document.getElementById('diceDisplayArea').innerHTML = '';
+      
+      diceGame.totalRounds = serverConfig.cardCount || 3;
+      diceGame.batchSize = serverConfig.limitCount || 5;
+      diceGame.isRolling = false;
+      diceGame.currentRound = 1;
+      diceGame.isFinished = false;
+      diceGame.rolledDiceCount = 0;
+      diceGame.sum = 0;
+
+      document.getElementById('targetTotal').textContent = diceGame.totalRounds * diceGame.batchSize;
+      document.getElementById('rolledCount').textContent = '0';
+      document.getElementById('statusText').textContent = '准备就绪';
+      
+      shellUpdateStats(diceGame.totalRounds, 0);
+      
+      const spinBtn = document.getElementById('shellRestartBtn');
+      spinBtn.style.display = 'block';
+      spinBtn.disabled = false;
+      spinBtn.textContent = diceGame.totalRounds > 1 ? `第 1 次摇一摇` : '🎲 摇一摇！';
+    }
+
+    function runDiceThrowLogic() {
+      if (diceGame.isFinished) {
+        shellRestartGame();
+        return;
+      }
+      if (diceGame.isRolling) return;
+      diceGame.isRolling = true;
+
+      document.getElementById('statusText').textContent = `第 ${diceGame.currentRound} 轮摇动中...`;
+      const spinBtn = document.getElementById('shellRestartBtn');
+      spinBtn.disabled = true;
+
+      const displayArea = document.getElementById('diceDisplayArea');
+      const newRow = document.createElement('div'); newRow.className = 'dice-row';
+      const currentBatchDice = [];
+
+      for (let i = 0; i < diceGame.batchSize; i++) {
+        const dieObj = createDieDOM();
+        newRow.appendChild(dieObj.card);
+        currentBatchDice.push(dieObj);
+      }
+      displayArea.appendChild(newRow);
+      playCustomSound('roll', 1.2);
+
+      let finishedInBatch = 0;
+      const rollDuration = 1400;
+
+      currentBatchDice.forEach((die, i) => {
+        const cube = die.cube; const shadow = die.shadow;
+        const result = Math.floor(Math.random() * 6) + 1;
+        diceGame.sum += result;
+
+        const base = faceTransforms[result];
+        const rotX = base.x + (4 + Math.floor(Math.random() * 2)) * 360;
+        const rotY = base.y + (4 + Math.floor(Math.random() * 2)) * 360;
+        const rotZ = base.z + Math.floor(Math.random() * 2) * 180;
+        const delay = i * 90;
+
+        setTimeout(() => {
+          cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+          shadow.style.transform = 'translateX(-50%) scale(1.3)'; shadow.style.background = 'rgba(0,0,0,0.1)';
+        }, delay);
+
+        setTimeout(() => {
+          cube.classList.add('impact-effect');
+          shadow.style.transform = 'translateX(-50%) scale(1)'; shadow.style.background = 'rgba(0,0,0,0.8)';
+          playCustomSound('click', 0.9 + result * 0.1);
+
+          const face1 = cube.querySelector('.face-1'); face1.innerHTML = '';
+          facePipsConfig[result].forEach(pClass => {
+            const pip = document.createElement('div'); pip.className = 'pip ' + pClass;
+            if (result === 1 || result === 4) pip.classList.add('red');
+            face1.appendChild(pip);
+          });
+
+          finishedInBatch++;
+          if (finishedInBatch === diceGame.batchSize) {
+            diceGame.rolledDiceCount += diceGame.batchSize;
+            const avg = (diceGame.sum / diceGame.rolledDiceCount).toFixed(1);
+            
+            document.getElementById('rolledCount').textContent = diceGame.rolledDiceCount;
+            shellUpdateStats(diceGame.totalRounds - diceGame.currentRound, diceGame.sum);
+            diceGame.isRolling = false;
+
+            if (diceGame.currentRound >= diceGame.totalRounds) {
+              diceGame.isFinished = true;
+              document.getElementById('statusText').textContent = '疯狂摇骰结束！';
+              
+              setTimeout(() => {
+                document.getElementById('ledSum').textContent = diceGame.sum;
+                document.getElementById('ledAvg').textContent = avg;
+                document.getElementById('marqueeReportPanel').classList.add('active');
+                
+                spinBtn.disabled = false;
+                spinBtn.textContent = '🔄 再玩一次';
+                shellGameFinished();
+              }, 400);
+            } else {
+              diceGame.currentRound++;
+              document.getElementById('statusText').textContent = '准备就绪';
+              spinBtn.disabled = false;
+              spinBtn.textContent = `第 ${diceGame.currentRound} 次摇一摇`;
+            }
+          }
+        }, delay + rollDuration);
+      });
+    }
+  </script>
+</body>
+</html>

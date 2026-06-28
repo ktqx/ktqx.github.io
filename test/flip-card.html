@@ -16,13 +16,64 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { width: 100%; height: 100%; overflow-x: hidden; }
-    body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%); color: var(--light-text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 70px 10px 10px; }
+    
+    /* 修改：将 padding-top 改为 85px，给动态生成的高度为 70px 的新导航栏留出足够空间 */
+    body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%); color: var(--light-text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 85px 10px 10px; }
 
-    .navbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(10, 14, 39, 0.95); border-bottom: 2px solid #d946ef; backdrop-filter: blur(10px); display: flex; align-items: center; padding: 0 20px; z-index: 1000; box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2); }
-    .navbar-logo { font-size: 1.3rem; font-weight: 900; color: #d946ef; display: flex; align-items: center; gap: 8px; text-decoration: none; }
-    .navbar-logo span { width: 35px; height: 35px; background: linear-gradient(135deg, #d946ef, #a855f7); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    /* =================================================== */
+    /* 🛠️ 统一导航栏样式 (完美匹配 navbar.js) */
+    /* =================================================== */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0; height: 70px;
+      background: rgba(10, 14, 39, 0.95);
+      border-bottom: 2px solid #ff6b35;
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center; padding: 0 30px; z-index: 1000;
+      box-shadow: 0 4px 20px rgba(255, 107, 53, 0.2);
+    }
+    .navbar-logo {
+      font-size: 1.5rem; font-weight: 900; color: var(--primary-color);
+      text-shadow: 0 0 10px rgba(255, 107, 53, 0.5); letter-spacing: 2px;
+      display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0;
+    }
+    .navbar-logo span {
+      width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), #ff8c42);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+    }
     .navbar-spacer { flex: 1; }
-    .btn-customize { background: linear-gradient(135deg, #ec4899, #d946ef); color: white !important; font-weight: bold; border: 1px solid #f472b6; box-shadow: 0 0 10px rgba(217, 70, 239, 0.4); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; }
+    .navbar-nav { display: flex; gap: 15px; align-items: center; }
+    .navbar-nav a {
+      color: var(--text-secondary); text-decoration: none; font-weight: 600;
+      transition: all 0.3s ease; padding: 8px 12px; border-radius: 6px; white-space: nowrap;
+    }
+    .navbar-nav a:hover, .navbar-nav a.active {
+      color: var(--light-text); background: rgba(255, 107, 53, 0.2); border: 1px solid var(--primary-color);
+    }
+    .wallet-container {
+      display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.05);
+      padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-left: 15px;
+    }
+    .wallet-item { display: flex; align-items: center; gap: 5px; font-weight: bold; color: #fde047; }
+    .btn-reset { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.9rem; transition: color 0.3s; display: flex; align-items: center; }
+    .btn-reset:hover { color: #ffffff; }
+
+    @media (max-width: 768px) {
+      body { padding-top: 75px; }
+      .navbar { padding: 0 15px; height: 60px; }
+      .navbar-logo { font-size: 1.2rem; }
+      .navbar-logo span { width: 35px; height: 35px; font-size: 1rem; }
+    }
+    @media (max-width: 480px) {
+      body { padding: 70px 10px 15px; }
+      .navbar { padding: 0 10px; justify-content: space-between; }
+      .navbar-spacer { display: none; }
+      .navbar-nav { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 10px; padding: 0 5px; flex: 1; margin-left: 10px; scrollbar-width: none; }
+      .navbar-nav::-webkit-scrollbar { display: none; }
+      .navbar-nav a { padding: 5px 10px; font-size: 0.85rem; }
+      .wallet-container { padding: 4px 8px; margin-left: 5px; font-size: 0.8rem; }
+    }
+    /* =================================================== */
 
     .gold-rain-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden; }
     .rain-drop { position: absolute; top: -50px; font-weight: 900; color: rgba(247, 184, 1, 0.75); text-shadow: 0 0 8px rgba(247, 184, 1, 0.4); animation: fall linear forwards; }
@@ -37,7 +88,6 @@
     
     .btn-spin { width: 180px; margin: 12px auto 0; padding: 10px 16px; background: linear-gradient(135deg, var(--primary-color), #ff8c42); color: #fff; border: none; border-radius: 50px; font-size: 1rem; font-weight: 800; cursor: pointer; display: block; box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25); animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
-    @media (max-width: 480px) { body { padding-top: 66px; } .navbar { padding: 0 10px; } .container { padding: 10px 8px; } .title { font-size: 1.4rem; } }
   </style>
 
   <style>
@@ -74,12 +124,6 @@
 
   <div class="gold-rain-container" id="goldRainContainer"></div>
 
-  <nav class="navbar">
-    <a href="index.html" class="navbar-logo" style="color: #d946ef; text-decoration: none;"><span>🎮</span> Game Hub</a>
-    <div class="navbar-spacer"></div>
-    <a href="#" class="btn-customize" onclick="shellCustomizeLink()">✨ 定制本游戏</a>
-  </nav>
-
   <div class="container">
     <div class="header">
       <div class="title" id="shellGameTitle">正在载入...</div>
@@ -113,7 +157,6 @@
   </div>
 
   <script>
-    // 💡 积木搭建声明：每个不同的新游戏，只需修改下面这两个核心值！
     const CURRENT_GAME_ID = "flip-card"; 
     const DEFAULT_GAME_TITLE = "🎰 幸运大翻牌";
 
@@ -127,14 +170,12 @@
       const urlParams = new URLSearchParams(window.location.search);
       const merchantId = urlParams.get('merchant');
       
-      // 【关键改动】：先尝试从后台（此处用 localStorage 模拟）读取商家的定制配置
       const localCustomConfig = localStorage.getItem(`config_${merchantId}_${CURRENT_GAME_ID}`);
       
       if (localCustomConfig) {
         SERVER_CONFIG = JSON.parse(localCustomConfig);
         console.log("成功读取并注入商家的专属后台配置！", SERVER_CONFIG);
       } else if (merchantId) {
-        // 如果有专属ID但没读到，说明可能换了浏览器，给一组模拟数据支撑演示
         SERVER_CONFIG.title = "🏪 商家专属·大翻牌活动";
         SERVER_CONFIG.totalAmount = 100.0;
         SERVER_CONFIG.cardCount = 12;
@@ -159,11 +200,6 @@
       }, 140);
     }
     function shellStopRain() { if (shellRainTimer) clearInterval(shellRainTimer); document.getElementById('goldRainContainer').innerHTML = ''; }
-
-    function shellCustomizeLink() {
-      // 点击定制，把当前游戏 ID 带过去
-      window.location.href = `register.html?game_id=${CURRENT_GAME_ID}`;
-    }
 
     window.onload = function() {
       shellLoadConfig();
@@ -195,7 +231,6 @@
       }
     }
 
-    // 核心钩子：外壳装载完毕后会自动调用这里
     function initCustomGame(serverConfig) {
       flipGame.config = serverConfig;
       flipGame.remaining = Math.min(serverConfig.limitCount, serverConfig.cardCount);
@@ -253,11 +288,12 @@
             const el = document.getElementById(`card-${idx}`);
             if (!el.classList.contains('flipped')) { el.classList.add('flipped', 'dimmed'); el.onclick = null; }
           });
-          shellGameFinished(); // 汇报给外壳
+          shellGameFinished();
         }
       }, 250);
     }
   </script>
+  
   <script src="navbar.js"></script>
 </body>
 </html>

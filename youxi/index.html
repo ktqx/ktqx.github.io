@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Game Hub - 互动营销大厅</title>
+  <style>
+    :root { --primary-color: #ff6b35; --accent-gold: #f7b801; --dark-bg: #0f1419; --light-text: #ffffff; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #0f1419; color: #fff; padding: 20px 10px; min-height: 100vh; }
+    
+    /* 金色边框外壳 */
+    .golden-frame { max-width: 600px; margin: 0 auto; border: 3px solid var(--accent-gold); border-radius: 24px; padding: 20px; background: rgba(26, 35, 50, 0.95); box-shadow: 0 0 30px rgba(247,184,1,0.2); text-align: center; }
+    
+    /* 导航栏 */
+    .navbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; }
+    .navbar-logo { font-size: 1.4rem; font-weight: 900; color: var(--accent-gold); display: flex; align-items: center; gap: 8px; }
+    .nav-btn { background: none; border: 1px solid var(--accent-gold); color: var(--accent-gold); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; cursor: pointer; text-decoration: none; }
+    
+    .main-title { font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); margin: 10px 0; }
+    
+    /* 游戏容器（游戏JS脚本会在这里动态渲染九宫格） */
+    #game-container { margin: 25px 0; min-height: 300px; position: relative; }
+    
+    /* 动态注入的商家专属底部看板样式 */
+    .merchant-board { background: rgba(0,0,0,0.4); border: 1px dashed var(--accent-gold); border-radius: 16px; padding: 20px; margin-top: 25px; text-align: center; }
+    .merchant-board h4 { color: var(--accent-gold); font-size: 1.1rem; margin-bottom: 12px; font-weight: bold; letter-spacing: 1px; }
+    .merchant-info-item { font-size: 0.9rem; color: #b0b3c1; margin: 6px 0; text-align: left; padding-left: 15%; }
+    .merchant-qr-zone { margin-top: 15px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; display: inline-block; }
+    .merchant-qr-zone img { width: 130px; height: 130px; border: 3px solid #fff; border-radius: 8px; display: block; margin: 0 auto 8px; }
+    .merchant-qr-zone p { font-size: 0.8rem; color: var(--accent-gold); font-weight: bold; }
+    .merchant-rules { font-size: 0.8rem; color: #ff8c42; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; line-height: 1.4; text-align: left; }
+  </style>
+</head>
+<body>
+
+  <div class="golden-frame">
+    <div class="navbar">
+      <div class="navbar-logo" id="hallLogo"><span>🎁</span> 营销游戏大厅</div>
+      <a href="merchant.html" class="nav-btn">商户后台</a>
+    </div>
+
+    <h1 class="main-title" id="hallTitle">幸运大翻牌 赢专属好礼</h1>
+
+    <div id="game-container">
+       <div id="game-loading-tip" style="padding: 50px 0; color: var(--accent-gold);">⚡ 正在加载专属奖池参数...</div>
+    </div>
+
+    <div id="merchantBoardContainer"></div>
+  </div>
+
+  <script src="games/flip-card.js"></script>
+
+  <script>
+    // 🔗 您的真实 Cloudflare Worker 统一云端接口
+    const WORKER_API = "https://game-auth-worker.hahagw2023.workers.dev/api/auth";
+
+    // 页面加载时的路由初始化控制器
+    window.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const merchantId = urlParams.get('m'); // 捕获 ?m=xxx
+      const gameId = window.location.hash.replace('#', '') || 'flip-card'; // 捕获 #game-id
+
+      if (merchantId) {
+        console.log(`📡 发现专属商户推广标识: ${merchantId}，启动云端变脸渲染...`);
+        await loadMerchantGlobalConfig(merchantId, gameId);
+      } else {
+        console.log("进入公共演示大厅，启用默认系统参数。");
+        document.getElementById('game-loading-tip')?.remove();
+        // 如果没有商家标识，直接用系统默认值初始化游戏
+        if (typeof initGame === 'function') {
+          initGame(null);
+        }
+      }
+    });
+
+    // 从 Cloudflare D1 远程索要该商家的配置
+    async function loadMerchantGlobalConfig(merchantId, gameId) {
+      try {
+        const response = await fetch(WORKER_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: "get_config",
+            username: merchantId,
+            game_id: gameId
+          })
+        });
+        
+        const result = await response.json();
+
+        if (response.ok && result.success && result.data) {
+          const config = result.data;
+          
+          // 1. 动态对大厅外壳进行“品牌变脸”
+          document.getElementById('hallLogo').innerHTML = `<span>🏪</span> ${config.merchant_name}`;
+          document.getElementById('hallTitle').innerText = `${config.merchant_name} · 专属福利大奖`;
+          document.title = `${config.merchant_name}的专属促销幸运星`;
+
+          // 2. 动态注入底部的活动方商家公告牌
+          renderMerchantBoard(config);
+
+          // 3. 🧠 核心无缝对接：把云端取出的专属游戏 JSON 参数，直接喂给下方的游戏引擎！
+          document.getElementById('game-loading-tip')?.remove();
+          if (typeof initGame === 'function') {
+            initGame(config.game_custom_settings); 
+          }
+        } else {
+          console.warn("⚠️ 商家尚未配置该游戏，切换为系统默认大厅模板。");
+          document.getElementById('game-loading-tip')?.remove();
+          if (typeof initGame === 'function') initGame(null);
+        }
+      } catch (err) {
+        console.error("❌ 连云故障，启用本地保底：", err);
+        document.getElementById('game-loading-tip')?.remove();
+        if (typeof initGame === 'function') initGame(null);
+      }
+    }
+
+    // 绘制底部精美的商家看板组件
+    function renderMerchantBoard(config) {
+      const container = document.getElementById('merchantBoardContainer');
+      
+      let qrHtml = "";
+      // 如果商家上传了合法的 Base64 二维码图片，则将其转化为真实的图片标签进行加载
+      if (config.qr_code && config.qr_code.startsWith('data:image')) {
+        qrHtml = `
+          <div class="merchant-qr-zone">
+            <img src="${config.qr_code}" alt="微信二维码">
+            <p>📌 ${config.qr_desc || '长按识别二维码领奖'}</p>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="merchant-board">
+          <h4>🎁 —— ${config.merchant_name} 官方福利发放中心 ——</h4>
+          <div class="merchant-info-item">⏰ <b>活动周期：</b>${config.activity_time}</div>
+          <div class="merchant-info-item">📍 <b>到店领奖：</b>${config.address || '线上直接发放'}</div>
+          <div class="merchant-info-item">📞 <b>客服热线：</b>${config.contact}</div>
+          ${qrHtml}
+          ${config.custom_content ? `<div class="merchant-rules"><b>📜 兑奖及活动规则说明：</b><br>${config.custom_content.replace(/\n/g, '<br>')}</div>` : ''}
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

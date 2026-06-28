@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>正在重定向至游戏大厅...</title>
+  <script type="text/javascript">
+    // 🧠 核心骚操作：当 GitHub 触发 404 时，这段代码会强行捕获当前玩家原本想去的商家链接和哈希，
+    // 然后把它当成参数，安全地丢回给真正的 index.html 重新解析，体验完全无缝！
+    var l = window.location;
+    l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname.split('/').slice(0, 2).join('/') + '/index.html' + l.search + l.hash);
+  </script>
+</head>
+<body>
+</body>
+</html>

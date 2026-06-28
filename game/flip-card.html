@@ -218,7 +218,7 @@
       position: absolute;
       top: 45px;
       left: 4px;
-      background: linear-gradient(135deg, #1b1625 0%, #2a1b3d 100%); /* 深邃高级紫金配色，高反差 */
+      background: linear-gradient(135deg, #fff8dc 0%, #ffd666 100%); /* 明亮金色高对比 */
       border: 2px solid #ffd700;
       border-radius: 14px;
       padding: 16px;
@@ -253,7 +253,7 @@
     .config-label {
       font-size: 0.8rem;
       font-weight: 800;
-      color: #ffd700; /* 明亮金黄色标签 */
+      color: #7a3b00; /* 深棕色高对比标签 */
       letter-spacing: 0.5px;
       text-shadow: 0 1px 2px rgba(0,0,0,0.8);
     }
@@ -262,10 +262,10 @@
     .config-input {
       width: 100%; 
       padding: 8px;
-      background: #000000; /* 纯黑底色，确保输入的白色数字极其醒目 */
-      border: 1px solid #ffd700;
-      border-radius: 6px;
-      color: #ffffff; /* 纯白高亮文字 */
+      background: #ffffff; /* 白色输入框 */
+      border: 2px solid #ff9800;
+      border-radius: 8px;
+      color: #222222; /* 深色文字 */
       font-size: 1rem;
       font-weight: 900;
       outline: none;
@@ -436,8 +436,8 @@
     }
 
     .card-back {
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
-      color: #fff;
+      background: linear-gradient(135deg, #ffd700, #ffb300, #ff8f00);
+      color: #4a2600;
       transform: rotateY(180deg);
       flex-direction: column;
       gap: 4px;
@@ -475,6 +475,15 @@
       letter-spacing: 1px;
       box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
       display: block;
+    }
+
+#restartBtn{
+      margin:12px auto 0;
+      animation:pulse 1.5s infinite;
+    }
+    @keyframes pulse{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.08)}
     }
 
     /* ===== 移动端专属响应式微调 ===== */
@@ -590,7 +599,7 @@
       <div id="cardGrid" class="card-grid"></div>
     </div>
 
-    <button class="btn-spin" onclick="initGame()">重新洗牌</button>
+    <button id="restartBtn" class="btn-spin" onclick="initGame()" style="display:none">重新洗牌</button>
   </div>
 
   <script>
@@ -828,6 +837,8 @@
       
       document.getElementById('marqueeReportPanel').classList.add('active');
       startGoldRain();
+
+      document.getElementById('restartBtn').style.display='block';
 
       gameState.prizes.forEach((_, index) => {
         const cardEl = document.getElementById(`card-${index}`);

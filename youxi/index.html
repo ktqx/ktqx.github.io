@@ -148,18 +148,36 @@
     });
 
     function renderNavbar() {
-      let navHtml = `
-        <nav class="navbar">
-          <a href="#" class="navbar-logo"><span>🎮</span> Game Hub</a>
-          <div class="navbar-spacer"></div>
-          <div class="navbar-nav">
+    // 从 localStorage 检查用户是否已登录
+    const username = localStorage.getItem("game_username");
+    let userTag = username ? `<span style="color:#f7b801; font-size:0.85rem; background:rgba(247,184,1,0.15); padding:4px 8px; border-radius:4px; border:1px solid rgba(247,184,1,0.3)">👤 ${username}</span>` : '';
+
+    let navHtml = `
+      <nav class="navbar">
+        <a href="#" class="navbar-logo"><span>🎮</span> Game Hub</a>
+        <div class="navbar-spacer"></div>
+        <div class="navbar-nav">
+    `;
+    
+    // 循环普通游戏
+    window.GAMES_LIST.forEach(game => {
+      navHtml += `<a href="#${game.id}" id="nav-${game.id}">${game.name}</a>`;
+    });
+    
+    // 拼接固定的最右侧“定制游戏” + 用户登录状态
+    if (window.FIXED_RIGHT_NAV) {
+      navHtml += `
+        <a href="${window.FIXED_RIGHT_NAV.url}" style="border: 1px dashed #f7b801; color: #f7b801;">${window.FIXED_RIGHT_NAV.name}</a>
       `;
-      window.GAMES_LIST.forEach(game => {
-        navHtml += `<a href="#${game.id}" id="nav-${game.id}">${game.name}</a>`;
-      });
-      navHtml += `</div></nav>`;
-      document.getElementById('global-navbar-portal').innerHTML = navHtml;
     }
+    
+    navHtml += `
+          ${userTag}
+        </div>
+      </nav>
+    `;
+    document.getElementById('global-navbar-portal').innerHTML = navHtml;
+  }
 
     // 🚀 核心：路由分发器，实现不刷新换游戏的核心机制
     function dispatchRouter() {

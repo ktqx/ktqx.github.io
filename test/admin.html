@@ -2,114 +2,82 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>🛠️ 商家活动自助管理后台</title>
+  <title>Game Hub 促销游戏商户管理后台</title>
   <style>
-    body { font-family: sans-serif; background: #f3f4f6; padding: 30px; }
-    .box { max-width: 500px; background: white; padding: 25px; border-radius: 12px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .form-item { margin-bottom: 15px; }
-    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; color: #374151; }
-    input, select { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
-    button { width: 100%; background: #2563eb; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .result-link { margin-top: 15px; padding: 12px; background: #ecfdf5; border: 1px solid #10b981; border-radius: 6px; display: none; word-break: break-all; }
+    body { background: #0f1419; color: #e2e8f0; font-family: sans-serif; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; background: #1a2332; padding: 24px; border-radius: 12px; border: 1px solid #f7b801; }
+    h2 { color: #f7b801; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+    .game-item { background: #0f1419; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #d946ef; }
+    label { display: block; margin: 10px 0 5px; font-size: 0.9rem; color: #cbd5e1; }
+    input { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #475569; background: #1e293b; color: #fff; box-sizing: border-box;}
+    button { background: #f7b801; color: #000; font-weight: bold; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 15px; }
+    .result-link { margin-top: 15px; padding: 12px; background: #047857; color: #fff; border-radius: 4px; display: none; word-break: break-all; }
   </style>
 </head>
 <body>
 
-  <div class="box">
-    <h2>🛠️ 自定义你的促销游戏网页</h2>
-    <p style="font-size: 0.85rem; color:#6b7280; margin-bottom:20px;">设定完成提交后，即可获得现场唯一的专属参与链接。</p>
+  <div class="container">
+    <h2>🛠️ 促销活动定制后台 (<span id="merchantName" style="color: #d946ef;">商户</span>)</h2>
     
-    <div class="form-item">
-      <label>1. 自定义你的专属链接后缀 ID (只能是字母/数字/下划线)</label>
-      <input type="text" id="actionId" placeholder="例如: my_shop_party" value="shop_alpha">
+    <div class="game-item">
+      <h3>🎰 幸运大翻牌活动配置</h3>
+      
+      <label>商户专属活动名称：</label>
+      <input type="text" id="title" value="🏪 欢迎光临本店！感恩大翻牌">
+      
+      <label>总奖池金额 (￥)：</label>
+      <input type="number" id="totalAmount" value="150">
+      
+      <label>单张最小金额 (￥)：</label>
+      <input type="number" id="minAmount" value="1">
+      
+      <label>单张最大金额 (￥)：</label>
+      <input type="number" id="maxAmount" value="20">
+      
+      <label>卡牌总张数：</label>
+      <input type="number" id="cardCount" value="12">
+      
+      <label>每人可翻牌次数：</label>
+      <input type="number" id="limitCount" value="4">
+      
+      <button onclick="generateCustomLink('flip-card')">🚀 生成我专属的翻牌游戏链接</button>
+      <div id="resultBox" class="result-link"></div>
     </div>
-    <div class="form-item">
-      <label>2. 活动方/商家名称</label>
-      <input type="text" id="mName" value="夸克咖啡现场抽奖">
-    </div>
-    <div class="form-item">
-      <label>3. 现场互动地点</label>
-      <input type="text" id="mAddress" value="南京东路步行街旗舰店">
-    </div>
-    <div class="form-item">
-      <label>4. 联系方式</label>
-      <input type="text" id="mContact" value="服务热线：400-123-456">
-    </div>
-    <div class="form-item">
-      <label>5. 核销或关注二维码图片URL</label>
-      <input type="text" id="mQR" value="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100">
-    </div>
-    <div class="form-item">
-      <label>6. 选择促销游戏模板</label>
-      <select id="gType">
-        <option value="flip_card">🎰 幸运大翻牌 (已上架)</option>
-        <option value="big_wheel" disabled>🎡 幸运大转盘 (开发中...)</option>
-      </select>
-    </div>
-
-    <h4 style="margin: 15px 0 10px; border-top:1px solid #eee; padding-top:10px; color:#1f2937">🎲 游戏内部参数设定</h4>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap:10px;">
-      <div class="form-item"><label>总奖池金额(元)</label><input type="number" id="cfgTotal" value="150"></div>
-      <div class="form-item"><label>卡牌总张数</label><input type="number" id="cfgCards" value="12"></div>
-      <div class="form-item"><label>单张最小</label><input type="number" id="cfgMin" value="1"></div>
-      <div class="form-item"><label>单张最大</label><input type="number" id="cfgMax" value="30"></div>
-    </div>
-    <div class="form-item"><label>玩家可翻牌次数</label><input type="number" id="cfgLimit" value="4"></div>
-
-    <button onclick="submitConfig()">✨ 生成专属游戏页面</button>
-
-    <div class="result-link" id="resultBox">
-      <span style="color:#065f46; font-weight:bold;">🎉 你的专属促销页面已生成：</span><br>
-      <a id="gameLink" href="#" target="_blank" style="color:#2563eb; text-decoration:underline;"></a>
+    
+    <div class="game-item" style="opacity: 0.5;">
+      <h3>🎡 大转盘活动配置 (暂未装载游戏积木)</h3>
+      <p style="font-size: 0.85rem; color: #94a3b8;">后续上传了新游戏，直接在这里加上表单即可</p>
     </div>
   </div>
 
   <script>
-    const API_BASE = "https://promo-game-api.hahagw2023.workers.dev"; // 📢 改成你的 Worker 网址
+    // 检查登录状态
+    const mId = localStorage.getItem('current_merchant_id') || 'GuestMerchant';
+    document.getElementById('merchantName').innerText = mId;
 
-    async function submitConfig() {
-      const id = document.getElementById('actionId').value.trim();
-      if(!id) return alert("请填写专属链接ID");
-
-      const payload = {
-        id: id,
-        merchant_name: document.getElementById('mName').value,
-        address: document.getElementById('mAddress').value,
-        contact_info: document.getElementById('mContact').value,
-        qrcode_url: document.getElementById('mQR').value,
-        game_type: document.getElementById('gType').value,
-        game_config: {
-          totalAmount: parseFloat(document.getElementById('cfgTotal').value),
-          cardCount: parseInt(document.getElementById('cfgCards').value),
-          minAmount: parseFloat(document.getElementById('cfgMin').value),
-          maxAmount: parseFloat(document.getElementById('cfgMax').value),
-          limitCount: parseInt(document.getElementById('cfgLimit').value)
-        }
+    function generateCustomLink(gameId) {
+      // 收集表单数据
+      const configData = {
+        title: document.getElementById('title').value,
+        totalAmount: parseFloat(document.getElementById('totalAmount').value),
+        minAmount: parseFloat(document.getElementById('minAmount').value),
+        maxAmount: parseFloat(document.getElementById('maxAmount').value),
+        cardCount: parseInt(document.getElementById('cardCount').value),
+        limitCount: parseInt(document.getElementById('limitCount').value)
       };
 
-      try {
-        const response = await fetch(`${API_BASE}/api/save-activity`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+      // 核心保存逻辑：将配置存入本地，键名为 `config_商户ID_游戏ID`
+      localStorage.setItem(`config_${mId}_${gameId}`, JSON.stringify(configData));
 
-        if(response.ok) {
-          // 根据你部署的 GitHub Pages 地址，拼装生成最终玩家访问的专属链接
-          const githubUser = window.location.hostname.split('.')[0]; 
-          const repoName = window.location.pathname.split('/')[1] || '';
-          const finalUrl = `https://${window.location.host}/${repoName}/index.html?id=${id}`;
-          
-          document.getElementById('gameLink').href = finalUrl;
-          document.getElementById('gameLink').innerText = finalUrl;
-          document.getElementById('resultBox').style.display = 'block';
-          alert("配置上传至 Cloudflare 成功！");
-        } else {
-          alert("保存失败，请检查 Worker");
-        }
-      } catch (err) {
-        alert("网络错误：" + err.message);
-      }
+      // 动态生成属于该商户的专属在线推广链接
+      // 实际线上路径对应你的 https://ktqx.github.io/test/flip-card.html?merchant=xxxx
+      const baseUrl = window.location.href.split('admin.html')[0];
+      const finalPromoLink = `${baseUrl}${gameId}.html?merchant=${mId}`;
+
+      // 展示结果
+      const resBox = document.getElementById('resultBox');
+      resBox.innerHTML = `<strong>您的专属推广链接已生成：</strong><br><a href="${finalPromoLink}" target="_blank" style="color: #fff;">${finalPromoLink}</a><br><br><span style="font-size:0.8rem; opacity:0.8;">(提示: 如果在同一台电脑测试，点击此链接打开的游戏将完全应用你刚才输入的配置！)</span>`;
+      resBox.style.display = 'block';
     }
   </script>
 </body>

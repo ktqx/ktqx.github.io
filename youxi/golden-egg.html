@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>专属商户互动营销中心</title>
+  <title>幸运砸金蛋</title>
   <style>
-    /* ===== 🧱 优化后的高端暗黑紫金导航栏（支持手机端折叠隐藏） ===== */
+    /* ===== 🧱 优化后的高端暗黑紫金导航栏（兼容手机端折叠隐藏） ===== */
     .navbar {
       position: fixed;
       top: 0;
@@ -78,7 +78,7 @@
       border: 1px solid #d946ef;
     }
     
-    /* 手机端汉堡菜单切换按钮 */
+    /* 手机端独享汉堡切换按钮 */
     .menu-toggle {
       display: none;
       flex-direction: column;
@@ -132,7 +132,7 @@
       align-items: center;
       min-height: 100vh;
       padding: 15px;
-      padding-top: 95px; /* 防止内容被悬浮通栏导航遮挡 */
+      padding-top: 95px; /* 防止被通栏导航遮挡 */
       position: relative;
     }
 
@@ -170,7 +170,7 @@
       letter-spacing: 2px;
     }
 
-    /* 商家动态引流营销名片区 */
+    /* 商家动态引流名片区 */
     .merchant-display-card {
       background: rgba(0,0,0,0.4);
       border: 1px dashed var(--accent-gold);
@@ -189,9 +189,9 @@
 
     .board-wrapper { width: 100%; margin-bottom: 20px; perspective: 1000px; }
 
-    /* 🧠 核心机制：平时完全对用户隐藏配置面板，防止页面杂乱，仅在游戏结算时变形为LED大屏 */
+    /* 🧠 核心重设：隐藏原生的配置面板，仅在游戏结算时变形为LED大屏 */
     .config-panel {
-      display: none !important; /* 强制前台静默隐藏，不占任何空间 */
+      display: none !important; /* 强制前台和商家完全隐藏 */
     }
 
     .config-panel.led-active {
@@ -318,7 +318,6 @@
         flex-direction: column; padding: 20px; gap: 15px;
         transform: translateY(-150%); opacity: 0; pointer-events: none;
         box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        transition: all 0.3s ease;
       }
       .navbar-nav.mobile-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
       .menu-toggle.open span:nth-child(1) { transform: translateY(8.5px) rotate(45deg); }
@@ -372,7 +371,7 @@
   </div>
 
   <script>
-    // ===== 🎛️ 自动云同步：连接您的 Cloudflare Worker 完整真实 API 地址 =====
+    // ===== 🎛️ 自动云同步：连接你的 Cloudflare Worker 完整真实 API 地址 =====
     const GLOBAL_API_URL = "https://game.hahagw2023.workers.dev/";
 
     async function syncMerchantCloudConfig() {
@@ -391,7 +390,7 @@
         if (res.ok && result.success && result.data) {
           const info = result.data;
 
-          // 1. 静默灌注云端游戏核心参数到隐藏的输入框
+          // 1. 静默灌注云端游戏参数
           if (info.game_custom_settings) {
             const settings = JSON.parse(info.game_custom_settings);
             if(document.getElementById('totalAmount')) document.getElementById('totalAmount').value = settings.totalAmount || 50;
@@ -399,15 +398,15 @@
             if(document.getElementById('maxAmount')) document.getElementById('maxAmount').value = settings.maxAmount || 10;
             if(document.getElementById('eggCount')) document.getElementById('eggCount').value = settings.eggCount || 9;
             if(document.getElementById('limitCount')) document.getElementById('limitCount').value = settings.limitCount || 3;
-            // 参数同步完成后重刷矩阵
+            // 重新初始化触发抓取
             initGame();
           }
 
-          // 2. 刷新商户专属LOGO与品牌
+          // 2. 刷新专属商家LOGO与品牌
           document.getElementById('shell-brand-name').innerText = info.merchant_name || "游戏中心";
           document.getElementById('shell-game-title').innerText = `🥚 ${info.merchant_name || ''}·专属砸金蛋`;
 
-          // 3. 引流名片区动态渲染
+          // 3. 引流项卡片动态渲染
           if (info.contact_info) {
             const metaObj = JSON.parse(info.contact_info);
             let metaHtml = `<div class="merchant-display-card">`;
@@ -422,7 +421,7 @@
           }
         }
       } catch (e) {
-        console.error("🔒 后端未响应，自动切换为默认本地参数驱动:", e);
+        console.error("🔒 后端未响应，自动切换为默认本地数据静默驱动:", e);
       }
     }
 
@@ -529,17 +528,17 @@
       }
     }
 
-    // 🏆 游戏结束：展示华丽 LED 战报与满屏金色雨
+    // 🏆 游戏结束：彻底干掉原本的累赘“🎉砸蛋结束！”提示，原地激活华丽 LED 战报与全屏雨
     function endGameAndRevealOthers() {
       gameState.isProcessing = true;
-      document.getElementById('statusText').innerHTML = ""; 
+      document.getElementById('statusText').innerHTML = ""; // 3、彻底删除冗余纯文字
       playSound('end');
 
       const board = document.getElementById('mainBoard');
       board.classList.add('led-active');
       board.innerHTML = `
         <div class="led-content">
-          <div class="led-title">🎰 🔴终极战报🔴 🎰</div>
+          <div class="led-title">🎰 🔴 终极战报 🔴 🎰</div>
           <div class="led-result">￥${gameState.wonAmount.toFixed(2)}</div>
         </div>
       `;
@@ -588,7 +587,7 @@
 
     window.addEventListener("load", () => {
       initGame();
-      syncMerchantCloudConfig(); // 载入云端商户动态数据
+      syncMerchantCloudConfig(); // 载入云端商户数据
     });
   </script>
 

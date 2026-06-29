@@ -1,126 +1,125 @@
-// games/flip-card.js - 多商户高并发动态注入核心游戏引擎
+// games/flip-card.js - 注入式全栈促销大翻牌核心引擎
+(function() {
+  // --- 1. 初始化核心游戏参数（若无云端注入，则使用默认的这套账目） ---
+  let config = {
+    min: 0.5,
+    max: 5.0,
+    grid: 9,
+    flips: 3
+  };
 
-// 声明游戏内部全局核心变量
-let gameSettings = { min: 0.1, max: 5.0, grid: 9, flips: 3 }; 
-let remainingFlips = 3;
-let totalWonAmount = 0.00;
-let isGameLocked = false;
-let prizeMatrix = [];
-
-/**
- * 🧠 引擎入口函数：由 index.html 远程获取数据后调用注入
- * @param {string|null} cloudJsonString 云端取出的商家专属加密配置字符串
- */
-function initGame(cloudJsonString) {
-    // 1. 如果商家在控制台设置了专属游戏参数，则动态重写本地默认奖池
-    if (cloudJsonString) {
-        try {
-            const custom = JSON.parse(cloudJsonString);
-            gameSettings.min = parseFloat(custom.min) || 0.1;
-            gameSettings.max = parseFloat(custom.max) || 5.0;
-            gameSettings.grid = parseInt(custom.grid) || 9;
-            gameSettings.flips = parseInt(custom.flips) || 3;
-            console.log("✅ 游戏大脑已成功注入商家专属奖池配置: ", gameSettings);
-        } catch (e) {
-            console.error("解析商家专属游戏参数失败，采用默认系统池:", e);
-        }
+  // 🧠 核心注入拦截点：检查 index.html 网页里有没有从 Cloudflare D1 拿回来的商户参数
+  if (window.CURRENT_MERCHANT_CONFIG_JSON) {
+    try {
+      const customSettings = JSON.parse(window.CURRENT_MERCHANT_CONFIG_JSON);
+      config.min = parseFloat(customSettings.min) || config.min;
+      config.max = parseFloat(customSettings.max) || config.max;
+      config.grid = parseInt(customSettings.grid) || config.grid;
+      config.flips = parseInt(customSettings.flips) || config.flips;
+      console.log("🎯 flip-card 大脑已成功融汇贯通商家云端奖池:", config);
+    } catch (e) {
+      console.error("解析商户定制 JSON 失败，降级为默认公共池:", e);
     }
+  }
 
-    // 2. 初始化重置游戏数据计数器
-    remainingFlips = gameSettings.flips;
-    totalWonAmount = 0.00;
-    isGameLocked = false;
-    prizeMatrix = [];
+  // --- 2. 游戏内部状态寄存器 ---
+  let remainingFlips = config.flips;
+  let wonAmount = 0.00;
+  let isLocked = false;
+  let prizeArray = [];
 
-    // 3. 根据商户后台定制的“小/大金额范围”以及“九宫格总数”，动态使用随机数学期望算法生成这一局的奖池矩阵
-    for (let i = 0; i < gameSettings.grid; i++) {
-        let randomPrize = Math.random() * (gameSettings.max - gameSettings.min) + gameSettings.min;
-        prizeMatrix.push(parseFloat(randomPrize.toFixed(2)));
-    }
+  // 动态生成本局的随机奖池浮动矩阵（基于活动方设置的最小/最大值）
+  for (let i = 0; i < config.grid; i++) {
+    let rand = Math.random() * (config.max - config.min) + config.min;
+    prizeArray.push(parseFloat(rand.toFixed(2)));
+  }
 
-    // 4. 将生成的机制渲染到前端 HTML 界面上
-    renderFlipCardStage();
-}
+  // --- 3. 挂载游戏舞台 HTML 结构 ---
+  const stage = document.getElementById('game-stage');
+  if (!stage) return;
 
-/**
- * 前端九宫格卡牌舞台绘制渲染器
- */
-function renderFlipCardStage() {
-    const container = document.getElementById('game-container');
-    if (!container) return;
+  let gridColumns = 3; // 默认3列九宫格
+  if (config.grid <= 4) gridColumns = 2;
+  if (config.grid > 9) gridColumns = 4;
 
-    // 动态构建带有商户参数的状态数据展示面板
-    let html = `
-        <style>
-            .status-panel { display: flex; justify-content: space-around; margin-bottom: 20px; font-weight: bold; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
-            .status-val { color: #f7b801; font-size: 1.2rem; }
-            .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 auto; max-width: 360px; }
-            .card-item { height: 110px; position: relative; perspective: 1000px; cursor: pointer; }
-            .card-inner { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 0.6s ease; }
-            .card-item.flipped .card-inner { transform: rotateY(180deg); }
-            .card-face { width: 100%; height: 100%; position: absolute; backface-visibility: hidden; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-            .card-front { background: linear-gradient(135deg, #f7b801 0%, #ff6b35 100%); border: 2px solid #fff; color: #fff; font-size: 1.5rem; }
-            .card-back { background: #222; border: 2px solid #f7b801; color: #f7b801; transform: rotateY(180deg); flex-direction: column; }
-            .prize-tag { font-size: 1.3rem; margin-bottom: 2px; }
-            .curr-tag { font-size: 0.65rem; background: #ff6b35; color: #fff; padding: 2px 5px; border-radius: 4px; }
-        </style>
-        
-        <div class="status-panel">
-            <div>剩余翻牌机会: <span id="uiFlips" class="status-val">${remainingFlips}</span> 次</div>
-            <div>累计斩获福利: <span id="uiWon" class="status-val">￥${totalWonAmount.toFixed(2)}</span></div>
+  stage.innerHTML = `
+    <style>
+      .flip-status-bar { display: flex; justify-content: space-around; margin: 15px 0; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255,255,255,0.05); }
+      .flip-status-bar span { color: var(--accent-gold); font-size: 1.1rem; }
+      .flip-grid { display: grid; grid-template-columns: repeat(${gridColumns}, 1fr); gap: 10px; margin: 0 auto; max-width: 420px; padding: 5px; }
+      .flip-card { height: 100px; position: relative; perspective: 1000px; cursor: pointer; }
+      .flip-inner { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 0.5s ease; }
+      .flip-card.is-flipped .flip-inner { transform: rotateY(180deg); }
+      .flip-face { width: 100%; height: 100%; position: absolute; backface-visibility: hidden; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+      .flip-front { background: linear-gradient(135deg, #2c3e50 0%, #0f1419 100%); border: 2px solid var(--accent-gold); color: var(--accent-gold); font-size: 1.4rem; text-shadow: 0 0 8px rgba(247,184,1,0.5); }
+      .flip-back { background: rgba(255, 107, 53, 0.1); border: 2px solid var(--primary-color); color: #fff; transform: rotateY(180deg); flex-direction: column; font-size: 0.75rem; }
+      .flip-back b { font-size: 1.2rem; color: var(--accent-gold); margin-bottom: 2px; }
+    </style>
+
+    <div class="flip-status-bar">
+      <div>剩余机会: <span id="f-flips">${remainingFlips}</span> 次</div>
+      <div>累计中奖: <span id="f-won">￥${wonAmount.toFixed(2)}</span></div>
+    </div>
+
+    <div class="flip-grid" id="flipGridBox"></div>
+  `;
+
+  // 动态往舞台里塞入卡牌
+  const gridBox = document.getElementById('flipGridBox');
+  for (let i = 0; i < config.grid; i++) {
+    const card = document.createElement('div');
+    card.className = 'flip-card';
+    card.innerHTML = `
+      <div class="flip-inner">
+        <div class="flip-face flip-front">★</div>
+        <div class="flip-face flip-back">
+          <b>￥${prizeArray[i]}</b>
+          <span>现金红包</span>
         </div>
-        <div class="card-grid" id="cardGridStage">
+      </div>
     `;
+    
+    // 绑定翻牌交互事件
+    card.onclick = () => {
+      if (isLocked || card.classList.contains('is-flipped') || remainingFlips <= 0) return;
 
-    // 按照商户设置的格子总数（例如 9 宫格、6 宫格或 12 宫格），动态循环吐出卡牌
-    for (let i = 0; i < gameSettings.grid; i++) {
-        html += `
-            <div class="card-item" onclick="executeCardFlip(this, ${i})">
-                <div class="card-inner">
-                    <div class="card-face card-front">❓</div>
-                    <div class="card-face card-back" id="back-p-${i}">
-                        <span class="prize-tag">￥${prizeMatrix[i]}</span>
-                        <span class="curr-tag">现金红包</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
+      remainingFlips--;
+      document.getElementById('f-flips').innerText = remainingFlips;
 
-    html += `</div>`;
-    container.innerHTML = html;
-}
+      card.classList.add('is-flipped');
+      wonAmount += prizeArray[i];
+      document.getElementById('f-won').innerText = `￥${wonAmount.toFixed(2)}`;
 
-/**
- * 核心翻牌交互中奖判断控制器
- */
-function executeCardFlip(cardElement, index) {
-    // 状态安全锁：如果已经翻过、没有次数或游戏锁定，直接拦截
-    if (isGameLocked || cardElement.classList.contains('flipped') || remainingFlips <= 0) return;
-
-    // 1. 扣减翻牌机会，并更新界面显示
-    remainingFlips--;
-    document.getElementById('uiFlips').innerText = remainingFlips;
-
-    // 2. 累加本次翻牌中得的现金金额
-    const prize = prizeMatrix[index];
-    totalWonAmount += prize;
-    document.getElementById('uiWon').innerText = `￥${totalWonAmount.toFixed(2)}`;
-
-    // 3. 触发 CSS 3D 翻转动效
-    cardElement.classList.add('flipped');
-
-    // 4. 判断这局游戏是否结束
-    if (remainingFlips === 0) {
-        isGameLocked = true; // 锁定舞台防止玩家继续点
+      // 局终判定
+      if (remainingFlips === 0) {
+        isLocked = true;
         
-        // 延迟 1 秒弹框，给玩家看最后一张牌翻开的动画时间
+        // 延迟1秒唤醒大厅外壳那套炫酷的 LED 战报弹窗机制
         setTimeout(() => {
-            // 🧠 极致高并发优化设置：翻牌过程中绝不发请求，只有在最后弹窗结算这一刻，才向云端写入单次流水日志（如果有的话）
-            alert(`🎉 恭喜发财！本局游戏结束。\n您最终成功赢得了 ${gameSettings.flips} 个定制红包，累计斩获福利现金：￥${totalWonAmount.toFixed(2)} 元！\n请下拉查看活动方专属兑奖规则与领奖微信二维码。`);
-            
-            // 自动化展示全盘答案（把所有没翻开的牌也强行翻过来让玩家心服口服）
-            document.querySelectorAll('.card-item').forEach(card => card.classList.add('flipped'));
-        }, 1000);
-    }
-}
+          let evaluation = "非气满满";
+          if (wonAmount > (config.max * config.flips) * 0.7) evaluation = "欧皇附体！";
+          else if (wonAmount > (config.max * config.flips) * 0.4) evaluation = "运气爆棚";
+
+          // 🧠 调用 index.html 里的公用 UI 组件弹窗
+          window.GameUI.showLedger(
+            "恭喜收官！", 
+            `￥${wonAmount.toFixed(2)}`, 
+            evaluation, 
+            () => {
+              // 弹窗被玩家点击关闭后的回调：全盘翻转曝光答案
+              document.querySelectorAll('.flip-card').forEach(c => c.classList.add('is-flipped'));
+            }
+          );
+        }, 800);
+      }
+    };
+    gridBox.appendChild(card);
+  }
+
+  // --- 4. 注册优雅的内存回收机制，防止大厅高频换游戏时内存泄漏 ---
+  window.currentGameDestroy = () => {
+     console.log("🧹 大翻牌游戏正在被大厅调度回收...");
+     gridBox.innerHTML = "";
+  };
+
+})();

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>幸运砸金蛋</title>
   <style>
-    /* ===== 🧱 优化后的高端暗黑紫金导航栏（兼容手机端折叠隐藏） ===== */
+    /* ===== 🧱 优化后的高端暗黑紫金导航栏 ===== */
     .navbar {
       position: fixed;
       top: 0;
@@ -33,17 +33,7 @@
       align-items: center;
       gap: 10px;
       text-decoration: none;
-    }
-
-    .navbar-logo span {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #d946ef, #a855f7);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
+      white-space: nowrap; /* 确保游戏名不换行 */
     }
 
     .navbar-nav {
@@ -187,15 +177,16 @@
     .merchant-meta-item { font-size: 0.85rem; color: var(--text-secondary); text-align: left; }
     .merchant-meta-item b { color: var(--accent-gold); }
 
-    .board-wrapper { width: 100%; margin-bottom: 20px; perspective: 1000px; }
+    .board-wrapper { width: 100%; margin-bottom: 20px; perspective: 1000px; display: flex; justify-content: center; }
 
-    /* 🧠 核心重设：隐藏原生的配置面板，仅在游戏结算时变形为LED大屏 */
+    /* 🧠 核心重设：前台默认完全隐藏原生的配置面板 */
     .config-panel {
-      display: none !important; /* 强制前台和商家完全隐藏 */
+      display: none !important; 
     }
 
-    .config-panel.led-active {
-      display: flex !important; /* 结算时解除隐藏 */
+    /* 🏆 游戏结算时专门展示的LED大屏 */
+    .led-active {
+      display: flex !important; 
       background: radial-gradient(circle at center, #110022 0%, #000000 100%);
       border: 4px solid #ff0055;
       box-shadow: 0 0 30px #ff0055, inset 0 0 20px #ff0055, 0 0 50px #ffcc00;
@@ -204,6 +195,8 @@
       border-radius: 15px;
       justify-content: center;
       width: 100%;
+      max-width: 600px; /* 限制大屏在手机端不超宽 */
+      margin: 0 auto;
     }
 
     @keyframes ledStretch {
@@ -225,7 +218,7 @@
       font-family: 'Impact', 'Arial Black', sans-serif;
       letter-spacing: 2px;
     }
-    .led-title { font-size: 1.8rem; color: #fff; text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055; margin-bottom: 10px; }
+    .led-title { font-size: 1.8rem; color: #fff; text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055; margin-bottom: 10px; white-space: nowrap; }
     .led-result { font-size: 2.5rem; color: #ffcc00; text-shadow: 0 0 15px #ffcc00, 0 0 30px #ff8800; font-weight: 900; }
 
     .btn-spin {
@@ -307,17 +300,29 @@
 
     .status-text { font-size: 1.1rem; font-weight: 700; color: var(--accent-gold); text-align: center; min-height: 35px; margin-top: 15px; }
 
-    /* ===== 📱 移动响应式完美折叠菜单 CSS 控制 ===== */
+    /* ===== 📱 移动响应式完美折叠菜单与组件 CSS 控制 ===== */
     @media (max-width: 768px) {
       .menu-toggle { display: flex; }
       .navbar { padding: 0 20px; }
       .navbar-nav {
-        position: fixed; top: 70px; left: 0; right: 0;
+        position: fixed; 
+        top: 70px; 
+        left: 0; 
+        right: 0;
+        width: 100%; /* 宽度占全屏 */
         background: rgba(10, 14, 39, 0.98);
         border-bottom: 2px solid #d946ef;
-        flex-direction: column; padding: 20px; gap: 15px;
-        transform: translateY(-150%); opacity: 0; pointer-events: none;
+        flex-direction: column; 
+        padding: 20px 0; /* 移除左右padding防止挤压内容 */
+        gap: 15px;
+        transform: translateY(-150%); 
+        opacity: 0; 
+        pointer-events: none;
         box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      }
+      .navbar-nav a {
+        width: 90%; /* 菜单项宽度 */
+        justify-content: center;
       }
       .navbar-nav.mobile-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
       .menu-toggle.open span:nth-child(1) { transform: translateY(8.5px) rotate(45deg); }
@@ -325,6 +330,10 @@
       .menu-toggle.open span:nth-child(3) { transform: translateY(-8.5px) rotate(-45deg); }
       
       .egg-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+      /* 手机端战报大屏深度适配 */
+      .led-title { font-size: 1.2rem; letter-spacing: 1px; } /* 缩小字号，确保一行显示 */
+      .led-result { font-size: 2rem; }
     }
   </style>
 </head>
@@ -333,7 +342,7 @@
 
   <nav class="navbar">
     <a href="#" class="navbar-logo">
-      <span>🎮</span> <span id="shell-brand-name">游戏中心</span>
+      <span id="shell-brand-name">游戏中心</span>
     </a>
     <button class="menu-toggle" id="mobileMenuBtn">
       <span></span><span></span><span></span>
@@ -348,7 +357,7 @@
     
     <div id="shell-merchant-dynamic-card"></div>
 
-    <div class="board-wrapper">
+    <div class="board-wrapper" id="displayBoardWrapper">
       <div class="config-panel" id="mainBoard">
         <input type="number" id="totalAmount" value="50">
         <input type="number" id="minAmount" value="2" step="0.1">
@@ -367,7 +376,7 @@
 
     <div id="eggGrid" class="egg-grid"></div>
 
-    <div class="status-text" id="statusText">请点击上方按钮初始化或开始砸蛋</div>
+    <div class="status-text" id="statusText"></div>
   </div>
 
   <script>
@@ -470,9 +479,10 @@
 
     function initGame() {
       stopGoldRain();
-      const board = document.getElementById('mainBoard');
-      board.classList.remove('led-active');
-      board.innerHTML = `<input type="number" id="totalAmount" value="${document.getElementById('totalAmount').value}"><input type="number" id="minAmount" value="${document.getElementById('minAmount').value}"><input type="number" id="maxAmount" value="${document.getElementById('maxAmount').value}"><input type="number" id="eggCount" value="${document.getElementById('eggCount').value}"><input type="number" id="limitCount" value="${document.getElementById('limitCount').value}">`;
+      
+      // 移除可能存在的旧 LED 战报板，确保不会干扰原本的配置面板参数读取
+      const oldLed = document.getElementById('ledBoard');
+      if (oldLed) oldLed.remove();
 
       const eggCount = parseInt(document.getElementById('eggCount').value) || 9;
       const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 50;
@@ -490,7 +500,8 @@
       gameState.maxAmount = maxAmount;
       gameState.minAmount = minAmount;
 
-      document.getElementById('statusText').textContent = `游戏就绪！请挑选并砸开您的幸运金蛋吧 👇`;
+      // 彻底删除或保持就绪文本为空
+      document.getElementById('statusText').textContent = ``; 
       updateStats();
       renderEggs();
     }
@@ -528,20 +539,24 @@
       }
     }
 
-    // 🏆 游戏结束：彻底干掉原本的累赘“🎉砸蛋结束！”提示，原地激活华丽 LED 战报与全屏雨
+    // 🏆 游戏结束：动态追加自适应 LED 战报，不再污染原本的配置面板
     function endGameAndRevealOthers() {
       gameState.isProcessing = true;
-      document.getElementById('statusText').innerHTML = ""; // 3、彻底删除冗余纯文字
+      document.getElementById('statusText').innerHTML = ""; 
       playSound('end');
 
-      const board = document.getElementById('mainBoard');
-      board.classList.add('led-active');
-      board.innerHTML = `
+      // 创建一个独立的 LED 战报板并追加到包装层
+      const wrapper = document.getElementById('displayBoardWrapper');
+      const ledBoard = document.createElement('div');
+      ledBoard.id = 'ledBoard';
+      ledBoard.className = 'led-active';
+      ledBoard.innerHTML = `
         <div class="led-content">
           <div class="led-title">🎰 🔴 终极战报 🔴 🎰</div>
           <div class="led-result">￥${gameState.wonAmount.toFixed(2)}</div>
         </div>
       `;
+      wrapper.appendChild(ledBoard);
 
       startGoldRain();
       gameState.prizes.forEach((_, index) => {
@@ -584,6 +599,16 @@
       loop();
     }
     function stopGoldRain() { if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+    // 移动端汉堡菜单控制逻辑
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navbarNav = document.getElementById('navbarNav');
+    if(mobileMenuBtn && navbarNav) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenuBtn.classList.toggle('open');
+        navbarNav.classList.toggle('mobile-open');
+      });
+    }
 
     window.addEventListener("load", () => {
       initGame();

@@ -1,6 +1,7 @@
 // config.js - 聚合游戏大厅节目单
 window.GAMES_LIST = [
   { id: "flip-card",     name: "🎰 翻大牌", file: "games/flip-card.js" },
+  { id: "dart-wheel",     name: "🎯 射击轮盘", file: "games/dart-wheel.js" },
   { id: "red-envelope",  name: "🧧 抢红包", file: "games/red-envelope.js" }
 ];
 

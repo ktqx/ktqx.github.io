@@ -3,145 +3,313 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Game Hub - 互动营销大厅</title>
+  <title>Game Hub - 聚合大厅</title>
   <style>
-    :root { --primary-color: #ff6b35; --accent-gold: #f7b801; --dark-bg: #0f1419; --light-text: #ffffff; }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #0f1419; color: #fff; padding: 20px 10px; min-height: 100vh; }
+    /* ===== 统一视觉变量 ===== */
+    :root {
+      --primary-color: #ff6b35;
+      --accent-gold: #f7b801;
+      --dark-bg: #0f1419;
+      --light-text: #ffffff;
+      --text-secondary: #b0b3c1;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; height: 100%; overflow-x: hidden; }
     
-    /* 金色边框外壳 */
-    .golden-frame { max-width: 600px; margin: 0 auto; border: 3px solid var(--accent-gold); border-radius: 24px; padding: 20px; background: rgba(26, 35, 50, 0.95); box-shadow: 0 0 30px rgba(247,184,1,0.2); text-align: center; }
-    
-    /* 导航栏 */
-    .navbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; }
-    .navbar-logo { font-size: 1.4rem; font-weight: 900; color: var(--accent-gold); display: flex; align-items: center; gap: 8px; }
-    .nav-btn { background: none; border: 1px solid var(--accent-gold); color: var(--accent-gold); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; cursor: pointer; text-decoration: none; }
-    
-    .main-title { font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); margin: 10px 0; }
-    
-    /* 游戏容器（游戏JS脚本会在这里动态渲染九宫格） */
-    #game-container { margin: 25px 0; min-height: 300px; position: relative; }
-    
-    /* 动态注入的商家专属底部看板样式 */
-    .merchant-board { background: rgba(0,0,0,0.4); border: 1px dashed var(--accent-gold); border-radius: 16px; padding: 20px; margin-top: 25px; text-align: center; }
-    .merchant-board h4 { color: var(--accent-gold); font-size: 1.1rem; margin-bottom: 12px; font-weight: bold; letter-spacing: 1px; }
-    .merchant-info-item { font-size: 0.9rem; color: #b0b3c1; margin: 6px 0; text-align: left; padding-left: 15%; }
-    .merchant-qr-zone { margin-top: 15px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; display: inline-block; }
-    .merchant-qr-zone img { width: 130px; height: 130px; border: 3px solid #fff; border-radius: 8px; display: block; margin: 0 auto 8px; }
+    body { 
+      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; 
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%); 
+      color: var(--light-text); 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      min-height: 100vh; 
+      padding: 85px 10px 10px; 
+    }
+
+    /* ===== 模块1：顶部统一大导航 ===== */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; height: 70px;
+      background: rgba(10, 14, 39, 0.95); border-bottom: 2px solid var(--primary-color);
+      backdrop-filter: blur(10px); display: flex; align-items: center; padding: 0 30px; z-index: 1000;
+      box-shadow: 0 4px 20px rgba(255, 107, 53, 0.2);
+    }
+    .navbar-logo {
+      font-size: 1.5rem; font-weight: 900; color: var(--primary-color);
+      text-shadow: 0 0 10px rgba(255, 107, 53, 0.5); letter-spacing: 2px;
+      display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0;
+    }
+    .navbar-logo span {
+      width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), #ff8c42);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+    }
+    .navbar-spacer { flex: 1; }
+    .navbar-nav { display: flex; gap: 15px; align-items: center; }
+    .navbar-nav a {
+      color: var(--text-secondary); text-decoration: none; font-weight: 600;
+      transition: all 0.3s ease; padding: 8px 12px; border-radius: 6px; white-space: nowrap;
+    }
+    .navbar-nav a:hover, .navbar-nav a.active {
+      color: var(--light-text); background: rgba(255, 107, 53, 0.2); border: 1px solid var(--primary-color);
+    }
+
+    /* ===== 模块2：固定的金色外壳大边框 ===== */
+    .golden-frame {
+      width: 100%; max-width: 600px; min-height: 520px;
+      background: rgba(15, 20, 25, 0.95); border: 2px solid var(--accent-gold);
+      border-radius: 20px; padding: 15px; text-align: center;
+      box-shadow: 0 0 40px rgba(247, 184, 1, 0.15); position: relative; z-index: 20;
+      display: flex; flex-direction: column;
+    }
+    .frame-header { margin-bottom: 12px; min-height: 40px; }
+    .frame-title { font-size: 1.6rem; font-weight: 900; color: var(--accent-gold); text-shadow: 0 0 15px rgba(247, 184, 1, 0.4); }
+
+    /* ===== 👑 新增：动态活动方引流看板视觉系统 ===== */
+    .merchant-board { 
+      background: rgba(0, 0, 0, 0.4); border: 1px dashed var(--accent-gold); 
+      border-radius: 16px; padding: 18px 15px; margin-top: 25px; text-align: center;
+      box-shadow: inset 0 0 15px rgba(247, 184, 1, 0.05);
+    }
+    .merchant-board h4 { color: var(--accent-gold); font-size: 1.05rem; margin-bottom: 12px; font-weight: bold; letter-spacing: 1px; }
+    .merchant-info-item { font-size: 0.85rem; color: #b0b3c1; margin: 6px 0; text-align: left; padding-left: 10%; word-break: break-all; }
+    .merchant-qr-zone { margin-top: 15px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; display: inline-block; border: 1px solid rgba(255,255,255,0.05); }
+    .merchant-qr-zone img { width: 130px; height: 130px; border: 2px solid #fff; border-radius: 8px; display: block; margin: 0 auto 8px; }
     .merchant-qr-zone p { font-size: 0.8rem; color: var(--accent-gold); font-weight: bold; }
     .merchant-rules { font-size: 0.8rem; color: #ff8c42; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; line-height: 1.4; text-align: left; }
+
+    /* ===== 模块3：通用 LED 战报面板 ===== */
+    .marquee-report-panel { 
+      position: absolute; top: 33%; left: 50%; transform: translate(-50%, -50%) scale(0.7); 
+      width: 96%; max-width: 480px; background: linear-gradient(135deg, rgba(30, 5, 10, 0.98) 0%, rgba(10, 2, 5, 0.99) 100%); 
+      border: 3px solid #ff4757; backdrop-filter: blur(12px); box-shadow: 0 0 40px rgba(255, 71, 87, 0.9), inset 0 0 20px rgba(255, 71, 87, 0.4); 
+      border-radius: 16px; padding: 14px 8px; display: flex; justify-content: space-around; align-items: center; 
+      opacity: 0; pointer-events: none; z-index: 90; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    }
+    .marquee-report-panel.active { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+    .report-item { text-align: center; }
+    .report-title { font-size: 0.75rem; color: #f3a6b0; margin-bottom: 2px; }
+    .report-val-big { font-size: 1.5rem; font-weight: 900; color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.6); }
+    .report-val-big.gold { color: var(--accent-gold); }
+
+    /* 手机端响应式微调 */
+    @media (max-width: 768px) { body { padding-top: 75px; } .navbar { padding: 0 15px; height: 60px; } .navbar-logo { font-size: 1.2rem; } .navbar-logo span { width: 35px; height: 35px; font-size: 1rem; } }
+    @media (max-width: 480px) { body { padding: 70px 10px 15px; } .navbar { padding: 0 10px; justify-content: space-between; } .navbar-spacer { display: none; } .navbar-nav { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 10px; padding: 0 5px; flex: 1; margin-left: 10px; scrollbar-width: none; } .navbar-nav::-webkit-scrollbar { display: none; } .navbar-nav a { padding: 5px 10px; font-size: 0.85rem; } .golden-frame { padding: 10px 8px; } .frame-title { font-size: 1.4rem; } .merchant-info-item { padding-left: 2%; } }
   </style>
 </head>
 <body>
 
+  <div id="global-navbar-portal" style="width: 100%;"></div>
+
   <div class="golden-frame">
-    <div class="navbar">
-      <div class="navbar-logo" id="hallLogo"><span>🎁</span> 营销游戏大厅</div>
-      <a href="merchant.html" class="nav-btn">商户后台</a>
+    <div class="frame-header">
+      <div class="frame-title" id="global-frame-title">大厅初始化中...</div>
     </div>
 
-    <h1 class="main-title" id="hallTitle">幸运大翻牌 赢专属好礼</h1>
+    <div id="game-stage" style="position: relative; width: 100%;"></div>
 
-    <div id="game-container">
-       <div id="game-loading-tip" style="padding: 50px 0; color: var(--accent-gold);">⚡ 正在加载专属奖池参数...</div>
+    <div id="global-merchant-board-portal"></div>
+
+    <div class="marquee-report-panel" id="global-ledger-panel">
+      <div class="report-item">
+        <div class="report-title">🎉 战绩速递</div>
+        <div style="font-size: 0.85rem; font-weight: 800; color: #ff4757;" id="ledger-title">大捷！</div>
+      </div>
+      <div class="report-item">
+        <div class="report-title">🔥 斩获总额</div>
+        <div class="report-val-big gold" id="ledger-amount">￥0.00</div>
+      </div>
+      <div class="report-item">
+        <div class="report-title">✨ 欧气评价</div>
+        <div class="report-val-big" id="ledger-eval" style="font-size: 1.05rem; padding-top: 3px;">等候揭晓</div>
+      </div>
     </div>
-
-    <div id="merchantBoardContainer"></div>
   </div>
 
-  <script src="games/flip-card.js"></script>
-
+  <script src="config.js"></script>
+  
   <script>
-    // 🔗 您的真实 Cloudflare Worker 统一云端接口
-    const WORKER_API = "https://game-auth-worker.hahagw2023.workers.dev/api/auth";
+    // 🔗 您的真实 Cloudflare Worker 分发路由中枢
+    const CLOUDFLARE_WORKER_API = "https://game-auth-worker.hahagw2023.workers.dev/api/auth";
 
-    // 页面加载时的路由初始化控制器
-    window.addEventListener('DOMContentLoaded', async () => {
+    // 全局商户运行时配置容器，方便挂载在各个子游戏脚本中读取
+    window.CURRENT_MERCHANT_CONFIG_JSON = null;
+
+    // 提供给所有游戏调用的统一结算弹窗接口
+    window.GameUI = {
+      showLedger(title, amount, evaluation, closeCallback) {
+        document.getElementById('ledger-title').innerText = title;
+        document.getElementById('ledger-amount').innerText = amount;
+        document.getElementById('ledger-eval').innerText = evaluation;
+        const panel = document.getElementById('global-ledger-panel');
+        panel.classList.add('active');
+        
+        panel.onclick = () => {
+          panel.classList.remove('active');
+          if(closeCallback) closeCallback();
+        };
+      },
+      hideLedger() {
+        document.getElementById('global-ledger-panel').classList.remove('active');
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      // 1. 生成并处理导航栏结构与登录状态
+      renderNavbar();
+
+      // 2. ⚡【核心前置截获】：检查当前的推广网址中是否附加了活动方 ?m=商家代号
       const urlParams = new URLSearchParams(window.location.search);
-      const merchantId = urlParams.get('m'); // 捕获 ?m=xxx
-      const gameId = window.location.hash.replace('#', '') || 'flip-card'; // 捕获 #game-id
-
+      const merchantId = urlParams.get('m');
+      
       if (merchantId) {
-        console.log(`📡 发现专属商户推广标识: ${merchantId}，启动云端变脸渲染...`);
-        await loadMerchantGlobalConfig(merchantId, gameId);
+        // 如果属于活动推广链接，立即在加载游戏前，先去同步云端配置
+        await fetchMerchantCloudConfig(merchantId);
+      }
+
+      // 3. 监听浏览器路由（哈希值）变化
+      window.addEventListener("hashchange", dispatchRouter);
+      
+      // 默认如果没有哈希，自动跳到第一个游戏
+      if (!window.location.hash && window.GAMES_LIST.length > 0) {
+        window.location.hash = window.GAMES_LIST[0].id;
       } else {
-        console.log("进入公共演示大厅，启用默认系统参数。");
-        document.getElementById('game-loading-tip')?.remove();
-        // 如果没有商家标识，直接用系统默认值初始化游戏
-        if (typeof initGame === 'function') {
-          initGame(null);
-        }
+        dispatchRouter();
       }
     });
 
-    // 从 Cloudflare D1 远程索要该商家的配置
-    async function loadMerchantGlobalConfig(merchantId, gameId) {
+    /**
+     * 🌐 核心云端握手：拉取专属商户配置并渲染 UI 面板
+     */
+    async function fetchMerchantCloudConfig(merchantId) {
+      const currentHash = window.location.hash.replace('#', '') || (window.GAMES_LIST[0] ? window.GAMES_LIST[0].id : 'flip-card');
       try {
-        const response = await fetch(WORKER_API, {
+        const response = await fetch(CLOUDFLARE_WORKER_API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: "get_config",
             username: merchantId,
-            game_id: gameId
+            game_id: currentHash
           })
         });
-        
+
         const result = await response.json();
 
         if (response.ok && result.success && result.data) {
           const config = result.data;
+          // 🧠 挂载到全局变量，这样加载上来的子游戏逻辑可以直接调用
+          window.CURRENT_MERCHANT_CONFIG_JSON = config.game_custom_settings;
+
+          // 大厅定制化改名与变脸
+          document.getElementById('global-navbar-logo-text').innerHTML = `<span>🏪</span> ${config.merchant_name}`;
           
-          // 1. 动态对大厅外壳进行“品牌变脸”
-          document.getElementById('hallLogo').innerHTML = `<span>🏪</span> ${config.merchant_name}`;
-          document.getElementById('hallTitle').innerText = `${config.merchant_name} · 专属福利大奖`;
-          document.title = `${config.merchant_name}的专属促销幸运星`;
-
-          // 2. 动态注入底部的活动方商家公告牌
-          renderMerchantBoard(config);
-
-          // 3. 🧠 核心无缝对接：把云端取出的专属游戏 JSON 参数，直接喂给下方的游戏引擎！
-          document.getElementById('game-loading-tip')?.remove();
-          if (typeof initGame === 'function') {
-            initGame(config.game_custom_settings); 
-          }
-        } else {
-          console.warn("⚠️ 商家尚未配置该游戏，切换为系统默认大厅模板。");
-          document.getElementById('game-loading-tip')?.remove();
-          if (typeof initGame === 'function') initGame(null);
+          // 渲染精美的引流公告看板
+          renderMerchant引流Board(config);
         }
-      } catch (err) {
-        console.error("❌ 连云故障，启用本地保底：", err);
-        document.getElementById('game-loading-tip')?.remove();
-        if (typeof initGame === 'function') initGame(null);
+      } catch (e) {
+        console.error("🔒 该租户云端数据握手失败，降级为默认公共模式运行:", e);
       }
     }
 
-    // 绘制底部精美的商家看板组件
-    function renderMerchantBoard(config) {
-      const container = document.getElementById('merchantBoardContainer');
-      
-      let qrHtml = "";
-      // 如果商家上传了合法的 Base64 二维码图片，则将其转化为真实的图片标签进行加载
+    /**
+     * 动态绘制精美的线下营销吸粉看板
+     */
+    function renderMerchant引流Board(config) {
+      const portal = document.getElementById('global-merchant-board-portal');
+      if (!portal) return;
+
+      let qrImageHtml = "";
+      // 解析合法的二维码图片流
       if (config.qr_code && config.qr_code.startsWith('data:image')) {
-        qrHtml = `
+        qrImageHtml = `
           <div class="merchant-qr-zone">
-            <img src="${config.qr_code}" alt="微信二维码">
-            <p>📌 ${config.qr_desc || '长按识别二维码领奖'}</p>
+            <img src="${config.qr_code}" alt="活动方微信群二维码">
+            <p>📌 ${config.qr_desc || '长按识别二维码关注兑奖'}</p>
           </div>
         `;
       }
 
-      container.innerHTML = `
+      portal.innerHTML = `
         <div class="merchant-board">
-          <h4>🎁 —— ${config.merchant_name} 官方福利发放中心 ——</h4>
+          <h4>🎁 —— ${config.merchant_name} 福利发放专区 ——</h4>
           <div class="merchant-info-item">⏰ <b>活动周期：</b>${config.activity_time}</div>
-          <div class="merchant-info-item">📍 <b>到店领奖：</b>${config.address || '线上直接发放'}</div>
-          <div class="merchant-info-item">📞 <b>客服热线：</b>${config.contact}</div>
-          ${qrHtml}
-          ${config.custom_content ? `<div class="merchant-rules"><b>📜 兑奖及活动规则说明：</b><br>${config.custom_content.replace(/\n/g, '<br>')}</div>` : ''}
+          <div class="merchant-info-item">📍 <b>实体门店：</b>${config.address || '线上直发活动'}</div>
+          <div class="merchant-info-item">📞 <b>联系热线：</b>${config.contact}</div>
+          ${qrImageHtml}
+          ${config.custom_content ? `<div class="merchant-rules"><b>📜 活动细则与领奖申明：</b><br>${config.custom_content.replace(/\n/g, '<br>')}</div>` : ''}
         </div>
       `;
+    }
+
+    function renderNavbar() {
+      const username = localStorage.getItem("game_username");
+      let userTag = username ? `<span style="color:#f7b801; font-size:0.85rem; background:rgba(247,184,1,0.15); padding:4px 8px; border-radius:4px; border:1px solid rgba(247,184,1,0.3)">👤 ${username}</span>` : '';
+
+      let navHtml = `
+        <nav class="navbar">
+          <a href="#" class="navbar-logo" id="global-navbar-logo-text"><span>🎮</span> Game Hub</a>
+          <div class="navbar-spacer"></div>
+          <div class="navbar-nav">
+      `;
+      
+      window.GAMES_LIST.forEach(game => {
+        navHtml += `<a href="#${game.id}" id="nav-${game.id}">${game.name}</a>`;
+      });
+      
+      if (window.FIXED_RIGHT_NAV) {
+        navHtml += `
+          <a href="${window.FIXED_RIGHT_NAV.url}" style="border: 1px dashed #f7b801; color: #f7b801;">${window.FIXED_RIGHT_NAV.name}</a>
+        `;
+      }
+      
+      navHtml += `
+            ${userTag}
+          </div>
+        </nav>
+      `;
+      document.getElementById('global-navbar-portal').innerHTML = navHtml;
+    }
+
+    // 🚀 路由分发器：动态换载游戏引擎
+    async function dispatchRouter() {
+      const currentHash = window.location.hash.replace('#', '');
+      const gameConfig = window.GAMES_LIST.find(g => g.id === currentHash);
+      
+      if (!gameConfig) return;
+
+      // 如果有专属商户，切换哈希时重新刷新标题定制化前缀
+      const urlParams = new URLSearchParams(window.location.search);
+      const merchantId = urlParams.get('m');
+      
+      if (merchantId && window.CURRENT_MERCHANT_CONFIG_JSON) {
+         // 在异步拉取完成后这里会被保持
+      } else {
+         document.getElementById('global-frame-title').innerText = gameConfig.name;
+      }
+      
+      document.querySelectorAll('.navbar-nav a').forEach(a => a.classList.remove('active'));
+      document.getElementById(`nav-${currentHash}`)?.classList.add('active');
+
+      if (window.currentGameDestroy) {
+        window.currentGameDestroy();
+        window.currentGameDestroy = null;
+      }
+      GameUI.hideLedger(); 
+      document.getElementById('game-stage').innerHTML = `<p style="padding:40px;color:var(--text-secondary);">内部参数加载中...</p>`;
+
+      const oldScript = document.getElementById('dynamic-game-loader');
+      if (oldScript) oldScript.remove();
+
+      // 如果切换了选项卡游戏，并且携带有商家身份，联动拉取新游戏对应的配置奖池
+      if (merchantId) {
+         await fetchMerchantCloudConfig(merchantId);
+      }
+
+      const script = document.createElement('script');
+      script.id = 'dynamic-game-loader';
+      script.src = gameConfig.file;
+      document.body.appendChild(script);
     }
   </script>
 </body>

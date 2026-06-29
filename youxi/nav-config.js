@@ -1,6 +1,6 @@
 // ⚙️ 动态全局菜单配置：以后有任何增删改，只需修改这里，所有网页同步生效！
 const GAMES_CONFIG = [
-  { name: "🎮 游戏中心", url: "index.html" },
+  { name: "🎮 营销小游戏", url: "index.html" },
   { name: "🎡 大转盘", url: "lucky-wheel.html" },
   { name: "🎯 射击轮盘", url: "dart-wheel.html" },
   { name: "🥚 砸金蛋", url: "golden-egg.html" },

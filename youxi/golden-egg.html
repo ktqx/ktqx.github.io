@@ -16,41 +16,56 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { width: 100%; height: 100%; overflow-x: hidden; }
-    body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%); color: var(--light-text); display: flex; flex-direction: column; justify-content: flex-start; align-items: center; min-height: 100vh; padding: 15px; padding-top: 85px; position: relative; }
+    body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2332 100%); color: var(--light-text); display: flex; flex-direction: column; justify-content: flex-start; align-items: center; min-height: 100vh; padding: 15px; padding-top: 90px; position: relative; }
     
     #goldRainCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
     .container { width: 100%; max-width: 850px; background: rgba(15, 20, 25, 0.95); border: 3px solid var(--accent-gold); border-radius: 25px; padding: 25px; box-shadow: 0 0 50px rgba(247, 184, 1, 0.2), inset 0 0 30px rgba(247, 184, 1, 0.05); backdrop-filter: blur(10px); text-align: center; position: relative; z-index: 1; }
-    .title { font-size: 2.2rem; font-weight: 900; color: var(--accent-gold); margin-bottom: 8px; text-shadow: 0 0 20px rgba(247, 184, 1, 0.4); letter-spacing: 2px; }
-    .board-wrapper { width: 100%; margin-bottom: 20px; perspective: 1000px; }
+    .title { font-size: 2.2rem; font-weight: 900; color: var(--accent-gold); margin-bottom: 20px; text-shadow: 0 0 20px rgba(247, 184, 1, 0.4); letter-spacing: 2px; }
     
-    /* 配置面板 */
-    .config-panel { background: linear-gradient(135deg, rgba(0, 78, 137, 0.15), rgba(255, 107, 53, 0.15)); border: 2px solid rgba(247, 184, 1, 0.3); border-radius: 15px; padding: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
-    .config-group { display: flex; flex-direction: column; gap: 6px; text-align: left; }
-    .config-label { font-size: 0.85rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 1px; }
-    .config-input { width: 80px; padding: 10px 8px; background: rgba(26, 35, 50, 0.9); border: 2px solid rgba(247, 184, 1, 0.2); border-radius: 8px; color: var(--light-text); font-size: 0.95rem; font-weight: 600; outline: none; text-align: center; }
-
-    /* 🧱 块 C：原地炫酷变形 LED 战报显示屏 */
-    .config-panel.led-active { background: radial-gradient(circle at center, #110022 0%, #000000 100%); border: 4px solid #ff0055; box-shadow: 0 0 30px #ff0055, inset 0 0 20px #ff0055, 0 0 50px #ffcc00; animation: ledStretch 0.6s ease forwards, ledBlink 1.5s infinite alternate 0.6s; padding: 20px; }
-    @keyframes ledStretch { 0% { transform: scale(1); } 30% { transform: scaleX(1.1) scaleY(0.4) skewX(-15deg); border-color: #ffcc00; } 60% { transform: scaleX(0.9) scaleY(1.2) skewX(10deg); } 100% { transform: scale(1) skewX(0); } }
+    /* 🧱 块 C：原地变形 LED 战报大屏显示器 (平时隐藏，结束时激活) */
+    .board-wrapper { width: 100%; margin-bottom: 20px; perspective: 1000px; display: none; }
+    .board-wrapper.active { display: block; }
+    .led-report-panel { background: radial-gradient(circle at center, #110022 0%, #000000 100%); border: 4px solid #ff0055; box-shadow: 0 0 30px #ff0055, inset 0 0 20px #ff0055, 0 0 50px #ffcc00; animation: ledStretch 0.6s ease forwards, ledBlink 1.5s infinite alternate 0.6s; padding: 25px 20px; border-radius: 15px; transition: all 0.5s; }
+    @keyframes ledStretch { 0% { transform: scale(0.6) rotateX(-30deg); } 60% { transform: scale(1.1) rotateX(10deg); } 100% { transform: scale(1) rotateX(0); } }
     @keyframes ledBlink { 0% { border-color: #ff0055; box-shadow: 0 0 25px #ff0055, inset 0 0 15px #ff0055, 0 0 40px #ffcc00; } 100% { border-color: #ffcc00; box-shadow: 0 0 35px #ffcc00, inset 0 0 25px #ffcc00, 0 0 60px #ff0055; } }
     .led-content { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Impact', 'Arial Black', sans-serif; letter-spacing: 2px; }
-    .led-title { font-size: 1.8rem; color: #fff; text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055; margin-bottom: 10px; }
-    .led-result { font-size: 2.5rem; color: #ffcc00; text-shadow: 0 0 15px #ffcc00, 0 0 30px #ff8800; font-weight: 900; }
+    .led-title { font-size: 1.6rem; color: #fff; text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055; margin-bottom: 12px; font-weight: bold; }
+    .led-result { font-size: 2.6rem; color: #ffcc00; text-shadow: 0 0 15px #ffcc00, 0 0 30px #ff8800; font-weight: 900; }
 
-    /* 商家可定制动态引流看板（预留出的模块化自由修改展示区） */
+    /* 商家动态引流看板展示区 */
     .merchant-display-card { background: rgba(0,0,0,0.4); border: 1px dashed var(--accent-gold); border-radius: 12px; padding: 12px; margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 10px; }
     .merchant-meta-item { font-size: 0.85rem; color: var(--text-secondary); text-align: left; }
     .merchant-meta-item b { color: var(--accent-gold); }
 
-    /* 🧱 块 A：导航栏样式 */
-    .navbar { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: rgba(10, 14, 39, 0.95); border-bottom: 2px solid #d946ef; backdrop-filter: blur(10px); display: flex; align-items: center; padding: 0 30px; z-index: 1000; box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2); }
-    .navbar-logo { font-size: 1.5rem; font-weight: 900; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.5); display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .navbar-logo span { width: 40px; height: 40px; background: linear-gradient(135deg, #d946ef, #a855f7); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
-    .navbar-spacer { flex: 1; }
-    .navbar-nav { display: flex; gap: 20px; align-items: center; }
-    .navbar-nav a { color: #a0aec0; text-decoration: none; font-weight: 600; padding: 8px 12px; border-radius: 6px; }
-    .navbar-nav a.active { color: #d946ef; background: rgba(217, 70, 239, 0.2); border: 1px solid #d946ef; }
-    @media (max-width: 768px) { body { padding-top: 75px; } .navbar { padding: 0 15px; height: 60px; } .navbar-nav { display: flex; overflow-x: auto; gap: 10px; flex: 1; margin-left: 10px; } .navbar-logo { font-size: 1.2rem; } }
+    /* ========================================================
+       🧱 块 A：统一导航栏（完美恢复您上传的原生 #d946ef 发光LOGO）
+       ======================================================== -->
+    .navbar { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: rgba(10, 14, 39, 0.95); border-bottom: 2px solid #d946ef; backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 1000; box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2); }
+    .navbar-logo { font-size: 1.5rem; font-weight: 900; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.5); letter-spacing: 2px; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .navbar-logo img { height: 40px; width: auto; border-radius: 6px; object-fit: contain; }
+    
+    /* 导航菜单及手机端响应式 */
+    .navbar-nav { display: flex; gap: 15px; align-items: center; transition: all 0.3s ease; }
+    .navbar-nav a { color: #a0aec0; text-decoration: none; font-weight: 600; padding: 8px 14px; border-radius: 6px; font-size: 0.95rem; transition: all 0.2s; }
+    .navbar-nav a.active { color: #d946ef; background: rgba(217, 70, 239, 0.15); border: 1px solid rgba(217, 70, 239, 0.4); box-shadow: 0 0 10px rgba(217, 70, 239, 0.2); }
+    
+    /* 手机端汉堡按钮组件 */
+    .menu-toggle { display: none; flex-direction: column; justify-content: space-between; width: 26px; height: 20px; background: transparent; border: none; cursor: pointer; z-index: 1100; }
+    .menu-toggle span { width: 100%; height: 3px; background-color: #d946ef; border-radius: 2px; transition: all 0.3s ease; box-shadow: 0 0 5px #d946ef; }
+
+    @media (max-width: 768px) {
+      .menu-toggle { display: flex; }
+      /* 手机端菜单变成自上而下滑出的遮罩菜单 */
+      .navbar-nav { position: fixed; top: 70px; left: 0; right: 0; background: rgba(10, 14, 39, 0.98); border-bottom: 2px solid #d946ef; flex-direction: column; padding: 20px; gap: 15px; transform: translateY(-150%); opacity: 0; pointer-events: none; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+      .navbar-nav.mobile-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+      /* 汉堡按钮变成叉叉动画 */
+      .menu-toggle.open span:nth-child(1) { transform: translateY(8.5px) rotate(45deg); }
+      .menu-toggle.open span:nth-child(2) { opacity: 0; }
+      .menu-toggle.open span:nth-child(3) { transform: translateY(-8.5px) rotate(-45deg); }
+    }
+    
+    /* 🕹️ 核心承载主体游戏的黄金视口 */
+    #game-stage-viewport { width: 100%; position: relative; z-index: 5; }
   </style>
 </head>
 <body>
@@ -58,12 +73,15 @@
 
   <nav class="navbar">
     <a href="#" class="navbar-logo" id="shell-logo-zone">
-      <span id="shell-logo-icon">🥚</span> <span id="shell-brand-name">互动营销中心</span>
+       <span id="shell-brand-name">🥚 幸运砸金蛋</span>
     </a>
-    <div class="navbar-spacer"></div>
-    <div class="navbar-nav">
-      <a href="#" class="active">🥚 砸金蛋大作战</a>
-      <a href="#">📊 实时战报</a>
+    <button class="menu-toggle" id="mobileMenuBtn">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="navbar-nav" id="navbarNav">
+      <a href="golden-egg.html" class="active">🥚 砸金蛋大作战</a>
+      <a href="red-envelope.html">🧧 疯狂抢红包</a>
+      <a href="dart-wheel.html">🎯 幸运大轮盘</a>
     </div>
   </nav>
 
@@ -72,8 +90,8 @@
       <div class="title" id="shell-game-title">🥚 幸运砸金蛋</div>
     </div>
 
-    <div class="board-wrapper">
-      <div class="config-panel" id="mainBoard">
+    <div class="board-wrapper" id="reportWrapper">
+      <div class="led-report-panel" id="ledBoard">
          </div>
     </div>
 
@@ -85,34 +103,42 @@
   </div>
 
   <script>
-    // 换成你刚才部署的实际 Cloudflare Worker 完整 API 地址
-    const GLOBAL_API_URL = "https://game.hahagw2023.workers.dev/api/get_config";
+    // 换成你部署的实际 Cloudflare Worker 完整 API 地址
+    const GLOBAL_API_URL = "https://你的worker项目.workers.dev/api/get_config";
 
-    // 暴露给具体游戏调用的壳子UI核心总线
+    // 手机端菜单展开折叠控制逻辑
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navbarNav = document.getElementById('navbarNav');
+    mobileMenuBtn.onclick = () => {
+      mobileMenuBtn.classList.toggle('open');
+      navbarNav.classList.toggle('mobile-open');
+    };
+
+    // 暴露给具体游戏调用的壳子UI核心组件接口
     window.ShellCore = {
-      // 触发原地向 LED 终极战报屏的完美变形
+      // 触发原地展现 LED 终极战报大屏
       triggerLEDReport(finalAmount) {
-        const board = document.getElementById('mainBoard');
-        board.classList.add('led-active');
-        board.innerHTML = `
+        const wrapper = document.getElementById('reportWrapper');
+        const ledBoard = document.getElementById('ledBoard');
+        wrapper.classList.add('active');
+        ledBoard.innerHTML = `
           <div class="led-content">
             <div class="led-title">🎰 🔴 FINAL REPORT 🔴 🎰</div>
             <div class="led-result">终极战报：￥${finalAmount.toFixed(2)}</div>
           </div>
         `;
-        // 拉起满屏粒子环境雨特效
+        // 全屏数字/骰子雨加速
         if(typeof startGoldRain === 'function') startGoldRain();
       },
-      // 恢复常态面板
-      resetLEDReport(originalHTML) {
+      // 恢复常态（关闭战报屏）
+      resetLEDReport() {
         if(typeof stopGoldRain === 'function') stopGoldRain();
-        const board = document.getElementById('mainBoard');
-        board.classList.remove('led-active');
-        board.innerHTML = originalHTML;
+        const wrapper = document.getElementById('reportWrapper');
+        wrapper.classList.remove('active');
       }
     };
 
-    // 全局承载寄存器，供具体游戏逻辑抓取
+    // 全局商户游戏参数寄存器（由底部的具体抽奖JS在运行期自动静默抓取）
     window.MERCHANT_CUSTOM_SETTINGS = null;
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -124,23 +150,27 @@
           const res = await fetch(GLOBAL_API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ merchant_id: mId, game_id: "golden-egg" }) // 告知后端当前是砸金蛋页面
+            body: JSON.stringify({ merchant_id: mId, game_id: "golden-egg" })
           });
           const result = await res.json();
 
           if (res.ok && result.success && result.data) {
             const info = result.data;
 
-            // 1. 抓取该游戏特有的配置参数，传给具体抽奖JS
+            // 1. 抓取该游戏特有的配置参数串，挂在全局窗口供游戏JS自动合并读取
             if(info.game_custom_settings) {
                window.MERCHANT_CUSTOM_SETTINGS = JSON.parse(info.game_custom_settings);
             }
 
-            // 2. 修改导航栏和Logo区为商家专属名称
-            document.getElementById('shell-brand-name').innerText = info.merchant_name;
+            // 2. 修改导航栏和标题为商家专属名称
+            if(info.merchant_logo) {
+              document.getElementById('shell-logo-zone').innerHTML = `<img src="${info.merchant_logo}"> <span>${info.merchant_name}</span>`;
+            } else {
+              document.getElementById('shell-brand-name').innerText = `🥚 ${info.merchant_name}`;
+            }
             document.getElementById('shell-game-title').innerText = `🥚 ${info.merchant_name}·专属砸金蛋`;
 
-            // 3. 🧠 终极灵活：遍历商家的 contact_info JSON，有多少项就自动打印多少项引流信息
+            // 3. 动态遍历商家的可选引流联系项
             if(info.contact_info) {
               const metaObj = JSON.parse(info.contact_info);
               let metaHtml = `<div class="merchant-display-card">`;
@@ -155,17 +185,17 @@
             }
           }
         } catch (e) {
-          console.error("🔒 后端未成功响应，降级为默认参数运行:", e);
+          console.error("🔒 后端未成功响应，降级为默认运营参数静默运行:", e);
         }
       }
 
-      // 动态挂载纯粒子雨Canvas控制层
+      // 粒子环境微粒启动
       initGoldRainEngine();
-      // 拉起游戏的核心主体
+      // 拉起游戏的核心主体逻辑
       loadGameCore();
     });
 
-    // 100% 保留原本粒子雨逻辑
+    // 100%保留原生全屏数字/骰子粒子雨效果
     let animationFrameId = null; let particles = [];
     function initGoldRainEngine() {
       const cvs = document.getElementById('goldRainCanvas'); const ctx = cvs.getContext('2d');
@@ -181,10 +211,9 @@
       window.stopGoldRain = function() { if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } ctx.clearRect(0, 0, cvs.width, cvs.height); };
     }
 
-    // 加载当前游戏的特有JS主体逻辑
     function loadGameCore() {
       const script = document.createElement('script');
-      script.src = "games/golden-egg.js"; // 隔离存放的纯金蛋抽奖逻辑
+      script.src = "games/golden-egg.js";
       document.body.appendChild(script);
     }
   </script>

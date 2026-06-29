@@ -22,49 +22,46 @@
     .container { width: 100%; max-width: 850px; background: rgba(15, 20, 25, 0.95); border: 3px solid var(--accent-gold); border-radius: 25px; padding: 25px; box-shadow: 0 0 50px rgba(247, 184, 1, 0.2), inset 0 0 30px rgba(247, 184, 1, 0.05); backdrop-filter: blur(10px); text-align: center; position: relative; z-index: 1; }
     .title { font-size: 2.2rem; font-weight: 900; color: var(--accent-gold); margin-bottom: 20px; text-shadow: 0 0 20px rgba(247, 184, 1, 0.4); letter-spacing: 2px; }
     
-    /* 🧱 块 C：原地变形 LED 战报大屏显示器 (平时隐藏，结束时激活) */
+    /* 🧱 LED 战报大屏（平时隐藏，结算时由壳子触发显现） */
     .board-wrapper { width: 100%; margin-bottom: 20px; perspective: 1000px; display: none; }
     .board-wrapper.active { display: block; }
-    .led-report-panel { background: radial-gradient(circle at center, #110022 0%, #000000 100%); border: 4px solid #ff0055; box-shadow: 0 0 30px #ff0055, inset 0 0 20px #ff0055, 0 0 50px #ffcc00; animation: ledStretch 0.6s ease forwards, ledBlink 1.5s infinite alternate 0.6s; padding: 25px 20px; border-radius: 15px; transition: all 0.5s; }
+    .led-report-panel { background: radial-gradient(circle at center, #110022 0%, #000000 100%); border: 4px solid #ff0055; box-shadow: 0 0 30px #ff0055, inset 0 0 20px #ff0055, 0 0 50px #ffcc00; animation: ledStretch 0.6s ease forwards, ledBlink 1.5s infinite alternate 0.6s; padding: 25px 20px; border-radius: 15px; }
     @keyframes ledStretch { 0% { transform: scale(0.6) rotateX(-30deg); } 60% { transform: scale(1.1) rotateX(10deg); } 100% { transform: scale(1) rotateX(0); } }
     @keyframes ledBlink { 0% { border-color: #ff0055; box-shadow: 0 0 25px #ff0055, inset 0 0 15px #ff0055, 0 0 40px #ffcc00; } 100% { border-color: #ffcc00; box-shadow: 0 0 35px #ffcc00, inset 0 0 25px #ffcc00, 0 0 60px #ff0055; } }
     .led-content { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Impact', 'Arial Black', sans-serif; letter-spacing: 2px; }
     .led-title { font-size: 1.6rem; color: #fff; text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055; margin-bottom: 12px; font-weight: bold; }
     .led-result { font-size: 2.6rem; color: #ffcc00; text-shadow: 0 0 15px #ffcc00, 0 0 30px #ff8800; font-weight: 900; }
 
-    /* 商家动态引流看板展示区 */
+    /* 商家引流动态看板 */
     .merchant-display-card { background: rgba(0,0,0,0.4); border: 1px dashed var(--accent-gold); border-radius: 12px; padding: 12px; margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 10px; }
     .merchant-meta-item { font-size: 0.85rem; color: var(--text-secondary); text-align: left; }
     .merchant-meta-item b { color: var(--accent-gold); }
 
     /* ========================================================
-       🧱 块 A：统一导航栏（完美恢复您上传的原生 #d946ef 发光LOGO）
+       🧱 恢复原生 LOGO 与折叠导航栏样式（完美还原 #d946ef 渐变发光）
        ======================================================== -->
     .navbar { position: fixed; top: 0; left: 0; right: 0; height: 70px; background: rgba(10, 14, 39, 0.95); border-bottom: 2px solid #d946ef; backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 1000; box-shadow: 0 4px 20px rgba(217, 70, 239, 0.2); }
     .navbar-logo { font-size: 1.5rem; font-weight: 900; color: #d946ef; text-shadow: 0 0 10px rgba(217, 70, 239, 0.5); letter-spacing: 2px; display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .navbar-logo img { height: 40px; width: auto; border-radius: 6px; object-fit: contain; }
+    .navbar-logo span { width: 40px; height: 40px; background: linear-gradient(135deg, #d946ef, #a855f7); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #fff; }
     
-    /* 导航菜单及手机端响应式 */
     .navbar-nav { display: flex; gap: 15px; align-items: center; transition: all 0.3s ease; }
-    .navbar-nav a { color: #a0aec0; text-decoration: none; font-weight: 600; padding: 8px 14px; border-radius: 6px; font-size: 0.95rem; transition: all 0.2s; }
-    .navbar-nav a.active { color: #d946ef; background: rgba(217, 70, 239, 0.15); border: 1px solid rgba(217, 70, 239, 0.4); box-shadow: 0 0 10px rgba(217, 70, 239, 0.2); }
+    .navbar-nav a { color: #a0aec0; text-decoration: none; font-weight: 600; padding: 8px 14px; border-radius: 6px; font-size: 0.95rem; white-space: nowrap; transition: all 0.2s; }
+    .navbar-nav a:hover { color: #d946ef; background: rgba(217, 70, 239, 0.1); }
+    .navbar-nav a.active { color: #d946ef; background: rgba(217, 70, 239, 0.2); border: 1px solid #d946ef; }
     
-    /* 手机端汉堡按钮组件 */
+    /* 手机端汉堡菜单触控按钮 */
     .menu-toggle { display: none; flex-direction: column; justify-content: space-between; width: 26px; height: 20px; background: transparent; border: none; cursor: pointer; z-index: 1100; }
     .menu-toggle span { width: 100%; height: 3px; background-color: #d946ef; border-radius: 2px; transition: all 0.3s ease; box-shadow: 0 0 5px #d946ef; }
 
     @media (max-width: 768px) {
       .menu-toggle { display: flex; }
-      /* 手机端菜单变成自上而下滑出的遮罩菜单 */
       .navbar-nav { position: fixed; top: 70px; left: 0; right: 0; background: rgba(10, 14, 39, 0.98); border-bottom: 2px solid #d946ef; flex-direction: column; padding: 20px; gap: 15px; transform: translateY(-150%); opacity: 0; pointer-events: none; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
       .navbar-nav.mobile-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-      /* 汉堡按钮变成叉叉动画 */
       .menu-toggle.open span:nth-child(1) { transform: translateY(8.5px) rotate(45deg); }
       .menu-toggle.open span:nth-child(2) { opacity: 0; }
       .menu-toggle.open span:nth-child(3) { transform: translateY(-8.5px) rotate(-45deg); }
     }
     
-    /* 🕹️ 核心承载主体游戏的黄金视口 */
     #game-stage-viewport { width: 100%; position: relative; z-index: 5; }
   </style>
 </head>
@@ -72,18 +69,16 @@
   <canvas id="goldRainCanvas"></canvas>
 
   <nav class="navbar">
-    <a href="#" class="navbar-logo" id="shell-logo-zone">
-       <span id="shell-brand-name">🥚 幸运砸金蛋</span>
+    <a href="#" class="navbar-logo">
+      <span>🎮</span> <span id="shell-brand-name">Game Hub</span>
     </a>
     <button class="menu-toggle" id="mobileMenuBtn">
       <span></span><span></span><span></span>
     </button>
-    <div class="navbar-nav" id="navbarNav">
-      <a href="golden-egg.html" class="active">🥚 砸金蛋大作战</a>
-      <a href="red-envelope.html">🧧 疯狂抢红包</a>
-      <a href="dart-wheel.html">🎯 幸运大轮盘</a>
-    </div>
+    <div class="navbar-nav" id="navbarNav"></div>
   </nav>
+
+  <div id="mainBoard" style="display: none !important;"></div>
 
   <div class="container">
     <div class="header">
@@ -91,22 +86,45 @@
     </div>
 
     <div class="board-wrapper" id="reportWrapper">
-      <div class="led-report-panel" id="ledBoard">
-         </div>
+      <div class="led-report-panel" id="ledBoard"></div>
     </div>
 
     <div id="shell-merchant-dynamic-card"></div>
 
-    <div id="game-stage-viewport">
-        </div>
-
+    <div id="game-stage-viewport"></div>
   </div>
 
   <script>
-    // 换成你部署的实际 Cloudflare Worker 完整 API 地址
-    const GLOBAL_API_URL = "https://game.hahagw2023.workers.dev/api/get_config";
+    // 自动接入您的实际 Cloudflare Worker 生产环境地址
+    const GLOBAL_API_URL = "https://game.hahagw2023.workers.dev/";
 
-    // 手机端菜单展开折叠控制逻辑
+    // 💡 终极省心解决方案：以后增删游戏，只需要改下面这个数组，所有页面的导航栏同步更新！
+    const GAMES_CONFIG = [
+      { name: "首页", url: "index.html" },
+      { name: "🎡 大转盘", url: "lucky-wheel.html" },
+      { name: "🎯 射击轮盘", url: "dart-wheel.html" },
+      { name: "🥚 砸金蛋", url: "golden-egg.html" },
+      { name: "🧧 抢红包", url: "red-envelope.html" }
+    ];
+
+    // 自动渲染并智能高亮当前游戏链接
+    function renderNavbar() {
+      const navContainer = document.getElementById('navbarNav');
+      const currentFile = window.location.pathname.split('/').pop() || "index.html";
+      const urlParams = window.location.search; // 保留商户 ID 传参（如 ?m=starbucks）
+
+      let navHtml = "";
+      GAMES_CONFIG.forEach(game => {
+        const isActive = currentFile === game.url ? "class='active'" : "";
+        // 自动把当前的商户ID拼接到其他游戏链接后面，实现跨游戏无缝带参跳转
+        const targetUrl = game.url + urlParams;
+        navHtml += `<a href="${targetUrl}" ${isActive}>${game.name}</a>`;
+      });
+      navContainer.innerHTML = navHtml;
+    }
+    renderNavbar();
+
+    // 手机端菜单展开折叠
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const navbarNav = document.getElementById('navbarNav');
     mobileMenuBtn.onclick = () => {
@@ -114,9 +132,8 @@
       navbarNav.classList.toggle('mobile-open');
     };
 
-    // 暴露给具体游戏调用的壳子UI核心组件接口
+    // 壳子组件公共总线
     window.ShellCore = {
-      // 触发原地展现 LED 终极战报大屏
       triggerLEDReport(finalAmount) {
         const wrapper = document.getElementById('reportWrapper');
         const ledBoard = document.getElementById('ledBoard');
@@ -127,10 +144,8 @@
             <div class="led-result">终极战报：￥${finalAmount.toFixed(2)}</div>
           </div>
         `;
-        // 全屏数字/骰子雨加速
         if(typeof startGoldRain === 'function') startGoldRain();
       },
-      // 恢复常态（关闭战报屏）
       resetLEDReport() {
         if(typeof stopGoldRain === 'function') stopGoldRain();
         const wrapper = document.getElementById('reportWrapper');
@@ -138,7 +153,6 @@
       }
     };
 
-    // 全局商户游戏参数寄存器（由底部的具体抽奖JS在运行期自动静默抓取）
     window.MERCHANT_CUSTOM_SETTINGS = null;
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -157,20 +171,23 @@
           if (res.ok && result.success && result.data) {
             const info = result.data;
 
-            // 1. 抓取该游戏特有的配置参数串，挂在全局窗口供游戏JS自动合并读取
             if(info.game_custom_settings) {
                window.MERCHANT_CUSTOM_SETTINGS = JSON.parse(info.game_custom_settings);
+               // 🧠 核心同步：把云端抓回来的真实配置填入隐藏的输入框中，确保原游戏逻辑正常抓取运行
+               setTimeout(() => {
+                  if(document.getElementById('totalAmount')) document.getElementById('totalAmount').value = window.MERCHANT_CUSTOM_SETTINGS.totalAmount || 50;
+                  if(document.getElementById('minAmount')) document.getElementById('minAmount').value = window.MERCHANT_CUSTOM_SETTINGS.minAmount || 2;
+                  if(document.getElementById('maxAmount')) document.getElementById('maxAmount').value = window.MERCHANT_CUSTOM_SETTINGS.maxAmount || 10;
+                  if(document.getElementById('eggCount')) document.getElementById('eggCount').value = window.MERCHANT_CUSTOM_SETTINGS.eggCount || 9;
+                  if(document.getElementById('limitCount')) document.getElementById('limitCount').value = window.MERCHANT_CUSTOM_SETTINGS.limitCount || 3;
+                  // 强制驱动游戏进行初始化渲染
+                  if(typeof initGame === 'function') initGame();
+               }, 50);
             }
 
-            // 2. 修改导航栏和标题为商家专属名称
-            if(info.merchant_logo) {
-              document.getElementById('shell-logo-zone').innerHTML = `<img src="${info.merchant_logo}"> <span>${info.merchant_name}</span>`;
-            } else {
-              document.getElementById('shell-brand-name').innerText = `🥚 ${info.merchant_name}`;
-            }
+            document.getElementById('shell-brand-name').innerText = info.merchant_name;
             document.getElementById('shell-game-title').innerText = `🥚 ${info.merchant_name}·专属砸金蛋`;
 
-            // 3. 动态遍历商家的可选引流联系项
             if(info.contact_info) {
               const metaObj = JSON.parse(info.contact_info);
               let metaHtml = `<div class="merchant-display-card">`;
@@ -185,13 +202,11 @@
             }
           }
         } catch (e) {
-          console.error("🔒 后端未成功响应，降级为默认运营参数静默运行:", e);
+          console.error("🔒 云端数据同步失败，自动切换为默认运营配置:", e);
         }
       }
 
-      // 粒子环境微粒启动
       initGoldRainEngine();
-      // 拉起游戏的核心主体逻辑
       loadGameCore();
     });
 
